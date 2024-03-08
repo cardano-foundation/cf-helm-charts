@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  cf-pg-pool-ii:
+  - apiVersion: v2
+    appVersion: 4.4.2
+    created: "2024-03-08T11:48:47.403310311Z"
+    description: Pg Pool II Helm Chart
+    digest: c4bc97aaca1bab8c1c0c0cf95dbe44c857d138aad9aafe650574317728b4fcf1
+    name: cf-pg-pool-ii
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-pg-pool-ii-0.0.1/cf-pg-pool-ii-0.0.1.tgz
+    version: 0.0.1
+generated: "2024-03-08T11:48:47.403320039Z"
