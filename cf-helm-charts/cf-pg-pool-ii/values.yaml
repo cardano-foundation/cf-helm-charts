@@ -1,0 +1,44 @@
+replicaCount: 1
+
+image:
+  repository: pgpool/pgpool
+  tag: ""
+  pullPolicy: Always
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 5432
+
+postgres:
+  main:
+    # Host of the PSQL main instance
+    host: ""
+  replica:
+    # Host of the PSQL replica instance, if any
+    host: ""
+  # PSQL Secrets configuration
+  credentials:
+    # Name of the Secret object containing PSQL credentials
+    secretName: ""
+    # Secret Key of the PSQL user
+    usernameKey: username
+    # Secret Key of the PSQL user's password
+    passwordKey: password
+
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+monitoring:
+  enabled: false
