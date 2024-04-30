@@ -1,0 +1,28 @@
+{{ with .Values.vlei }}
+{{ if .enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: vlei
+  name: vlei
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vlei
+  template:
+    metadata:
+      labels:
+        app: vlei
+    spec:
+      containers:
+        - name: vlei-server
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          command: ["vLEI-server", "-s", "./schema/acdc", "-c", "./samples/acdc/", "-o", "./samples/oobis/"]
+          ports:
+            - containerPort: {{ .port | default "7723" }}
+              hostPort: {{ .port | default "7723" }}
+              protocol: TCP
+{{ end }}
+{{ end }}

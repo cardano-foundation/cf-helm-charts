@@ -1,0 +1,25 @@
+{{ with .Values.keria }}
+{{ if .enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keria-configmap
+data:
+  initContainer-entrypoint.sh: |
+    #!/bin/sh
+    set -e
+    export KERIA_RENDERED_CURLS=$(for keria_curl in ${KERIA_CURLS}; do echo $keria_curl; done | jq -cRn '[inputs]')
+    envsubst < /configmap/backer-oobis.json.tpl > /config/backer-oobis.json
+
+  backer-oobis.json.tpl: |
+    {
+      "dt": "2022-01-20T12:57:59.823350+00:00",
+      "keria": {
+        "dt": "2022-01-20T12:57:59.823350+00:00",
+        "curls": ${KERIA_RENDERED_CURLS}
+      },
+      "iurls": []
+    }
+
+{{ end }}
+{{ end }}

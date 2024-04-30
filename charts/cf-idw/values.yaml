@@ -1,0 +1,35 @@
+ingressTLD: "example.com"
+
+credIssuance:
+  enabled: true
+  image:
+    repository: "cardanofoundation/credential-issuance-server"
+    tag: "0.1.1-develop-fc65f92-8722674504"
+  port: 3010
+  ingress:
+    enabled: true
+    hosts:
+      - cred-issuance
+
+keria:
+  enabled: true
+  image:
+    repository: "cardanofoundation/keria"
+    tag: "0.1.1-develop-fc65f92-8722674504"
+  # TODO: make this a ports array
+  port: 3901
+  ingress:
+    enabled: true
+    hosts:
+      - keria
+
+vlei:
+  enabled: true
+  image:
+    repository: "cardanofoundation/vlei"
+    tag: "0.1.1-develop-fc65f92-8722674504"
+  port: 7723
+  ingress:
+    enabled: true
+    hosts:
+      - vlei

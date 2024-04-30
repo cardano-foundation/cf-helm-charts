@@ -1,0 +1,36 @@
+{{- $root := .Values -}}
+{{ with .Values.keria }}
+{{- if .ingress.enabled -}}
+{{- $keria := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keria-ingress
+  labels:
+    app: keria
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $host := .ingress.hosts }}
+    - host: {{ $host }}.{{ $root.ingressTLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keria
+                port:
+                  number: {{ $keria.port | default 3901 }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $host := .ingress.hosts }}
+        - "{{ $host }}.{{ $root.ingressTLD }}"
+    {{- end }}
+{{ end }}
+{{ end }}

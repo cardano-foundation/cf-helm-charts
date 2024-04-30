@@ -1,0 +1,74 @@
+{{ with .Values.keria }}
+{{ if .enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: keria
+  name: keria
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keria
+  template:
+    metadata:
+      labels:
+        app: keria
+    spec:
+      restartPolicy: Always
+      initContainers:
+        - name: configure
+          image: "rcmorano/alpine-bash-jq-curl"
+          env:
+            - name: KERIA_CURLS
+              value: {{ .keriaCurls | default "http://keria:3901" | quote }}
+          command: ["sh", "-x", "/configmap/initContainer-entrypoint.sh"]
+          volumeMounts:
+            - mountPath: /configmap
+              name: keria-configmap
+            - mountPath: /config
+              name: keria-config
+      containers:
+        - name: keria
+          env:
+            - name: KERI_AGENT_CORS
+              value: {{ .keriAgentCORS | default "true" | quote }}
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          ports:
+            - containerPort: 3901
+              hostPort: 3901
+              protocol: TCP
+            - containerPort: 3902
+              hostPort: 3902
+              protocol: TCP
+            - containerPort: 3903
+              hostPort: 3903
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /usr/local/var/keri
+              name: keria-data
+            - mountPath: /keria/scripts/keri/cf/backer-oobis.json
+              name: keria-config
+              subPath: backer-oobis.json
+      volumes:
+        - name: keria-config
+          emptyDir:
+            sizeLimit: 10Mi
+        - name: keria-configmap
+          configMap:
+            name: keria-configmap
+        - name: keria-data
+          persistentVolumeClaim:
+            claimName: keria-data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: keria-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .volumeSize | default "1Gi" }}
+{{ end }}
+{{ end }}

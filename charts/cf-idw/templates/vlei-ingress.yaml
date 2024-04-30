@@ -1,0 +1,36 @@
+{{- $root := .Values -}}
+{{ with .Values.vlei }}
+{{- if .ingress.enabled -}}
+{{- $vlei := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vlei-ingress
+  labels:
+    app: vlei
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $host := .ingress.hosts }}
+    - host: {{ $host }}.{{ $root.ingressTLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vlei
+                port:
+                  number: {{ $vlei.port | default 7723 }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $host := .ingress.hosts }}
+        - "{{ $host }}.{{ $root.ingressTLD }}"
+    {{- end }}
+{{ end }}
+{{ end }}
