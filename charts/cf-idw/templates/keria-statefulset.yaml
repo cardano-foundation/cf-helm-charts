@@ -17,6 +17,18 @@ spec:
         app: keria
     spec:
       restartPolicy: Always
+      {{- if .tolerations }}
+      tolerations:
+        {{ with index .tolerations }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- if .affinity }}
+      affinity:
+        {{ with index .affinity }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
       initContainers:
         - name: configure
           image: "rcmorano/alpine-bash-jq-curl"
