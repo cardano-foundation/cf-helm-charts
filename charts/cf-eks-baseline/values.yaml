@@ -1,5 +1,6 @@
 traefik:
   enabled: true
+  fullnameOverride: "traefik"
   deployment:
     enabled: true
     kind: "DaemonSet"
@@ -14,6 +15,7 @@ traefik:
 
 kube-prometheus-stack:
   enabled: true
+  fullnameOverride: "kube-prometheus-stack"
   grafana:
     plugins:
       - grafana-singlestat-panel
@@ -27,6 +29,7 @@ kube-prometheus-stack:
 
 nginx:
   enabled: true
+  fullnameOverride: "nginx"
   service:
     type: ClusterIP
   serverBlock: |-
@@ -41,9 +44,12 @@ nginx:
 
 external-secrets:
   enabled: true
+  fullnameOverride: "external-secrets"
+
 metrics-server:
   enabled: true
+  fullnameOverride: "metrics-server"
+
 aws-ebs-csi-driver:
   enabled: true
-coredns:
-  enabled: true
+  fullnameOverride: "aws-ebs-csi-driver"
