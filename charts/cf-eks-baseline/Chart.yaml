@@ -33,3 +33,7 @@ dependencies:
     version: 16.0.6
     repository: https://charts.bitnami.com/bitnami
     condition: nginx.enabled
+  - name: node-local-dns
+    version: 2.0.8
+    repository: https://charts.deliveryhero.io/
+    condition: node-local-dns.enabled
