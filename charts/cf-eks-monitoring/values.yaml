@@ -1,18 +1,3 @@
-traefik:
-  enabled: true
-  fullnameOverride: "traefik"
-  deployment:
-    enabled: true
-    kind: "DaemonSet"
-  service:
-    type: "NodePort"
-  ports:
-    web:
-      exposed: "false"
-    websecure:
-      nodePort: 30443
-      exposed: "false"
-
 kube-prometheus-stack:
   enabled: true
   fullnameOverride: "kube-prometheus-stack"
@@ -27,29 +12,6 @@ kube-prometheus-stack:
       notifiers:
         enabled: true
 
-nginx:
-  enabled: true
-  fullnameOverride: "nginx"
-  service:
-    type: ClusterIP
-  serverBlock: |-
-    server {
-      listen 0.0.0.0:8080;
-
-      location / {
-        return 404 "Not Found";
-      }
-
-    }
-
-external-secrets:
-  enabled: true
-  fullnameOverride: "external-secrets"
-
 metrics-server:
   enabled: true
   fullnameOverride: "metrics-server"
-
-aws-ebs-csi-driver:
-  enabled: true
-  fullnameOverride: "aws-ebs-csi-driver"
