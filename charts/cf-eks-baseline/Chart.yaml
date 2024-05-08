@@ -13,18 +13,10 @@ dependencies:
     version: 0.9.16
     repository: https://charts.external-secrets.io
     condition: external-secrets.enabled
-  - name: metrics-server
-    version: 3.12.1
-    repository: https://kubernetes-sigs.github.io/metrics-server/
-    condition: metrics-server.enabled
   - name: aws-ebs-csi-driver
     version: 2.30.0
     repository: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
     condition: aws-ebs-csi-driver.enabled
-  - name: kube-prometheus-stack
-    version: 58.3.1
-    repository: https://prometheus-community.github.io/helm-charts
-    condition: kube-prometheus-stack.enabled
   - name: nginx
     version: 16.0.6
     repository: https://charts.bitnami.com/bitnami
