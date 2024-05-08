@@ -3,6 +3,37 @@ entries:
   cf-eks-baseline:
   - apiVersion: v2
     appVersion: 0.0.1
+    created: "2024-05-08T20:56:14.265935731Z"
+    dependencies:
+    - condition: traefik.enabled
+      name: traefik
+      repository: https://helm.traefik.io/traefik
+      version: 27.0.2
+    - condition: external-secrets.enabled
+      name: external-secrets
+      repository: https://charts.external-secrets.io
+      version: 0.9.16
+    - condition: aws-ebs-csi-driver.enabled
+      name: aws-ebs-csi-driver
+      repository: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+      version: 2.30.0
+    - condition: nginx.enabled
+      name: nginx
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.0.6
+    - condition: node-local-dns.enabled
+      name: node-local-dns
+      repository: https://charts.deliveryhero.io/
+      version: 2.0.8
+    description: A Helm chart for deploying the baseline services to CF's EKS clusters
+    digest: a5621843a01c953573d60b9debecbfdb6d997e0d9aec852405bff9bf3cfe9c60
+    name: cf-eks-baseline
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-eks-baseline-0.1.0/cf-eks-baseline-0.1.0.tgz
+    version: 0.1.0
+  - apiVersion: v2
+    appVersion: 0.0.1
     created: "2024-05-08T15:45:28.646757664Z"
     dependencies:
     - condition: traefik.enabled
@@ -40,6 +71,26 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-eks-baseline-0.0.1/cf-eks-baseline-0.0.1.tgz
     version: 0.0.1
+  cf-eks-monitoring:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2024-05-08T20:56:14.483023464Z"
+    dependencies:
+    - condition: metrics-server.enabled
+      name: metrics-server
+      repository: https://kubernetes-sigs.github.io/metrics-server/
+      version: 3.12.1
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 58.3.1
+    description: A Helm chart for deploying CF's monitoring stack to EKS clusters
+    digest: a20e83b0afd2318243fa8230b72e16b4ba9a76ce8c14b6a461c973b3bd49f628
+    name: cf-eks-monitoring
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-eks-monitoring-0.0.1/cf-eks-monitoring-0.0.1.tgz
+    version: 0.0.1
   cf-idw:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -62,4 +113,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-pg-pool-ii-0.0.1/cf-pg-pool-ii-0.0.1.tgz
     version: 0.0.1
-generated: "2024-05-08T15:45:28.772003923Z"
+generated: "2024-05-08T20:56:14.483035226Z"
