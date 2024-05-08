@@ -1,0 +1,18 @@
+dependencies:
+- name: traefik
+  repository: https://helm.traefik.io/traefik
+  version: 27.0.2
+- name: external-secrets
+  repository: https://charts.external-secrets.io
+  version: 0.9.16
+- name: metrics-server
+  repository: https://kubernetes-sigs.github.io/metrics-server/
+  version: 3.12.1
+- name: aws-ebs-csi-driver
+  repository: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+  version: 2.30.0
+- name: coredns
+  repository: https://coredns.github.io/helm
+  version: 1.29.0
+digest: sha256:a0afe3c31b11b8676c47e5e44ab3ffcfff8e6d4ddcf2b2ba550164412b3cb825
+generated: "2024-04-30T17:47:39.148897+02:00"

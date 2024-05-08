@@ -1,0 +1,66 @@
+{{ with .Values.credIssuance }}
+{{ if .enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: cred-issuance
+  name: cred-issuance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cred-issuance
+  template:
+    metadata:
+      labels:
+        app: cred-issuance
+    spec:
+      restartPolicy: Always
+      {{- if .tolerations }}
+      tolerations:
+        {{ with index .tolerations }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- if .affinity }}
+      affinity:
+        {{ with index .affinity }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - env:
+            - name: KERIA_BOOT_ENDPOINT
+              value: {{ .keriaBootEndpoint | default "http://keria:3903" }}
+            - name: KERIA_ENDPOINT
+              value: {{ .keriaEndpoint | default "http://keria:3901" }}
+            - name: OOBI_ENDPOINT
+              value: {{ .oobiEndpoint | default "http://keria:3901" }}
+            - name: PORT
+              value: {{ .port | default "3010" | quote }}
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          name: cred-issuance
+          ports:
+            - containerPort: {{ .port | default 3010 }}
+              hostPort: {{ .port | default 3010 }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /usr/local/var/keri
+              name: issuer-server-data
+      volumes:
+        - name: issuer-server-data
+          persistentVolumeClaim:
+            claimName: issuer-server-data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: issuer-server-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .volumeSize | default "1Gi" }}
+
+{{ end }}
+{{ end }}
