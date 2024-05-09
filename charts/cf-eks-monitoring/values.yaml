@@ -1,6 +1,8 @@
 kube-prometheus-stack:
   enabled: true
-  fullnameOverride: "kube-prometheus-stack"
+  global:
+    rbac:
+      create: false
   grafana:
     plugins:
       - grafana-singlestat-panel
