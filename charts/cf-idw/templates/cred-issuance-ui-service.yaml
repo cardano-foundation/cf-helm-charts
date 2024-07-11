@@ -1,0 +1,17 @@
+{{ with .Values.credIssuanceUI }}
+{{ if .enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cred-issuance-ui
+  name: cred-issuance-ui
+spec:
+  ports:
+    - name: {{ .port | default "3000" | quote }}
+      port: {{ .port | default 3000 }}
+      targetPort: {{ .port | default 3000 }}
+  selector:
+    app: cred-issuance-ui
+{{ end }}
+{{ end }}

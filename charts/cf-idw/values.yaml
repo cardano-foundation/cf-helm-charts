@@ -3,33 +3,49 @@ ingressTLD: "example.com"
 credIssuance:
   enabled: true
   image:
-    repository: "cardanofoundation/credential-issuance-server"
-    tag: "0.1.1-develop-fc65f92-8722674504"
-  port: 3010
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance"
+    tag: "0.1.1-develop-612b15f-9895437336"
+  port: 3001
   ingress:
     enabled: true
     hosts:
       - cred-issuance
 
+credIssuanceUI:
+  enabled: true
+  image:
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance-ui"
+    tag: "0.1.1-develop-612b15f-9895437336"
+  port: 3011
+  ingress:
+    enabled: true
+    hosts:
+      - cred-issuance-ui
+
 keria:
   enabled: true
   image:
-    repository: "cardanofoundation/keria"
-    tag: "0.1.1-develop-fc65f92-8722674504"
-  # TODO: make this a ports array
-  port: 3901
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-keria"
+    tag: "0.1.1-develop-612b15f-9895437336"
+  ports:
+    - 3901
+    - 3902
+    - 3903
   ingress:
     enabled: true
     hosts:
       - keria
 
-vlei:
+witness:
   enabled: true
   image:
-    repository: "cardanofoundation/vlei"
-    tag: "0.1.1-develop-fc65f92-8722674504"
-  port: 7723
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-witness"
+    tag: "0.1.1-develop-612b15f-9895437336"
+  ports:
+    - 5642
+    - 5643
+    - 5644
   ingress:
     enabled: true
     hosts:
-      - vlei
+      - witness

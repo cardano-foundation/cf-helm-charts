@@ -1,10 +1,11 @@
-{{ with .Values.keria }}
+{{ with .Values.witness }}
+{{ if .enabled }}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: keria
-  name: keria
+    app: witness
+  name: witness
 spec:
   ports:
     {{- range $port := .ports }}
@@ -13,5 +14,6 @@ spec:
       protocol: TCP
     {{- end }}
   selector:
-    app: keria
+    app: witness
+{{ end }}
 {{ end }}

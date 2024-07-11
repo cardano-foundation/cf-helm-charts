@@ -1,20 +1,20 @@
-{{ with .Values.vlei }}
+{{ with .Values.witness }}
 {{ if .enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: vlei
-  name: vlei
+    app: witness
+  name: witness
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vlei
+      app: witness
   template:
     metadata:
       labels:
-        app: vlei
+        app: witness
     spec:
       {{- if .tolerations }}
       tolerations:
@@ -29,12 +29,13 @@ spec:
         {{- end }}
       {{- end }}
       containers:
-        - name: vlei-server
+        - name: witness
           image: "{{ .image.repository }}:{{ .image.tag }}"
-          command: ["vLEI-server", "-s", "./schema/acdc", "-c", "./samples/acdc/", "-o", "./samples/oobis/"]
           ports:
-            - containerPort: {{ .port | default "7723" }}
-              hostPort: {{ .port | default "7723" }}
+          {{- range $port := .ports }}
+            - containerPort: {{ $port }}
+              hostPort: {{ $port }}
               protocol: TCP
+          {{- end }}
 {{ end }}
 {{ end }}

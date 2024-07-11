@@ -1,0 +1,36 @@
+{{- $root := .Values -}}
+{{ with .Values.witness }}
+{{- if .ingress.enabled -}}
+{{- $witness := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: witness-ingress
+  labels:
+    app: witness
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $host := .ingress.hosts }}
+    - host: {{ $host }}.{{ $root.ingressTLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: witness
+                port:
+                  number: {{ $witness.port | default 5642 }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $host := .ingress.hosts }}
+        - "{{ $host }}.{{ $root.ingressTLD }}"
+    {{- end }}
+{{ end }}
+{{ end }}

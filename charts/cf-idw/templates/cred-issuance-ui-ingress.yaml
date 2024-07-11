@@ -1,13 +1,13 @@
 {{- $root := .Values -}}
-{{ with .Values.vlei }}
+{{ with .Values.credIssuanceUI }}
 {{- if .ingress.enabled -}}
-{{- $vlei := . -}}
+{{- $credIssuanceUI := . -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: vlei-ingress
+  name: cred-issuance-ui-ingress
   labels:
-    app: vlei
+    app: cred-ssuance-ui
   labels:
   {{- with .ingress.annotations }}
   annotations:
@@ -23,9 +23,9 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: vlei
+                name: cred-issuance-ui
                 port:
-                  number: {{ $vlei.port | default 7723 }}
+                  number: {{ $credIssuanceUI.port | default  }}
     {{- end }}
   tls:
     - hosts:

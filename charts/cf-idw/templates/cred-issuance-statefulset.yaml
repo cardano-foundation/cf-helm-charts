@@ -38,12 +38,12 @@ spec:
             - name: OOBI_ENDPOINT
               value: {{ .oobiEndpoint | default "http://keria:3901" }}
             - name: PORT
-              value: {{ .port | default "3010" | quote }}
+              value: {{ .port | default "3001" | quote }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
           name: cred-issuance
           ports:
-            - containerPort: {{ .port | default 3010 }}
-              hostPort: {{ .port | default 3010 }}
+            - containerPort: {{ .port | default 3001 }}
+              hostPort: {{ .port | default 3001 }}
               protocol: TCP
           volumeMounts:
             - mountPath: /usr/local/var/keri
