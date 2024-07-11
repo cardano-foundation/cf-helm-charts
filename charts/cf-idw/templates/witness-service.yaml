@@ -9,9 +9,9 @@ metadata:
 spec:
   ports:
     {{- range $port := .ports }}
-    - containerPort: {{ $port }}
-      hostPort: {{ $port }}
-      protocol: TCP
+    - name: {{ $port | quote }}
+      port: {{ $port }}
+      targetPort: {{ $port }}
     {{- end }}
   selector:
     app: witness
