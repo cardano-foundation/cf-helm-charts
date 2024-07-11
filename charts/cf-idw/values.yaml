@@ -16,7 +16,7 @@ credIssuanceUI:
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance-ui"
     tag: "0.1.1-develop-612b15f-9895437336"
-  port: 3011
+  port: 3000
   ingress:
     enabled: true
     hosts:
