@@ -15,8 +15,9 @@ metadata:
   {{- end }}
 spec:
   rules:
-    {{- range $host := .ingress.hosts }}
-    - host: {{ $host }}.{{ $root.ingressTLD }}
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $pool.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
       http:
         paths:
           - path: /
@@ -26,11 +27,14 @@ spec:
                 name: keria
                 port:
                   number: {{ $keria.port | default 3901 }}
+      {{- end }}
     {{- end }}
   tls:
     - hosts:
-    {{- range $host := .ingress.hosts }}
-        - "{{ $host }}.{{ $root.ingressTLD }}"
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $keria.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
     {{- end }}
 {{ end }}
 {{ end }}

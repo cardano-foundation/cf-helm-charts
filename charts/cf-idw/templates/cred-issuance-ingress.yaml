@@ -15,8 +15,9 @@ metadata:
   {{- end }}
 spec:
   rules:
-    {{- range $host := .ingress.hosts }}
-    - host: {{ $host }}.{{ $root.ingressTLD }}
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $credIssuance.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
       http:
         paths:
           - path: /
@@ -26,11 +27,14 @@ spec:
                 name: cred-issuance
                 port:
                   number: {{ $credIssuance.port | default 3010 }}
+      {{- end }}
     {{- end }}
   tls:
     - hosts:
-    {{- range $host := .ingress.hosts }}
-        - "{{ $host }}.{{ $root.ingressTLD }}"
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $credIssuance.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
     {{- end }}
 {{ end }}
 {{ end }}

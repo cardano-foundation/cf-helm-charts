@@ -1,36 +1,42 @@
 {{- $root := .Values -}}
 {{ with .Values.witness }}
-{{- if .ingress.enabled -}}
 {{- $witness := . -}}
+{{- range $pool := .witPool }}
+{{- if $pool.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: witness-ingress
+  name: "witness-{{ $pool.name }}"
   labels:
-    app: witness
+    app: "witness-{{ $pool.name }}"
   labels:
-  {{- with .ingress.annotations }}
+  {{- with $pool.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   rules:
-    {{- range $host := .ingress.hosts }}
-    - host: {{ $host }}.{{ $root.ingressTLD }}
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $pool.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: witness
+                name: "witness-{{ $pool.name }}"
                 port:
                   number: {{ $witness.port | default 5642 }}
+      {{- end }}
     {{- end }}
   tls:
     - hosts:
-    {{- range $host := .ingress.hosts }}
-        - "{{ $host }}.{{ $root.ingressTLD }}"
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $pool.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
     {{- end }}
+{{ end }}
 {{ end }}
 {{ end }}
