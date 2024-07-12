@@ -16,7 +16,7 @@ metadata:
 spec:
   rules:
     {{- range $TLD := $root.ingressTLDs }}
-      {{- range $host := $pool.ingress.hosts }}
+      {{- range $host := $keria.ingress.hosts }}
     - host: {{ $host }}.{{ $TLD }}
       http:
         paths:
