@@ -35,7 +35,7 @@ spec:
       containers:
         - name: witness
           image: "{{ $pool.image.repository }}:{{ $pool.image.tag }}"
-          command: ["kli", "witness", "start"]
+          command: ["kli", "witness", "start", "--alias {{ $pool.name }}"]
           ports:
           {{- range $port := $pool.ports }}
             - containerPort: {{ $port }}
