@@ -38,6 +38,10 @@ spec:
           env:
             - name: KERI_SCRIPT_DIR
               value: /usr/local/var/keri
+            - name: KERI_DEMO_SCRIPT_DIR
+              value: /usr/local/var/keri/demo
+            - name: KERI_TEMP_DIR
+              value: /tmp
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keri-data
@@ -50,6 +54,10 @@ spec:
           env:
             - name: KERI_SCRIPT_DIR
               value: /usr/local/var/keri
+            - name: KERI_DEMO_SCRIPT_DIR
+              value: /usr/local/var/keri/demo
+            - name: KERI_TEMP_DIR
+              value: /tmp
           ports:
           {{- range $port := .ports }}
             - containerPort: {{ $port }}
