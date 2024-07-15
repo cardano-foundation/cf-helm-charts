@@ -1,4 +1,5 @@
-ingressTLD: "example.com"
+ingressTLDs:
+  - "example.com"
 
 credIssuance:
   enabled: true
