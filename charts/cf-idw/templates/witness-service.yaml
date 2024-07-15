@@ -1,23 +1,21 @@
 {{- $root := .Values -}}
 {{ with .Values.witness }}
 {{- $witness := . -}}
-{{- range $pool := .witPool }}
-{{- if $pool.enabled -}}
+{{- if $witness.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: witness-{{ $pool.name }}
-  name: witness-{{ $pool.name }}
+    app: witness
+  name: witness
 spec:
   ports:
-    {{- range $port := $pool.ports }}
+    {{- range $port := $witness.ports }}
     - name: {{ $port | quote }}
       port: {{ $port }}
       targetPort: {{ $port }}
     {{- end }}
   selector:
-    app: witness-{{ $pool.name }}
-{{ end }}
+    app: witness
 {{ end }}
 {{ end }}

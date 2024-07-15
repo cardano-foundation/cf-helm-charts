@@ -44,17 +44,12 @@ keria:
 
 witness:
   enabled: true
-  witPool:
-    - name: main
-      enabled: true
-      image:
-        repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-witness"
-        tag: "0.1.1-develop-612b15f-9895437336"
-      ports:
-        - 5642
-        - 5643
-        - 5644
-      ingress:
-        enabled: true
-        hosts:
-          - witness
+  image:
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-witness"
+    tag: "0.1.1-develop-612b15f-9895437336"
+  ports:
+    - 5642
+  ingress:
+    enabled: true
+    hosts:
+      - witness
