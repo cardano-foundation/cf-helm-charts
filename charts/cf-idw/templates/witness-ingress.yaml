@@ -26,7 +26,7 @@ spec:
               service:
                 name: "witness"
                 port:
-                  number: {{ $witness.port | default 5642 }}
+                  number: {{ $witness.port | default 5631 }}
       {{- end }}
     {{- end }}
   tls:

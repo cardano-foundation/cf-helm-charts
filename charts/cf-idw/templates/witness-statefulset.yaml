@@ -51,11 +51,9 @@ spec:
             - name: KERI_SCRIPT_DIR
               value: /usr/local/var/keri
           ports:
-          {{- range $port := .ports }}
-            - containerPort: {{ $port }}
-              hostPort: {{ $port }}
+            - containerPort: {{ .port | 5631 }}
+              hostPort: {{ .port | 5631 }}
               protocol: TCP
-          {{- end }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keri-data

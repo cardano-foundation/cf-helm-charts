@@ -10,11 +10,9 @@ metadata:
   name: witness
 spec:
   ports:
-    {{- range $port := $witness.ports }}
-    - name: {{ $port | quote }}
-      port: {{ $port }}
-      targetPort: {{ $port }}
-    {{- end }}
+    - name: {{ .port | quote }}
+      port: {{ .port }}
+      targetPort: {{ .port }}
   selector:
     app: witness
 {{ end }}
