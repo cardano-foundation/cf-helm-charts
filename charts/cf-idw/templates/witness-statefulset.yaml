@@ -65,7 +65,7 @@ spec:
             claimName: keri-data
         - name: witness-configmap
           configMap:
-            name: witness-configmap
+            name: witness
 
   volumeClaimTemplates:
     - metadata:
