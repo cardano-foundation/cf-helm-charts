@@ -5,7 +5,7 @@ metadata:
 data:
   witness-init.sh: |
     #!/bin/bash
-    if [ ! -e ${KERI_SCRIPT_DIR}/db/data.mdb ]; then
+    if [ ! -e ${KERI_SCRIPT_DIR}/db/witness/data.mdb ]; then
       mkdir -p ${KERI_SCRIPT_DIR}/data
       kli init --name witness --nopasscode --config-dir ${KERI_SCRIPT_DIR} --config-file witness
       kli incept --name witness --alias witness --config ${KERI_SCRIPT_DIR} --file /configmap/wil-witness-sample.json
