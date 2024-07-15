@@ -46,7 +46,7 @@ spec:
       containers:
         - name: witness
           image: "{{ .image.repository }}:{{ .image.tag }}"
-          command: ["bash", "-c", "kli witness start --name witness --alias witness"]
+          command: ["bash", "-c", "exec kli witness start --name witness --alias witness"]
           env:
             - name: KERI_SCRIPT_DIR
               value: /usr/local/var/keri
