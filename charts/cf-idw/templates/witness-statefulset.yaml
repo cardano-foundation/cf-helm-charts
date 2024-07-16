@@ -38,6 +38,8 @@ spec:
           env:
             - name: KERI_SCRIPT_DIR
               value: /usr/local/var/keri
+            - name: KERIA_CURLS
+              value: {{ .keriaCurls | default "http://keria:3901" | quote }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keri-data

@@ -46,7 +46,7 @@ witness:
   enabled: true
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-witness"
-    tag: "0.1.1-develop-612b15f-9895437336"
+    tag: "0.1.1-PR581-356e136-9954738735"
   port: 5631
   ingress:
     enabled: true
