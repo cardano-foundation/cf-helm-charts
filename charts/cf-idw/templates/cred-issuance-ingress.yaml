@@ -26,7 +26,7 @@ spec:
               service:
                 name: cred-issuance
                 port:
-                  number: {{ $credIssuance.port | default 3010 }}
+                  number: {{ $credIssuance.port | default 3001 }}
       {{- end }}
     {{- end }}
   tls:
