@@ -36,8 +36,10 @@ spec:
           image: "{{ .image.repository }}:{{ .image.tag }}"
           command: ["bash", "-x", "/configmap/witness-init.sh"]
           env:
-            - name: KERI_SCRIPT_DIR
+            - name: KERI_VAR_DIR
               value: /usr/local/var/keri
+            - name: KERI_SCRIPT_DIR
+              value: $(KERI_VAR_DIR)/scripts
             - name: KERIA_CURLS
               value: {{ .keriaCurls | default "http://keria:3901" | quote }}
           volumeMounts:
@@ -50,8 +52,10 @@ spec:
           image: "{{ .image.repository }}:{{ .image.tag }}"
           command: ["bash", "-c", "exec kli witness start --name witness --alias witness"]
           env:
-            - name: KERI_SCRIPT_DIR
+            - name: KERI_VAR_DIR
               value: /usr/local/var/keri
+            - name: KERI_SCRIPT_DIR
+              value: $(KERI_VAR_DIR)/scripts
           ports:
             - containerPort: {{ .port | default 5631 }}
               protocol: TCP

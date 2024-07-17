@@ -5,11 +5,12 @@ metadata:
 data:
   witness-init.sh: |
     #!/bin/bash
-    if [ ! -e ${KERI_SCRIPT_DIR}/db/witness/data.mdb ]; then
-      mkdir -p ${KERI_SCRIPT_DIR}/data
+    if [ ! -e ${KERI_VAR_DIR}/db/witness/data.mdb ]; then
+      mkdir -p ${KERI_VAR_DIR}/data
+      mkdir -p ${KERI_SCRIPT_DIR}/keri/cf
       set -e
       export KERIA_RENDERED_CURLS=$(for keria_curl in ${KERIA_CURLS}; do echo $keria_curl; done | jq -cRn '[inputs]')
-      envsubst < /configmap/witness.json.tpl > ${KERI_SCRIPT_DIR}/witness.json
+      envsubst < /configmap/witness.json.tpl > ${KERI_SCRIPT_DIR}/keri/cf/witness.json
       kli init --name witness --nopasscode --config-dir ${KERI_SCRIPT_DIR} --config-file witness
       kli incept --name witness --alias witness --config ${KERI_SCRIPT_DIR} --file /configmap/wil-witness-sample.json
     fi
