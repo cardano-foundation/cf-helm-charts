@@ -43,7 +43,6 @@ spec:
           name: cred-issuance
           ports:
             - containerPort: {{ .port | default 3001 }}
-              hostPort: {{ .port | default 3001 }}
               protocol: TCP
           volumeMounts:
             - mountPath: /usr/local/var/keri

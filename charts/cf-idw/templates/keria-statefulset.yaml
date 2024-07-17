@@ -52,7 +52,6 @@ spec:
           ports:
           {{- range $port := .ports }}
             - containerPort: {{ $port }}
-              hostPort: {{ $port }}
               protocol: TCP
           {{- end }}
           volumeMounts:

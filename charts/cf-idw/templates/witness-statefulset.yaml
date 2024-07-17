@@ -54,7 +54,6 @@ spec:
               value: /usr/local/var/keri
           ports:
             - containerPort: {{ .port | default 5631 }}
-              hostPort: {{ .port | default 5631 }}
               protocol: TCP
           volumeMounts:
             - mountPath: /usr/local/var/keri
