@@ -1,0 +1,69 @@
+{{ with .Values.keriaProvisioning }}
+{{ if .enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: keria-provisioning
+  name: keria-provisioning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keria-provisioning
+  template:
+    metadata:
+      labels:
+        app: keria-provisioning
+    spec:
+      restartPolicy: Always
+      {{- if .tolerations }}
+      tolerations:
+        {{ with index .tolerations }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- if .affinity }}
+      affinity:
+        {{ with index .affinity }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: keria-provisioning
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          env:
+            - name: EXTERNAL_PROVISIONING_SERVICE_URL
+              value: {{ .externalProvisioningServiceUrl | default "http://keria-provisioning.example.com" }}
+            - name: INTERNAL_KERIA_URL
+              value: {{ .internalKeriaUrl | default "http://keria:3903" }}
+            - name: DB_URL
+              value: {{ .dbUrl | default "jdbc:h2:file:/data/keria-provisioning-service-db;AUTO_RECONNECT=TRUE;AUTO_SERVER=TRUE" }}
+            - name: H2_CONSOLE_ENABLED
+              value: {{ .h2ConsoleEnabled | default "false" | quote }}
+            - name: SES_ACCESS_KEY_ID
+              value: {{ .sesAccessKeyId | default "changeme" | quote }}
+            - name: SES_PASSWORD
+              value: {{ .sesPassword | default "changeme" | quote }}
+          ports:
+            - containerPort: {{ .port | default 9030 }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data
+              name: h2-data
+      volumes:
+        - name: h2-data
+          persistentVolumeClaim:
+            claimName: keria-provisioning-h2-data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: keria-provisioning-h2-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .volumeSize | default "1Gi" }}
+
+{{ end }}
+{{ end }}

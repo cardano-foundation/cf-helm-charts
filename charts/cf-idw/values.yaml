@@ -42,6 +42,17 @@ keria:
       - name: keria-boot
         port: 3903
 
+keriaProvisioning:
+  enabled: true
+  image:
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-keria-provisioning"
+    tag: "1.0.0-SNAPSHOT-main-85ae914-9978879907"
+  port: 9030
+  ingress:
+    enabled: true
+    hosts:
+      - keria-provisioning
+
 witness:
   enabled: true
   image:

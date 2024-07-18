@@ -1,0 +1,40 @@
+{{- $root := .Values -}}
+{{ with .Values.keriaProvisioning }}
+{{- if .ingress.enabled -}}
+{{- $keriaProvisioning := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keria-provisioning-ingress
+  labels:
+    app: keria-provisioning
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $keriaProvisioning.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keria-provisioning
+                port:
+                  number: {{ $keriaProvisioning.port | default 9030 }}
+      {{- end }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $keriaProvisioning.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
+    {{- end }}
+{{ end }}
+{{ end }}
