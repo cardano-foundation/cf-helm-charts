@@ -46,7 +46,7 @@ keriaProvisioning:
   enabled: true
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-keria-provisioning"
-    tag: "1.0.0-SNAPSHOT-main-85ae914-9978879907"
+    tag: "1.0.0-SNAPSHOT-PR4-0f5350e-9994061181"
   port: 9030
   ingress:
     enabled: true
