@@ -46,7 +46,6 @@ spec:
                 secretKeyRef:
                   name: {{ .smtp.secret.name }}
                   key: {{ .smtp.secret.sesAccessKeyIdKey }}
-              value: {{ .sesAccessKeyId | default "changeme" | quote }}
             - name: SES_PASSWORD
               valueFrom:
                 secretKeyRef:
