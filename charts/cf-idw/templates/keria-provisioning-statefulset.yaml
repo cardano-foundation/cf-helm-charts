@@ -50,9 +50,9 @@ spec:
               protocol: TCP
           volumeMounts:
             - mountPath: /data
-              name: h2-data
+              name: keria-provisioning-h2-data
       volumes:
-        - name: h2-data
+        - name: keria-provisioning-h2-data
           persistentVolumeClaim:
             claimName: keria-provisioning-h2-data
 
