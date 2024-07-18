@@ -7,7 +7,7 @@ kind: Ingress
 metadata:
   name: cred-issuance-ui-ingress
   labels:
-    app: cred-ssuance-ui
+    app: cred-issuance-ui
   labels:
   {{- with .ingress.annotations }}
   annotations:
@@ -26,7 +26,7 @@ spec:
               service:
                 name: cred-issuance-ui
                 port:
-                  number: {{ $credIssuanceUI.port | default  }}
+                  number: {{ $credIssuanceUI.port | default 80 }}
       {{- end }}
     {{- end }}
   tls:

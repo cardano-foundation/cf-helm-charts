@@ -8,9 +8,9 @@ metadata:
   name: cred-issuance-ui
 spec:
   ports:
-    - name: {{ .port | default "3000" | quote }}
-      port: {{ .port | default 3000 }}
-      targetPort: {{ .port | default 3000 }}
+    - name: {{ .port | default "80" | quote }}
+      port: {{ .port | default 80 }}
+      targetPort: {{ .port | default 80 }}
   selector:
     app: cred-issuance-ui
 {{ end }}

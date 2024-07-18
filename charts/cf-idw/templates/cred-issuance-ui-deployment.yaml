@@ -37,7 +37,7 @@ spec:
             - name: REACT_APP_CREDENTIAL_ISSUANCE_SERVER_PORT
               value: {{ .reactAppCredentialIssuanceServerPort | default "3001" | quote }}
           ports:
-            - containerPort: {{ .port | default 3000 }}
+            - containerPort: {{ .port | default 80 }}
               protocol: TCP
 {{ end }}
 {{ end }}
