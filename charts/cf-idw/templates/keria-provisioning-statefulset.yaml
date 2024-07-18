@@ -50,7 +50,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .smtp.secret.name }}
-                  key: {{ .smtp.secret.sesPassword }}
+                  key: {{ .smtp.secret.sesPasswordKey }}
             - name: AWS_REGION
               value: {{ .smtp.awsRegion | default "eu-west-1" | quote }}
             - name: SMTP_FROM
