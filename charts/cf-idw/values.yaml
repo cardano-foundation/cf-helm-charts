@@ -52,6 +52,11 @@ keriaProvisioning:
     enabled: true
     hosts:
       - keria-provisioning
+  smtp:
+    secret:
+      name: cf-idw-secrets
+      sesAccessKeyIdKey: SES_ACCESS_KEY_ID
+      sesPasswordKey: SES_SMTP_PASSWORD
 
 witness:
   enabled: true

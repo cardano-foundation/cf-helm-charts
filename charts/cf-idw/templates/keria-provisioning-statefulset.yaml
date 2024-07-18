@@ -42,9 +42,18 @@ spec:
             - name: H2_CONSOLE_ENABLED
               value: {{ .h2ConsoleEnabled | default "false" | quote }}
             - name: SES_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .smtp.secret.name }}
+                  key: {{ .smtp.secret.sesAccessKeyIdKey }}
               value: {{ .sesAccessKeyId | default "changeme" | quote }}
             - name: SES_PASSWORD
-              value: {{ .sesPassword | default "changeme" | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .smtp.secret.name }}
+                  key: {{ .smtp.secret.sesPassword }}
+            - name: AWS_REGION
+              value: {{ .smtp.awsRegion | default "eu-west-1" | quote }}
           ports:
             - containerPort: {{ .port | default 9030 }}
               protocol: TCP
