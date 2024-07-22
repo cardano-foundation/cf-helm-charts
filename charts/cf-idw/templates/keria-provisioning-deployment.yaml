@@ -62,6 +62,10 @@ spec:
               value: {{ .dbPort | default "5432" | quote }}
             - name: DB_SCHEMA
               value: {{ .dbSchema | default "keria" }}
+            - name: DB_DRIVER
+              value: {{ .dbDriver | default "org.postgresql.Driver" }}
+            - name: DB_DIALECT
+              value: {{ .dbDialect | default "org.hibernate.dialect.PostgreSQLDialect" }}
             - name: DB_URL
               value: {{ .dbUrl | default "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)" }}
             - name: H2_CONSOLE_ENABLED
