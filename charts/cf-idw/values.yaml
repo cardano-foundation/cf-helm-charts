@@ -44,6 +44,7 @@ keria:
 
 keriaProvisioning:
   enabled: true
+  kind: StatefulSet
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-keria-provisioning"
     tag: "1.0.0-SNAPSHOT-PR4-0f5350e-9994061181"
@@ -57,6 +58,13 @@ keriaProvisioning:
       name: cf-idw-secrets
       sesAccessKeyIdKey: SES_ACCESS_KEY_ID
       sesPasswordKey: SES_SMTP_PASSWORD
+  db:
+    secret:
+      name: cf-idw-secrets
+      usernameKey: POSTGRES_USER
+      passwordKey: POSTGRES_PASSWORD
+      hostKey: POSTGRES_HOST
+      dbNameKey: POSTGRES_DB
 
 witness:
   enabled: true

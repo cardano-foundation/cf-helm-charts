@@ -1,8 +1,8 @@
 {{ with .Values.keriaProvisioning }}
 {{ if .enabled }}
-{{ if eq .kind "StatefulSet" }}
+{{ if eq .kind "Deployment" }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   labels:
     app: keria-provisioning
@@ -38,8 +38,30 @@ spec:
               value: {{ .externalProvisioningServiceUrl | default "http://keria-provisioning.example.com" }}
             - name: INTERNAL_KERIA_URL
               value: {{ .internalKeriaUrl | default "http://keria:3903" }}
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .db.secret.name }}
+                  key: {{ .db.secret.hostKey }}
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .db.secret.name }}
+                  key: {{ .db.secret.usernameKey }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .db.secret.name }}
+                  key: {{ .db.secret.passwordKey }}
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .db.secret.name }}
+                  key: {{ .db.secret.dbNameKey }}
+            - name: DB_SCHEMA
+              value: {{ .dbSchema | default "keria" }}
             - name: DB_URL
-              value: {{ .dbUrl | default "jdbc:h2:file:/data/keria-provisioning-service-db;AUTO_RECONNECT=TRUE;AUTO_SERVER=TRUE" }}
+              value: {{ .dbUrl | default "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)" }}
             - name: H2_CONSOLE_ENABLED
               value: {{ .h2ConsoleEnabled | default "false" | quote }}
             - name: SES_ACCESS_KEY_ID
@@ -59,22 +81,6 @@ spec:
           ports:
             - containerPort: {{ .port | default 9030 }}
               protocol: TCP
-          volumeMounts:
-            - mountPath: /data
-              name: keria-provisioning-h2-data
-      volumes:
-        - name: keria-provisioning-h2-data
-          persistentVolumeClaim:
-            claimName: keria-provisioning-h2-data
-
-  volumeClaimTemplates:
-    - metadata:
-        name: keria-provisioning-h2-data
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        resources:
-          requests:
-            storage: {{ .volumeSize | default "1Gi" }}
 
 {{ end }}
 {{ end }}
