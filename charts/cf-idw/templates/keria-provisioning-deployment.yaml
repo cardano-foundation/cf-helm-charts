@@ -58,6 +58,8 @@ spec:
                 secretKeyRef:
                   name: {{ .db.secret.name }}
                   key: {{ .db.secret.dbNameKey }}
+            - name: DB_PORT
+              value: {{ .dbPort | default "5432" }}
             - name: DB_SCHEMA
               value: {{ .dbSchema | default "keria" }}
             - name: DB_URL
