@@ -67,7 +67,7 @@ spec:
             - name: DB_DIALECT
               value: {{ .dbDialect | default "org.hibernate.dialect.PostgreSQLDialect" }}
             - name: DB_URL
-              value: {{ .dbUrl | default "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)" }}
+              value: {{ .dbUrl | default "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)?currentSchema=$(DB_SCHEMA)" }}
             - name: H2_CONSOLE_ENABLED
               value: {{ .h2ConsoleEnabled | default "false" | quote }}
             - name: SES_ACCESS_KEY_ID
