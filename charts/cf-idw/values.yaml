@@ -47,7 +47,7 @@ keriaProvisioning:
   kind: StatefulSet
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-keria-provisioning"
-    tag: "1.0.0-SNAPSHOT-PR5-014b856-10062367582"
+    tag: "1.0.0-SNAPSHOT-PR6-b8b2d2b-10079980400"
   port: 9030
   ingress:
     enabled: true
