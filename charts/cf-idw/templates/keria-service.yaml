@@ -1,3 +1,4 @@
+{{ with .Values.keria }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,14 +7,11 @@ metadata:
   name: keria
 spec:
   ports:
-    - name: "3901"
-      port: 3901
-      targetPort: 3901
-    - name: "3902"
-      port: 3902
-      targetPort: 3902
-    - name: "3903"
-      port: 3903
-      targetPort: 3903
+    {{- range $port := .ports }}
+    - name: {{ $port | quote }}
+      port: {{ $port }}
+      targetPort: {{ $port }}
+    {{- end }}
   selector:
     app: keria
+{{ end }}

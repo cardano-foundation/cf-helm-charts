@@ -1,13 +1,13 @@
 {{- $root := .Values -}}
-{{ with .Values.credIssuance }}
+{{ with .Values.keriaProvisioning }}
 {{- if .ingress.enabled -}}
-{{- $credIssuance := . -}}
+{{- $keriaProvisioning := . -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: cred-issuance-ingress
+  name: keria-provisioning-ingress
   labels:
-    app: cred-issuance
+    app: keria-provisioning
   labels:
   {{- with .ingress.annotations }}
   annotations:
@@ -16,7 +16,7 @@ metadata:
 spec:
   rules:
     {{- range $TLD := $root.ingressTLDs }}
-      {{- range $host := $credIssuance.ingress.hosts }}
+      {{- range $host := $keriaProvisioning.ingress.hosts }}
     - host: {{ $host }}.{{ $TLD }}
       http:
         paths:
@@ -24,15 +24,15 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: cred-issuance
+                name: keria-provisioning
                 port:
-                  number: {{ $credIssuance.port | default 3001 }}
+                  number: {{ $keriaProvisioning.port | default 9030 }}
       {{- end }}
     {{- end }}
   tls:
     - hosts:
     {{- range $TLD := $root.ingressTLDs }}
-      {{- range $host := $credIssuance.ingress.hosts }}
+      {{- range $host := $keriaProvisioning.ingress.hosts }}
         - "{{ $host }}.{{ $TLD }}"
       {{- end }}
     {{- end }}

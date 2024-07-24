@@ -1,0 +1,85 @@
+{{- $root := .Values -}}
+{{ with .Values.witness }}
+{{- $witness := . -}}
+{{- if $witness.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: witness
+  name: witness
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: witness
+  template:
+    metadata:
+      labels:
+        app: witness
+    spec:
+      restartPolicy: Always
+      {{- if .tolerations }}
+      tolerations:
+        {{ with index .tolerations }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- if .affinity }}
+      affinity:
+        {{ with index .affinity }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      initContainers:
+        - name: init-witness
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          command: ["bash", "-x", "/configmap/witness-init.sh"]
+          env:
+            - name: KERI_VAR_DIR
+              value: /usr/local/var/keri
+            - name: KERI_SCRIPT_DIR
+              value: $(KERI_VAR_DIR)/scripts
+            - name: KERIA_CURLS
+              value: {{ .keriaCurls | default "http://keria:3901" | quote }}
+          volumeMounts:
+            - mountPath: /usr/local/var/keri
+              name: keri-data
+            - mountPath: configmap
+              name: witness-configmap
+      containers:
+        - name: witness
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          command: ["bash", "-c", "exec kli witness start --name witness --alias witness"]
+          env:
+            - name: KERI_VAR_DIR
+              value: /usr/local/var/keri
+            - name: KERI_SCRIPT_DIR
+              value: $(KERI_VAR_DIR)/scripts
+          ports:
+            - containerPort: {{ .port | default 5631 }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /usr/local/var/keri
+              name: keri-data
+            - mountPath: /configmap
+              name: witness-configmap
+      volumes:
+        - name: keri-data
+          persistentVolumeClaim:
+            claimName: keri-data
+        - name: witness-configmap
+          configMap:
+            name: witness
+
+  volumeClaimTemplates:
+    - metadata:
+        name: keri-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .volumeSize | default "1Gi" }}
+
+{{ end }}
+{{ end }}

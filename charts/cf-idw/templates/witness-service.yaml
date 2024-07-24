@@ -1,0 +1,19 @@
+{{- $root := .Values -}}
+{{ with .Values.witness }}
+{{- $witness := . -}}
+{{- if $witness.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: witness
+  name: witness
+spec:
+  ports:
+    - name: {{ .port | quote }}
+      port: {{ .port }}
+      targetPort: {{ .port }}
+  selector:
+    app: witness
+{{ end }}
+{{ end }}

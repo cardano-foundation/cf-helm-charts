@@ -35,6 +35,8 @@ spec:
           env:
             - name: KERIA_CURLS
               value: {{ .keriaCurls | default "http://keria:3901" | quote }}
+            - name: KERIA_IURLS
+              value: {{ .keriaIurls | default "http://witness:5642/oobi/dummy1 http://witness:5643/oobi/dummy2" | quote }}
           command: ["sh", "-x", "/configmap/initContainer-entrypoint.sh"]
           volumeMounts:
             - mountPath: /configmap
@@ -48,15 +50,10 @@ spec:
               value: {{ .keriAgentCORS | default "true" | quote }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
           ports:
-            - containerPort: 3901
-              hostPort: 3901
+          {{- range $port := .ports }}
+            - containerPort: {{ $port }}
               protocol: TCP
-            - containerPort: 3902
-              hostPort: 3902
-              protocol: TCP
-            - containerPort: 3903
-              hostPort: 3903
-              protocol: TCP
+          {{- end }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keria-data

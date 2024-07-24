@@ -6,8 +6,8 @@ metadata:
   name: cred-issuance
 spec:
   ports:
-    - name: {{ .port | default "3010" | quote }}
-      port: {{ .port | default "3010" }}
-      targetPort: {{ .port | default "3010" }}
+    - name: {{ .port | default "3001" | quote }}
+      port: {{ .port | default "3001" }}
+      targetPort: {{ .port | default "3001" }}
   selector:
     app: cred-issuance

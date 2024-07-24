@@ -9,7 +9,20 @@ data:
     #!/bin/sh
     set -e
     export KERIA_RENDERED_CURLS=$(for keria_curl in ${KERIA_CURLS}; do echo $keria_curl; done | jq -cRn '[inputs]')
+    export KERIA_RENDERED_IURLS=$(for keria_iurl in ${KERIA_IURLS}; do echo $keria_iurl; done | jq -cRn '[inputs]')
     envsubst < /configmap/backer-oobis.json.tpl > /config/backer-oobis.json
+    envsubst < /configmap/witness.json.tpl > /config/witness.json
+
+  witness.json.tpl: |
+    {
+      "witness": {
+        "dt": "2022-01-20T12:57:59.823350+00:00",
+        "curls": ${KERIA_RENDERED_CURLS}
+      },
+      "dt": "2022-01-20T12:57:59.823350+00:00",
+      "iurls": [
+      ]
+    }
 
   backer-oobis.json.tpl: |
     {
@@ -18,7 +31,7 @@ data:
         "dt": "2022-01-20T12:57:59.823350+00:00",
         "curls": ${KERIA_RENDERED_CURLS}
       },
-      "iurls": []
+      "iurls": ${KERIA_RENDERED_IURLS}
     }
 
 {{ end }}
