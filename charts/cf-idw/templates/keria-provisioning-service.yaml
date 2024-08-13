@@ -1,0 +1,17 @@
+{{ with .Values.keriaProvisioning }}
+{{ if .enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: keria-provisioning
+  name: keria-provisioning
+spec:
+  ports:
+    - name: {{ .port | default "9030" | quote }}
+      port: {{ .port | default 9030 }}
+      targetPort: {{ .port | default 9030 }}
+  selector:
+    app: keria-provisioning
+{{ end }}
+{{ end }}

@@ -1,20 +1,20 @@
-{{ with .Values.vlei }}
+{{ with .Values.credIssuanceUI }}
 {{ if .enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: vlei
-  name: vlei
+    app: cred-issuance-ui
+  name: cred-issuance-ui
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: vlei
+      app: cred-issuance-ui
   template:
     metadata:
       labels:
-        app: vlei
+        app: cred-issuance-ui
     spec:
       {{- if .tolerations }}
       tolerations:
@@ -29,12 +29,15 @@ spec:
         {{- end }}
       {{- end }}
       containers:
-        - name: vlei-server
+        - name: cred-issuance-ui
           image: "{{ .image.repository }}:{{ .image.tag }}"
-          command: ["vLEI-server", "-s", "./schema/acdc", "-c", "./samples/acdc/", "-o", "./samples/oobis/"]
+          env:
+            - name: REACT_APP_CREDENTIAL_ISSUANCE_SERVER_URL
+              value: {{ .reactAppCredentialIssuanceServerUrl | default "http://cred-issuance:3001" }}
+            - name: REACT_APP_CREDENTIAL_ISSUANCE_SERVER_PORT
+              value: {{ .reactAppCredentialIssuanceServerPort | default "3001" | quote }}
           ports:
-            - containerPort: {{ .port | default "7723" }}
-              hostPort: {{ .port | default "7723" }}
+            - containerPort: {{ .port | default 80 }}
               protocol: TCP
 {{ end }}
 {{ end }}
