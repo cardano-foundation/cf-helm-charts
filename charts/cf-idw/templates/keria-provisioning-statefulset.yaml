@@ -38,6 +38,8 @@ spec:
               value: {{ .externalProvisioningServiceUrl | default "http://keria-provisioning.example.com" }}
             - name: INTERNAL_KERIA_URL
               value: {{ .internalKeriaUrl | default "http://keria:3903" }}
+            - name: EXTERNAL_KERIA_CONNECT
+              value: {{ .externalKeriaConnect | default "http://keria:3901" }}
             - name: DB_DRIVER
               value: {{ .dbDriver | default "org.h2.Driver" }}
             - name: DB_DIALECT
