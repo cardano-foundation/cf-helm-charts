@@ -1,0 +1,15 @@
+apiVersion: v2
+name: cf-vault
+description: A Helm chart for deploying the baseline services to CF's EKS clusters
+type: application
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: vault
+    version: 0.29.1
+    repository: https://helm.releases.hashicorp.com
+    condition: vault.enabled
+  - name: vault-autounseal
+    version: 0.5.3
+    repository: https://pytoshka.github.io/vault-autounseal
+    condition: vault-autounseal.enabled
