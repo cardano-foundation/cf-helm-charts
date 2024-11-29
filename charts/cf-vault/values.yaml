@@ -1,0 +1,9 @@
+vault:
+  enabled: true
+  ui:
+    enabled: true
+
+vault-autounseal:
+  enabled: false
+  settings:
+    vault_url: http://vault.vault:8200
