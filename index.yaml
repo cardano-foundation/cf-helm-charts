@@ -173,4 +173,24 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-pg-pool-ii-0.0.1/cf-pg-pool-ii-0.0.1.tgz
     version: 0.0.1
-generated: "2024-09-23T08:28:25.862839302Z"
+  cf-vault:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2024-11-29T09:41:54.65192345Z"
+    dependencies:
+    - condition: vault.enabled
+      name: vault
+      repository: https://helm.releases.hashicorp.com
+      version: 0.29.1
+    - condition: vault-autounseal.enabled
+      name: vault-autounseal
+      repository: https://pytoshka.github.io/vault-autounseal
+      version: 0.5.3
+    description: A Helm chart for deploying the baseline services to CF's EKS clusters
+    digest: cc7d57fdea34425da475e6a37c6eb1f9af0bf1450bb55d347937743a79c46642
+    name: cf-vault
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-vault-0.0.1/cf-vault-0.0.1.tgz
+    version: 0.0.1
+generated: "2024-11-29T09:41:54.65200872Z"
