@@ -48,6 +48,11 @@ spec:
           env:
             - name: KERI_AGENT_CORS
               value: {{ .keriAgentCORS | default "true" | quote }}
+            - name: KERIA_PASSCODE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secret.name }}
+                  key: {{ .secret.keriaPasscodeKey }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
           ports:
           {{- range $port := .ports }}

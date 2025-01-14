@@ -41,6 +41,9 @@ keria:
         port: 3902
       - name: keria-boot
         port: 3903
+  secret:
+    name: cf-idw-secrets
+    keriaPasscodeKey: KERIA_PASSCODE
 
 keriaProvisioning:
   enabled: true
