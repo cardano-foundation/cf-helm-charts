@@ -2,10 +2,12 @@
 {{ with .Values.witness }}
 {{- $witness := . -}}
 {{- if $witness.ingress.enabled -}}
+{{- range $count := until (int .witnessCount) }}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: witness
+  name: witness-{{ $count }}
   labels:
     app: witness
   labels:
@@ -17,24 +19,25 @@ spec:
   rules:
     {{- range $TLD := $root.ingressTLDs }}
       {{- range $host := $witness.ingress.hosts }}
-    - host: {{ $host }}.{{ $TLD }}
+    - host: {{ $host }}-{{ $count }}.{{ $TLD }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: "witness"
+                name: witness-{{ $count }}
                 port:
-                  number: {{ $witness.port | default 5631 }}
+                  number: {{ add $witness.initialPort $count }}
       {{- end }}
     {{- end }}
   tls:
     - hosts:
     {{- range $TLD := $root.ingressTLDs }}
       {{- range $host := $witness.ingress.hosts }}
-        - "{{ $host }}.{{ $TLD }}"
+        - "{{ $host }}-{{ $count }}.{{ $TLD }}"
       {{- end }}
     {{- end }}
+{{- end }}
 {{ end }}
 {{ end }}

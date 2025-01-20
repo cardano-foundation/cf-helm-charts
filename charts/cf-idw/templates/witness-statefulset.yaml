@@ -40,8 +40,10 @@ spec:
               value: /usr/local/var/keri
             - name: KERI_SCRIPT_DIR
               value: $(KERI_VAR_DIR)/scripts
-            - name: KERIA_CURLS
-              value: {{ .keriaCurls | default "http://keria:3901" | quote }}
+            - name: WITNESS_COUNT
+              value: {{ .witnessCount | default "6" | quote }}
+            - name: INITIAL_PORT
+              value: {{ .initialPort | default "5642" | quote }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keri-data
@@ -50,15 +52,17 @@ spec:
       containers:
         - name: witness
           image: "{{ .image.repository }}:{{ .image.tag }}"
-          command: ["bash", "-c", "exec kli witness start --name witness --alias witness"]
+          command: ["bash", "-c", "exec kli witness demo"]
           env:
             - name: KERI_VAR_DIR
               value: /usr/local/var/keri
             - name: KERI_SCRIPT_DIR
               value: $(KERI_VAR_DIR)/scripts
           ports:
-            - containerPort: {{ .port | default 5631 }}
+            {{- range $count := until (int .witnessCount) }}
+            - containerPort: {{ add $witness.initialPort $count }}
               protocol: TCP
+            {{- end }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keri-data
