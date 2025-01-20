@@ -85,6 +85,6 @@ spec:
         resources:
           requests:
             storage: {{ $witness.volumeSize | default "1Gi" }}
-
+{{- end }}
 {{ end }}
 {{ end }}
