@@ -11,7 +11,7 @@ data:
       set -e
       export KERIA_CURLS=$(for wit in $(seq 0 ${WITNESS_COUNT}); do echo "http://keria:$(( INITIAL_PORT + wit ))"; done | xargs echo)
       export KERIA_RENDERED_CURLS=$(for keria_curl in ${KERIA_CURLS}; do echo $keria_curl; done | jq -cRn '[inputs]')
-      for witness in $(seq 0 ${WITNESS_COUNT})
+      for witness in $(seq 0 $(( WITNESS_COUNT - 1 )));
       do
         export WITNESS_NAME="wit${witness}"
         envsubst < /configmap/witness.json.tpl > ${KERI_SCRIPT_DIR}/keri/cf/${WITNESS_NAME}.json
