@@ -21,15 +21,15 @@ spec:
         app: witness-{{ $count }}
     spec:
       restartPolicy: Always
-      {{- if .tolerations }}
+      {{- if $witness.tolerations }}
       tolerations:
-        {{ with index .tolerations }}
+        {{ with index $witness.tolerations }}
 {{ toYaml . | nindent 8 }}
         {{- end }}
       {{- end }}
-      {{- if .affinity }}
+      {{- if $witness.affinity }}
       affinity:
-        {{ with index .affinity }}
+        {{ with index $witness.affinity }}
 {{ toYaml . | nindent 8 }}
         {{- end }}
       {{- end }}
