@@ -43,7 +43,7 @@ spec:
             - name: WITNESS_COUNT
               value: {{ .witnessCount | default "6" | quote }}
             - name: INITIAL_PORT
-              value: {{ .initialPort | default "5642" | quote }}
+              value: {{ .initialHTTPPort | default "5642" | quote }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keri-data
@@ -53,14 +53,14 @@ spec:
         {{- range $count := until (int .witnessCount) }}
         - name: witness-{{ $count }}
           image: "{{ $witness.image.repository }}:{{ $witness.image.tag }}"
-          command: ["bash", "-c", "exec kli witness start --alias wit{{ $count }} -H {{ add $witness.initialPort $count }} -T {{ add $witness.initialTCPPort $count }} --config-file ${KERI_SCRIPTS_DIR}/keri/cf/wit{{ $count }}.json"]
+          command: ["bash", "-c", "exec kli witness start --alias wit{{ $count }} -H {{ add $witness.initialHTTPPort $count }} -T {{ add $witness.initialTCPPort $count }} --config-file ${KERI_SCRIPTS_DIR}/keri/cf/wit{{ $count }}.json"]
           env:
             - name: KERI_VAR_DIR
               value: /usr/local/var/keri
             - name: KERI_SCRIPT_DIR
               value: $(KERI_VAR_DIR)/scripts
           ports:
-            - containerPort: {{ add $witness.initialPort $count }}
+            - containerPort: {{ add $witness.initialHTTPPort $count }}
               protocol: TCP
           volumeMounts:
             - mountPath: /usr/local/var/keri
