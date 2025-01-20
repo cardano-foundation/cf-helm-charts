@@ -12,7 +12,7 @@ metadata:
   name: witness-{{ $count }}
 spec:
   ports:
-    - name: {{ add $witness.initialPort $count }}
+    - name: {{ add $witness.initialPort $count | quote }}
       protocol: TCP
       targetPort: {{ add $witness.initialPort $count }}
   selector:
