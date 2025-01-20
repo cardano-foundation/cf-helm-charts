@@ -50,24 +50,24 @@ spec:
             - mountPath: configmap
               name: witness-configmap
       containers:
-        - name: witness
+        {{- range $count := until (int .witnessCount) }}
+        - name: witness-{{ $count }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
-          command: ["bash", "-c", "exec kli witness demo"]
+          command: ["bash", "-c", "exec kli witness start --alias wit{{ $count }} -H {{ add $witness.initialPort $count }} -T {{ add $witness.initialTCPPort $count }} --config-file ${KERI_SCRIPTS_DIR}/keri/cf/wit{{ $count }}.json"]
           env:
             - name: KERI_VAR_DIR
               value: /usr/local/var/keri
             - name: KERI_SCRIPT_DIR
               value: $(KERI_VAR_DIR)/scripts
           ports:
-            {{- range $count := until (int .witnessCount) }}
             - containerPort: {{ add $witness.initialPort $count }}
               protocol: TCP
-            {{- end }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keri-data
             - mountPath: /configmap
               name: witness-configmap
+        {{- end }}
       volumes:
         - name: keri-data
           persistentVolumeClaim:

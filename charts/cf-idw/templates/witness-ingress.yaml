@@ -28,7 +28,7 @@ spec:
               service:
                 name: witness-{{ $count }}
                 port:
-                  number: {{ add $witness.initialPort $count }}
+                  number: {{ add $witness.initialHTTPPort $count }}
       {{- end }}
     {{- end }}
   tls:

@@ -75,7 +75,8 @@ witness:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-witness"
     tag: "0.1.1-customize-keria-docker-image-863f2c2-9956455103"
   witnessCount: 6
-  initialPort: 5642
+  initialHTTPPort: 5642
+  initialTCPPort: 5632
   ingress:
     enabled: true
     hosts:
