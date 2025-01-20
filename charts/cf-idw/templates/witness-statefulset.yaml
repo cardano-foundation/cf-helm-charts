@@ -52,7 +52,7 @@ spec:
       containers:
         {{- range $count := until (int .witnessCount) }}
         - name: witness-{{ $count }}
-          image: "{{ .image.repository }}:{{ .image.tag }}"
+          image: "{{ $witness.image.repository }}:{{ $witness.image.tag }}"
           command: ["bash", "-c", "exec kli witness start --alias wit{{ $count }} -H {{ add $witness.initialPort $count }} -T {{ add $witness.initialTCPPort $count }} --config-file ${KERI_SCRIPTS_DIR}/keri/cf/wit{{ $count }}.json"]
           env:
             - name: KERI_VAR_DIR
