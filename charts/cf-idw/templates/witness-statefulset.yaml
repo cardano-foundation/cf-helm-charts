@@ -72,14 +72,14 @@ spec:
       volumes:
         - name: keri-data
           persistentVolumeClaim:
-            claimName: keri-wit{{ count }}-data
+            claimName: keri-wit{{ $count }}-data
         - name: witness-configmap
           configMap:
             name: witness
 
   volumeClaimTemplates:
     - metadata:
-        name: keri-wit{{count}}-data
+        name: keri-wit{{ $count }}-data
       spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
