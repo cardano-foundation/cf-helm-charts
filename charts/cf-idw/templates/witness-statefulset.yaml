@@ -68,7 +68,6 @@ spec:
               name: keri-data
             - mountPath: /configmap
               name: witness-configmap
-        {{- end }}
       volumes:
         - name: keri-data
           persistentVolumeClaim:
