@@ -48,7 +48,7 @@ spec:
               value: {{ $witness.initialHTTPPort | default "5642" | quote }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
-              name: keri-data
+              name: keri-witness-data
             - mountPath: configmap
               name: witness-configmap
       containers:
