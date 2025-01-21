@@ -49,7 +49,7 @@ spec:
             - name: KERIA_CURLS_URL
               value: $(KERIA_CURLS_PROTO)://witness-{{ $count | quote }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)
             - name: WITNESS_COUNTER
-              value: {{ $count | toString }}
+              value: {{ $count }}
             - name: INITIAL_PORT
               value: {{ $witness.initialHTTPPort | default "5642" | quote }}
           volumeMounts:
