@@ -65,11 +65,11 @@ spec:
               protocol: TCP
           volumeMounts:
             - mountPath: /usr/local/var/keri
-              name: keri-data
+              name: keri-witness-data
             - mountPath: /configmap
               name: witness-configmap
       volumes:
-        - name: keri-data
+        - name: keri-witness-data
           persistentVolumeClaim:
             claimName: keri-witness-data
         - name: witness-configmap
