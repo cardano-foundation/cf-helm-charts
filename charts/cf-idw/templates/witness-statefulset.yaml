@@ -42,10 +42,10 @@ spec:
               value: /usr/local/var/keri
             - name: KERI_SCRIPT_DIR
               value: $(KERI_VAR_DIR)/scripts
-            - name: KERI_CURLS_PROTO
+            - name: KERIA_CURLS_PROTO
               value: {{ $witness.keriaCurlsProto | default "https" | quote }}
             - name: KERIA_CURLS_EXTERNAL_HOST_TLD
-              value: {{ $root.ingressTLD | quote }}
+              value: {{ $root.ingressTLDs | first | quote }}
             - name: KERIA_CURLS_URL
               value: $(KERIA_CURLS_PROTO)://witness-{{ $count | quote }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)
             - name: INITIAL_PORT
