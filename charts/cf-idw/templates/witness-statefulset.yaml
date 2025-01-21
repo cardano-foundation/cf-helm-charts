@@ -2,84 +2,88 @@
 {{ with .Values.witness }}
 {{- $witness := . -}}
 {{- if $witness.enabled -}}
+{{- range $count := until (int .witnessCount) }}
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: witness
-  name: witness
+    app: witness-{{ $count }}
+  name: witness-{{ $count }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: witness
+      app: witness-{{ $count }}
   template:
     metadata:
       labels:
-        app: witness
+        app: witness-{{ $count }}
     spec:
       restartPolicy: Always
-      {{- if .tolerations }}
+      {{- if $witness.tolerations }}
       tolerations:
-        {{ with index .tolerations }}
+        {{ with index $witness.tolerations }}
 {{ toYaml . | nindent 8 }}
         {{- end }}
       {{- end }}
-      {{- if .affinity }}
+      {{- if $witness.affinity }}
       affinity:
-        {{ with index .affinity }}
+        {{ with index $witness.affinity }}
 {{ toYaml . | nindent 8 }}
         {{- end }}
       {{- end }}
       initContainers:
         - name: init-witness
-          image: "{{ .image.repository }}:{{ .image.tag }}"
+          image: "{{ $witness.image.repository }}:{{ $witness.image.tag }}"
           command: ["bash", "-x", "/configmap/witness-init.sh"]
           env:
             - name: KERI_VAR_DIR
               value: /usr/local/var/keri
             - name: KERI_SCRIPT_DIR
               value: $(KERI_VAR_DIR)/scripts
-            - name: KERIA_CURLS
-              value: {{ .keriaCurls | default "http://keria:3901" | quote }}
+            - name: WITNESS_COUNT
+              value: {{ $witness.witnessCount | default "6" | quote }}
+            - name: INITIAL_PORT
+              value: {{ $witness.initialHTTPPort | default "5642" | quote }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
-              name: keri-data
+              name: keri-witness-data
             - mountPath: configmap
               name: witness-configmap
       containers:
-        - name: witness
-          image: "{{ .image.repository }}:{{ .image.tag }}"
-          command: ["bash", "-c", "exec kli witness start --name witness --alias witness"]
+        - name: witness-{{ $count }}
+          image: "{{ $witness.image.repository }}:{{ $witness.image.tag }}"
+          command: ["bash", "-c", "exec kli witness start --alias wit{{ $count }} -H {{ add $witness.initialHTTPPort $count }} -T {{ add $witness.initialTCPPort $count }} --config-file ${KERI_SCRIPTS_DIR}/keri/cf/wit{{ $count }}.json"]
           env:
             - name: KERI_VAR_DIR
               value: /usr/local/var/keri
             - name: KERI_SCRIPT_DIR
               value: $(KERI_VAR_DIR)/scripts
           ports:
-            - containerPort: {{ .port | default 5631 }}
+            - containerPort: {{ add $witness.initialHTTPPort $count }}
               protocol: TCP
           volumeMounts:
             - mountPath: /usr/local/var/keri
-              name: keri-data
+              name: keri-witness-data
             - mountPath: /configmap
               name: witness-configmap
       volumes:
-        - name: keri-data
+        - name: keri-witness-data
           persistentVolumeClaim:
-            claimName: keri-data
+            claimName: keri-witness-data
         - name: witness-configmap
           configMap:
             name: witness
 
   volumeClaimTemplates:
     - metadata:
-        name: keri-data
+        name: keri-witness-data
       spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: {{ .volumeSize | default "1Gi" }}
-
+            storage: {{ $witness.volumeSize | default "1Gi" }}
+{{- end }}
 {{ end }}
 {{ end }}

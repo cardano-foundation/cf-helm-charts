@@ -2,18 +2,22 @@
 {{ with .Values.witness }}
 {{- $witness := . -}}
 {{- if $witness.enabled -}}
+{{- range $count := until (int .witnessCount) }}
+---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     app: witness
-  name: witness
+  name: witness-{{ $count }}
 spec:
   ports:
-    - name: {{ .port | quote }}
-      port: {{ .port }}
-      targetPort: {{ .port }}
+    - name: {{ add $witness.initialHTTPPort $count | quote }}
+      port: {{ add $witness.initialHTTPPort $count }}
+      protocol: TCP
+      targetPort: {{ add $witness.initialHTTPPort $count }}
   selector:
-    app: witness
+    app: witness-{{ $count }}
+{{- end }}
 {{ end }}
 {{ end }}

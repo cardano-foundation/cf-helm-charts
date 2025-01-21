@@ -1,0 +1,40 @@
+{{- $root := .Values -}}
+{{ with .Values.cip45 }}
+{{- if .ingress.enabled -}}
+{{- $cip45 := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cip45-ingress
+  labels:
+    app: cip45
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $cip45.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cip45
+                port:
+                  number: {{ $cip45.port | default 80 }}
+      {{- end }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $cip45.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
+    {{- end }}
+{{ end }}
+{{ end }}

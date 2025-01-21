@@ -5,7 +5,7 @@ credIssuance:
   enabled: true
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance"
-    tag: "0.1.1-develop-612b15f-9895437336"
+    tag: "develop"
   port: 3001
   ingress:
     enabled: true
@@ -16,18 +16,29 @@ credIssuanceUI:
   enabled: true
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance-ui"
-    tag: "0.1.1-develop-612b15f-9895437336"
+    tag: "develop"
   port: 80
   ingress:
     enabled: true
     hosts:
       - cred-issuance-ui
 
+cip45:
+  enabled: true
+  image:
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cip45-sample-dapp"
+    tag: "develop"
+  port: 80
+  ingress:
+    enabled: true
+    hosts:
+      - cip45
+
 keria:
   enabled: true
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-keria"
-    tag: "0.1.1-develop-612b15f-9895437336"
+    tag: "develop"
   ports:
     - 3901
     - 3902
@@ -41,13 +52,16 @@ keria:
         port: 3902
       - name: keria-boot
         port: 3903
+  secret:
+    name: cf-idw-secrets
+    keriaPasscodeKey: KERIA_PASSCODE
 
 keriaProvisioning:
-  enabled: true
+  enabled: false
   kind: StatefulSet
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-keria-provisioning"
-    tag: "1.0.0-SNAPSHOT-PR6-b8b2d2b-10079980400"
+    tag: "main"
   port: 9030
   ingress:
     enabled: true
@@ -71,7 +85,9 @@ witness:
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-witness"
     tag: "0.1.1-customize-keria-docker-image-863f2c2-9956455103"
-  port: 5631
+  witnessCount: 6
+  initialHTTPPort: 5642
+  initialTCPPort: 5632
   ingress:
     enabled: true
     hosts:
