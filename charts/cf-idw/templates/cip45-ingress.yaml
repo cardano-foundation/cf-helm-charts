@@ -1,7 +1,7 @@
 {{- $root := .Values -}}
-{{ with .Values.credIssuanceUI }}
+{{ with .Values.cip45 }}
 {{- if .ingress.enabled -}}
-{{- $credIssuanceUI := . -}}
+{{- $cip45 := . -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -16,7 +16,7 @@ metadata:
 spec:
   rules:
     {{- range $TLD := $root.ingressTLDs }}
-      {{- range $host := $credIssuanceUI.ingress.hosts }}
+      {{- range $host := $cip45.ingress.hosts }}
     - host: {{ $host }}.{{ $TLD }}
       http:
         paths:
@@ -26,13 +26,13 @@ spec:
               service:
                 name: cip45
                 port:
-                  number: {{ $credIssuanceUI.port | default 80 }}
+                  number: {{ $cip45.port | default 80 }}
       {{- end }}
     {{- end }}
   tls:
     - hosts:
     {{- range $TLD := $root.ingressTLDs }}
-      {{- range $host := $credIssuanceUI.ingress.hosts }}
+      {{- range $host := $cip45.ingress.hosts }}
         - "{{ $host }}.{{ $TLD }}"
       {{- end }}
     {{- end }}
