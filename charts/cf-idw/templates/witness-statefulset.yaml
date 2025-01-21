@@ -46,6 +46,8 @@ spec:
               value: {{ $witness.witnessCount | default "6" | quote }}
             - name: INITIAL_PORT
               value: {{ $witness.initialHTTPPort | default "5642" | quote }}
+            - name: KERIA_CURLS
+              value: {{ $witness.keriaCurls | default "http://witness-0:5641" | quote }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keri-witness-data

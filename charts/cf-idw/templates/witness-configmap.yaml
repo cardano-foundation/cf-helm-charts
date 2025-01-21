@@ -9,7 +9,6 @@ data:
       mkdir -p ${KERI_VAR_DIR}/data
       mkdir -p ${KERI_SCRIPT_DIR}/keri/cf
       set -e
-      export KERIA_CURLS=$(for wit in $(seq 0 ${WITNESS_COUNT}); do echo "http://keria:$(( INITIAL_PORT + wit ))"; done | xargs echo)
       export KERIA_RENDERED_CURLS=$(for keria_curl in ${KERIA_CURLS}; do echo $keria_curl; done | jq -cRn '[inputs]')
       for witness in $(seq 0 $(( WITNESS_COUNT - 1 )));
       do
