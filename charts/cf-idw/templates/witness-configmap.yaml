@@ -11,13 +11,10 @@ data:
       set -e
       export KERIA_CURLS="${KERIA_CURLS_URL}"
       export KERIA_RENDERED_CURLS=$(for keria_curl in ${KERIA_CURLS}; do echo $keria_curl; done | jq -cRn '[inputs]')
-      for witness in $(seq 0 $(( WITNESS_COUNT - 1 )));
-      do
-        export WITNESS_NAME="wit${witness}"
-        envsubst < /configmap/witness.json.tpl > ${KERI_SCRIPT_DIR}/keri/cf/${WITNESS_NAME}.json
-        kli init --name ${WITNESS_NAME} --nopasscode --config-dir ${KERI_SCRIPT_DIR} --config-file ${WITNESS_NAME}.json
-        kli incept --name ${WITNESS_NAME} --alias ${WITNESS_NAME} --config ${KERI_SCRIPT_DIR} --file /configmap/wil-witness-sample.json
-      done
+      export WITNESS_NAME="wit${WITNESS_COUNTER}"
+      envsubst < /configmap/witness.json.tpl > ${KERI_SCRIPT_DIR}/keri/cf/${WITNESS_NAME}.json
+      kli init --name ${WITNESS_NAME} --nopasscode --config-dir ${KERI_SCRIPT_DIR} --config-file ${WITNESS_NAME}.json
+      kli incept --name ${WITNESS_NAME} --alias ${WITNESS_NAME} --config ${KERI_SCRIPT_DIR} --file /configmap/wil-witness-sample.json
     fi
 
   witness.json.tpl: |
