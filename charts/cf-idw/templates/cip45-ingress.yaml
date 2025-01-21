@@ -1,0 +1,40 @@
+{{- $root := .Values -}}
+{{ with .Values.credIssuanceUI }}
+{{- if .ingress.enabled -}}
+{{- $credIssuanceUI := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cip45-ingress
+  labels:
+    app: cip45
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $credIssuanceUI.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cip45
+                port:
+                  number: {{ $credIssuanceUI.port | default 80 }}
+      {{- end }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $credIssuanceUI.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
+    {{- end }}
+{{ end }}
+{{ end }}

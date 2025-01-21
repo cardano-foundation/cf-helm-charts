@@ -1,0 +1,17 @@
+{{ with .Values.credIssuanceUI }}
+{{ if .enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cip45
+  name: cip45
+spec:
+  ports:
+    - name: {{ .port | default "80" | quote }}
+      port: {{ .port | default 80 }}
+      targetPort: {{ .port | default 80 }}
+  selector:
+    app: cip45
+{{ end }}
+{{ end }}

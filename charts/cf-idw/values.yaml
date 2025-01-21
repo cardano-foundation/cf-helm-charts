@@ -23,6 +23,17 @@ credIssuanceUI:
     hosts:
       - cred-issuance-ui
 
+cip45:
+  enabled: true
+  image:
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance-ui"
+    tag: "0.1.1-develop-612b15f-9895437336"
+  port: 80
+  ingress:
+    enabled: true
+    hosts:
+      - cip45
+
 keria:
   enabled: true
   image:
