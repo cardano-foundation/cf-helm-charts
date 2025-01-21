@@ -26,7 +26,7 @@ credIssuanceUI:
 cip45:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance-ui"
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cip45-sample-dapp"
     tag: "0.1.1-develop-612b15f-9895437336"
   port: 80
   ingress:
