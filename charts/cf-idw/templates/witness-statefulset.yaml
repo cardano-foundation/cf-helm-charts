@@ -42,12 +42,14 @@ spec:
               value: /usr/local/var/keri
             - name: KERI_SCRIPT_DIR
               value: $(KERI_VAR_DIR)/scripts
-            - name: WITNESS_COUNT
-              value: {{ $witness.witnessCount | default "6" | quote }}
+            - name: KERI_CURLS_PROTO
+              value: {{ $witness.keriaCurlsProto | default "https" | quote }}
+            - name: KERIA_CURLS_EXTERNAL_HOST_TLD
+              value: {{ $root.ingressTLD | quote }}
+            - name: KERIA_CURLS_URL
+              value: $(KERIA_CURLS_PROTO)://witness-{{ $count | quote }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)
             - name: INITIAL_PORT
               value: {{ $witness.initialHTTPPort | default "5642" | quote }}
-            - name: KERIA_CURLS
-              value: {{ $witness.keriaCurls | default "http://witness-0:5641" | quote }}
           volumeMounts:
             - mountPath: /usr/local/var/keri
               name: keri-witness-data
