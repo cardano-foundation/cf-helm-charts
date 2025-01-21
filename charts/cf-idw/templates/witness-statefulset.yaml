@@ -47,7 +47,7 @@ spec:
             - name: KERIA_CURLS_EXTERNAL_HOST_TLD
               value: {{ $root.ingressTLDs | first | quote }}
             - name: KERIA_CURLS_URL
-              value: $(KERIA_CURLS_PROTO)://witness-{{ $count }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)
+              value: $(KERIA_CURLS_PROTO)://witness-{{ $count | printf "%s" }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)
             - name: WITNESS_COUNTER
               value: {{ $count | quote }}
             - name: INITIAL_PORT
