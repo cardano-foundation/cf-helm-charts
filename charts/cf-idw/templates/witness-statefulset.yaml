@@ -42,8 +42,14 @@ spec:
               value: /usr/local/var/keri
             - name: KERI_SCRIPT_DIR
               value: $(KERI_VAR_DIR)/scripts
-            - name: WITNESS_COUNT
-              value: {{ $witness.witnessCount | default "6" | quote }}
+            - name: KERIA_CURLS_PROTO
+              value: {{ $witness.keriaCurlsProto | default "https" | quote }}
+            - name: KERIA_CURLS_EXTERNAL_HOST_TLD
+              value: {{ $root.ingressTLDs | first | quote }}
+            - name: KERIA_CURLS_URL
+              value: "$(KERIA_CURLS_PROTO)://witness-{{ $count }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)"
+            - name: WITNESS_COUNTER
+              value: {{ $count | quote }}
             - name: INITIAL_PORT
               value: {{ $witness.initialHTTPPort | default "5642" | quote }}
           volumeMounts:
@@ -54,7 +60,7 @@ spec:
       containers:
         - name: witness-{{ $count }}
           image: "{{ $witness.image.repository }}:{{ $witness.image.tag }}"
-          command: ["bash", "-c", "exec kli witness start --alias wit{{ $count }} -H {{ add $witness.initialHTTPPort $count }} -T {{ add $witness.initialTCPPort $count }} --config-file ${KERI_SCRIPTS_DIR}/keri/cf/wit{{ $count }}.json"]
+          command: ["bash", "-c", "exec kli witness start --name wit{{ $count}} --alias wit{{ $count }} -H {{ add $witness.initialHTTPPort $count }} -T {{ add $witness.initialTCPPort $count }} --config-file ${KERI_SCRIPT_DIR}/keri/cf/wit{{ $count }}.json"]
           env:
             - name: KERI_VAR_DIR
               value: /usr/local/var/keri
