@@ -14,8 +14,8 @@ data:
       export WITNESS_NAME="wit${WITNESS_COUNTER}"
       envsubst < /configmap/witness.json.tpl > ${KERI_SCRIPT_DIR}/keri/cf/${WITNESS_NAME}.json
       cat ${KERI_SCRIPT_DIR}/keri/cf/${WITNESS_NAME}.json
-      #kli init --name ${WITNESS_NAME} --nopasscode --config-dir ${KERI_SCRIPT_DIR} --config-file ${WITNESS_NAME}.json
-      #kli incept --name ${WITNESS_NAME} --alias ${WITNESS_NAME} --config ${KERI_SCRIPT_DIR} --file /configmap/wil-witness-sample.json
+      kli init --name ${WITNESS_NAME} --nopasscode --config-dir ${KERI_SCRIPT_DIR} --config-file ${WITNESS_NAME}.json
+      kli incept --name ${WITNESS_NAME} --alias ${WITNESS_NAME} --config ${KERI_SCRIPT_DIR} --file /configmap/wil-witness-sample.json
     fi
 
   witness.json.tpl: |
