@@ -56,7 +56,7 @@ spec:
                   name: {{ .secret.name }}
                   key: {{ .secret.keriaPasscodeKey }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
-          command: ["keria", "start", "--loglegel", "${LOG_LEVEL}", "--config-file", "backer-oobis", "--config-dir", "./scripts"]
+          command: ["keria", "start", "--loglevel", "${LOG_LEVEL}", "--config-file", "backer-oobis", "--config-dir", "./scripts"]
           ports:
           {{- range $port := .ports }}
             - containerPort: {{ $port }}
