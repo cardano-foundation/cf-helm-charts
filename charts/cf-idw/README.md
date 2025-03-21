@@ -38,82 +38,82 @@ This document provides an overview of the configurable values for the Helm chart
 
 | Parameter      | Description                        | Type   | Default         |
 |----------------|------------------------------------|--------|-----------------|
-| `enabled`      | Enable or disable the service      | Boolean| `true`          |
-| `image.repository` | Docker repository for the image | String | `cardanofoundation/cf-cred-issuance` |
-| `image.tag`    | Tag of the image                   | String | `main`          |
-| `port`         | Port on which the service listens  | Integer| `3001`          |
-| `ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
-| `ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["cred-issuance"]` |
+| `credIssuance.enabled`      | Enable or disable the service      | Boolean| `true`          |
+| `credIssuance.image.repository` | Docker repository for the image | String | `cardanofoundation/cf-cred-issuance` |
+| `credIssuance.image.tag`    | Tag of the image                   | String | `main`          |
+| `credIssuance.port`         | Port on which the service listens  | Integer| `3001`          |
+| `credIssuance.ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
+| `credIssuance.ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["cred-issuance"]` |
 
 ### Credential Issuance UI (`credIssuanceUI`)
 
 | Parameter      | Description                        | Type   | Default         |
 |----------------|------------------------------------|--------|-----------------|
-| `enabled`      | Enable or disable the service      | Boolean| `true`          |
-| `image.repository` | Docker repository for the image | String | `cardanofoundation/cf-cred-issuance-ui` |
-| `image.tag`    | Tag of the image                   | String | `main`          |
-| `port`         | Port on which the service listens  | Integer| `80`            |
-| `ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
-| `ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["cred-issuance-ui"]` |
+| `credIssuanceUI.enabled`      | Enable or disable the service      | Boolean| `true`          |
+| `credIssuanceUI.image.repository` | Docker repository for the image | String | `cardanofoundation/cf-cred-issuance-ui` |
+| `credIssuanceUI.image.tag`    | Tag of the image                   | String | `main`          |
+| `credIssuanceUI.port`         | Port on which the service listens  | Integer| `80`            |
+| `credIssuanceUI.ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
+| `credIssuanceUI.ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["cred-issuance-ui"]` |
 
 ### CIP45 Sample DApp (`cip45`)
 
 | Parameter      | Description                        | Type   | Default         |
 |----------------|------------------------------------|--------|-----------------|
-| `enabled`      | Enable or disable the service      | Boolean| `true`          |
-| `image.repository` | Docker repository for the image | String | `cardanofoundation/cf-cip45-sample-dapp` |
-| `image.tag`    | Tag of the image                   | String | `main`          |
-| `port`         | Port on which the service listens  | Integer| `80`            |
-| `ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
-| `ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["cip45"]`     |
+| `cip45.enabled`      | Enable or disable the service      | Boolean| `true`          |
+| `cip45.image.repository` | Docker repository for the image | String | `cardanofoundation/cf-cip45-sample-dapp` |
+| `cip45.image.tag`    | Tag of the image                   | String | `main`          |
+| `cip45.port`         | Port on which the service listens  | Integer| `80`            |
+| `cip45.ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
+| `cip45.ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["cip45"]`     |
 
 ### Keria (`keria`)
 
 | Parameter      | Description                        | Type   | Default         |
 |----------------|------------------------------------|--------|-----------------|
-| `enabled`      | Enable or disable the service      | Boolean| `true`          |
-| `image.repository` | Docker repository for the image | String | `cardanofoundation/cf-idw-keria` |
-| `image.tag`    | Tag of the image                   | String | `main`          |
-| `logLevel`     | Log level for the service          | String | `INFO`          |
-| `ports`        | Ports on which the service listens | Array of integers | `[3901, 3902, 3903]` |
-| `ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
-| `ingress.hosts` | subdomains-to-service-port that will be use as prefix for the ingress, preprended to each `ingressTLDs` | Array of objects | `[{"name": "keria", "port": 3901}, {"name": "keria-ext", "port": 3902}, {"name": "keria-boot", "port": 3903}]` |
-| `secret.name`  | Name of the secret                 | String | `cf-idw-secrets`|
-| `secret.keriaPasscodeKey` | Key for the Keria passcode in the secret | String | `KERIA_PASSCODE` |
+| `keria.enabled`      | Enable or disable the service      | Boolean| `true`          |
+| `keria.image.repository` | Docker repository for the image | String | `cardanofoundation/cf-idw-keria` |
+| `keria.image.tag`    | Tag of the image                   | String | `main`          |
+| `keria.logLevel`     | Log level for the service          | String | `INFO`          |
+| `keria.ports`        | Ports on which the service listens | Array of integers | `[3901, 3902, 3903]` |
+| `keria.ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
+| `keria.ingress.hosts` | subdomains-to-service-port that will be use as prefix for the ingress, preprended to each `ingressTLDs` | Array of objects | `[{"name": "keria", "port": 3901}, {"name": "keria-ext", "port": 3902}, {"name": "keria-boot", "port": 3903}]` |
+| `keria.secret.name`  | Name of the secret                 | String | `cf-idw-secrets`|
+| `keria.secret.keriaPasscodeKey` | Key for the Keria passcode in the secret | String | `KERIA_PASSCODE` |
 
 ### Keria Provisioning (`keriaProvisioning`)
 
 | Parameter      | Description                        | Type   | Default         |
 |----------------|------------------------------------|--------|-----------------|
-| `enabled`      | Enable or disable the service      | Boolean| `false`         |
-| `kind`         | Kubernetes kind for the service. `Deployment` kind will be dependent of a postgres db. | String | `StatefulSet`   |
-| `image.repository` | Docker repository for the image | String | `cardanofoundation/cf-keria-provisioning` |
-| `image.tag`    | Tag of the image                   | String | `main`          |
-| `port`         | Port on which the service listens  | Integer| `9030`          |
-| `ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
-| `ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["keria-provisioning"]` |
-| `smtp.secret.name` | Name of the secret for SMTP    | String | `cf-idw-secrets`|
-| `smtp.secret.sesAccessKeyIdKey` | Key for the AWS SES access key in the secret | String | `SES_ACCESS_KEY_ID` |
-| `smtp.secret.sesPasswordKey` | Key for the AWS SES password in the secret | String | `SES_SMTP_PASSWORD` |
-| `db.secret.name` | Name of the secret for the database | String | `cf-idw-secrets` |
-| `db.secret.usernameKey` | Key for the database username in the secret | String | `POSTGRES_USER` |
-| `db.secret.passwordKey` | Key for the database password in the secret | String | `POSTGRES_PASSWORD` |
-| `db.secret.hostKey` | Key for the database host in the secret | String | `POSTGRES_HOST` |
-| `db.secret.dbNameKey` | Key for the database name in the secret | String | `POSTGRES_DB` |
+| `keriaProvisioning.enabled`      | Enable or disable the service      | Boolean| `false`         |
+| `keriaProvisioning.kind`         | Kubernetes kind for the service. `Deployment` kind will be dependent of a postgres db. | String | `StatefulSet`   |
+| `keriaProvisioning.image.repository` | Docker repository for the image | String | `cardanofoundation/cf-keria-provisioning` |
+| `keriaProvisioning.image.tag`    | Tag of the image                   | String | `main`          |
+| `keriaProvisioning.port`         | Port on which the service listens  | Integer| `9030`          |
+| `keriaProvisioning.ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
+| `keriaProvisioning.ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["keria-provisioning"]` |
+| `keriaProvisioning.smtp.secret.name` | Name of the secret for SMTP    | String | `cf-idw-secrets`|
+| `keriaProvisioning.smtp.secret.sesAccessKeyIdKey` | Key for the AWS SES access key in the secret | String | `SES_ACCESS_KEY_ID` |
+| `keriaProvisioning.smtp.secret.sesPasswordKey` | Key for the AWS SES password in the secret | String | `SES_SMTP_PASSWORD` |
+| `keriaProvisioning.db.secret.name` | Name of the secret for the database | String | `cf-idw-secrets` |
+| `keriaProvisioning.db.secret.usernameKey` | Key for the database username in the secret | String | `POSTGRES_USER` |
+| `keriaProvisioning.db.secret.passwordKey` | Key for the database password in the secret | String | `POSTGRES_PASSWORD` |
+| `keriaProvisioning.db.secret.hostKey` | Key for the database host in the secret | String | `POSTGRES_HOST` |
+| `keriaProvisioning.db.secret.dbNameKey` | Key for the database name in the secret | String | `POSTGRES_DB` |
 
 ### Witness (`witness`)
 
 | Parameter      | Description                        | Type   | Default         |
 |----------------|------------------------------------|--------|-----------------|
-| `enabled`      | Enable or disable the service      | Boolean| `true`          |
-| `image.repository` | Docker repository for the image | String | `cardanofoundation/cf-idw-witness` |
-| `image.tag`    | Tag of the image                   | String | `0.1.1-customize-keria-docker-image-863f2c2-9956455103` |
-| `witnessCount` | Number of witnesses                | Integer| `6`             |
-| `initialHTTPPort` | Initial HTTP port               | Integer| `5642`          |
-| `initialTCPPort` | Initial TCP port                 | Integer| `5632`          |
-| `logLevel`     | Log level for the service          | String | `INFO`          |
-| `ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
-| `ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["witness"]`   |
+| `witness.enabled`      | Enable or disable the service      | Boolean| `true`          |
+| `witness.image.repository` | Docker repository for the image | String | `cardanofoundation/cf-idw-witness` |
+| `witness.image.tag`    | Tag of the image                   | String | `0.1.1-customize-keria-docker-image-863f2c2-9956455103` |
+| `witness.witnessCount` | Number of witnesses                | Integer| `6`             |
+| `witness.initialHTTPPort` | Initial HTTP port               | Integer| `5642`          |
+| `witness.initialTCPPort` | Initial TCP port                 | Integer| `5632`          |
+| `witness.logLevel`     | Log level for the service          | String | `INFO`          |
+| `witness.ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
+| `witness.ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["witness"]`   |
 
 
 [helm]: https://helm.sh
