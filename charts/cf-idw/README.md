@@ -56,7 +56,7 @@ Most of the default values should be fine for a basic deployment. However, you c
 For example, although the chart will generate a keria passcode for you automatically, you might still want to provide one yourself by setting the `keria.passCode` value. In order to do that, you can use [signify-ts](https://github.com/WebOfTrust/signify-ts) to generate a passcode, our use our handy docker image like this:
 
 ```
-KERIA_PASSCODE=$(docker run -it --rm cf-keria-passcode-gen | tr -d '\r')
+docker run -it --rm cardanofoundation/cf-keria-passcode-gen 
 ```
 
 You can install the chart with the release name `my-release` by executing the following command with the minimum required value for the ingress controller `ingressTLDs`:
