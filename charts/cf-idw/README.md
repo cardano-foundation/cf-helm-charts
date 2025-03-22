@@ -9,10 +9,6 @@ Before you begin, ensure you have the following:
 - A Kubernetes cluster
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) installed
 - [helm](https://helm.sh) installed
-- Add the Cardano Foundation Helm chart repository:
-  ```sh
-  helm repo add cardano-foundation https://cardano-foundation.github.io/cf-helm-charts/
-  ```
 
 ## Installation
 
