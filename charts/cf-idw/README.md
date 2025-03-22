@@ -14,17 +14,74 @@ helm repo add cardano-foundation https://cardano-foundation.github.io/cf-helm-ch
 
 ## Installation
 
-First of all, ensure you have your the proper `KUBECONFIG` and `kubectl context` set for your destination cluster.
+First of all, ensure you have your the proper `KUBECONFIG` and `kubectl context` set for your destination cluster. Then, you can follow one of the following methods to install the chart.
 
-To install the chart with the release name `my-release` just execute:
+## helm-install script
+
+This script will automatically configure the witnesses deployed by the chart that Keria service will use. It will also generate the Keria passcode and store it in a secret.
+
+Please do not blindly download and execute install scripts, we recommend that you always review them before executing:
+
+* Download and review the script at `/tmp/helm-install.sh`:
 
 ```sh
-helm install my-release cardano-foundation/cf-idw
+curl -so /tmp/helm-install.sh https://raw.githubusercontent.com/cardano-foundation/cf-helm-charts/main/charts/cf-idw/helm-install.sh
 ```
 
-# Helm Chart Values
+* Execute the script providing these minimum required environment variables:
 
-This document provides an overview of the configurable values for the Helm chart. These values can be set in the `values.yaml` file to customize the deployment of the chart.
+```sh
+export NAMESPACE=cf-idw-services
+export WITNESS_COUNT=6                         # Number of witnesses to deploy
+export PUBLIC_DOMAINS=3x4mpl3.com,example.com  # Comma-separated list of public domains where the deployment will be served from 
+bash /tmp/helm-install.sh
+```
+
+If you already have an ingress controller in your cluster that manages SSL certificates, you can get the full list of URLs by executing the following:
+
+```
+for host in $(kubectl get ingress -n cf-idw-services -o jsonpath='{.items[*].spec.rules[*].host}' ); do echo https://$host; done | sort
+```
+
+## Manual helm install
+
+Firstly, you'll need to add our Helm repository:
+
+```sh
+helm repo add cardano-foundation https://cardano-foundation.github.io/cf-helm-charts
+```
+
+Most of the default values should be fine for a basic deployment. However, you can customize the deployment by creating a `values.yaml` file with the desired values from the [documentation](#Values) and pass it to `helm` by using the `-f values.yaml` argument. 
+
+For example, although the chart will generate a keria passcode for you automatically, you might still want to provide one yourself by setting the `keria.passCode` value. In order to do that, you can use [signify-ts](https://github.com/WebOfTrustInfo/signify-ts) to generate a passcode, our use our handy docker image like this:
+
+```
+KERIA_PASSCODE=$(docker run -it --rm cf-keria-passcode-gen | tr -d '\r')
+```
+
+You can install the chart with the release name `my-release` by executing the following command with the minimum required value for the ingress controller `ingressTLDs`:
+
+```sh
+PUBLIC_DOMAINS="3x4mpl3.com,example.com"
+
+helm install \
+  my-release \
+  --set ingressTLDs="{$PUBLIC_DOMAINS}" \
+  cardano-foundation/cf-idw
+```
+
+The chart will then show as install notes a snippet of code that you can use to configure keria to use the witnesses deployed by the chart. You can also use the following command to provide your own list of witnesses:
+
+```
+WITNESSES_URLS="https://witness0.other.com/oobi/BI3WKCsAmFq2NteYBf3Wt5iW7T1ynnBqponEMjHM0dtI https://witness1.other.com/oobi/BJftdAJsxd40opYt-dE0iOVZDXssITq_Xv2E83Hch1HX"
+
+helm upgrade my-release cardano-foundation/cf-idw --reuse-values \
+  --set keria.keriaIurls="$WITNESSES_URLS"
+```
+
+# Values
+
+This is an overview of the configurable values for the Helm chart. These values can be set in a `values.yaml` file to customize the deployment of the chart.
 
 ## Global Configuration
 
@@ -109,8 +166,8 @@ This document provides an overview of the configurable values for the Helm chart
 | `witness.image.repository` | Docker repository for the image | String | `cardanofoundation/cf-idw-witness` |
 | `witness.image.tag`    | Tag of the image                   | String | `0.1.1-customize-keria-docker-image-863f2c2-9956455103` |
 | `witness.witnessCount` | Number of witnesses                | Integer| `6`             |
-| `witness.initialHTTPPort` | Initial HTTP port               | Integer| `5642`          |
-| `witness.initialTCPPort` | Initial TCP port                 | Integer| `5632`          |
+| `witness.initialHTTPPort` | Initial HTTP port. Any extra witness will increment its port from this one | Integer| `5642`          |
+| `witness.initialTCPPort` | Initial TCP port. Any extra witness will increment its port from this one | Integer| `5632`          |
 | `witness.logLevel`     | Log level for the service          | String | `INFO`          |
 | `witness.ingress.enabled` | Enable or disable ingress       | Boolean| `true`          |
 | `witness.ingress.hosts` | subdomain that will be preprended to the `ingressTLDs` | Array of strings | `["witness"]`   |
