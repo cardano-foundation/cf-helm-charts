@@ -59,7 +59,7 @@ For example, although the chart will generate a keria passcode for you automatic
 docker run -it --rm cardanofoundation/cf-keria-passcode-gen 
 ```
 
-You can install the chart with the release name `my-release` by executing the following command with the minimum required value for the ingress controller `ingressTLDs`:
+You can install the chart with the release name `my-release` by executing the following command with the minimum required value for the ingress controller `ingressTLDs` which will be used to configure the external URLs for the services:
 
 ```sh
 PUBLIC_DOMAINS="3x4mpl3.com,example.com"
