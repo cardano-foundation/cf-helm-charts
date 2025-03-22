@@ -51,7 +51,7 @@ Firstly, you'll need to add our Helm repository:
 helm repo add cardano-foundation https://cardano-foundation.github.io/cf-helm-charts
 ```
 
-Most of the default values should be fine for a basic deployment. However, you can customize the deployment by creating a `values.yaml` file with the desired values from the [documentation](#Values) and pass it to `helm` by using the `-f values.yaml` argument. 
+Most of the default values should be fine for a basic deployment. However, you can customize the deployment by creating a `values.yaml` file with the desired values from the [documentation](#Values) and passing it to `helm` by using the `-f values.yaml` argument. 
 
 For example, although the chart will generate a keria passcode for you automatically, you might still want to provide one yourself by setting the `keria.passCode` value. In order to do that, you can use [signify-ts](https://github.com/WebOfTrustInfo/signify-ts) to generate a passcode, our use our handy docker image like this:
 
