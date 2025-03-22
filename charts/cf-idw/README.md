@@ -1,83 +1,70 @@
 # Cardano Foundation ID Wallet Helm Chart
 
-This Helm chart deploys various components of the Cardano Foundation ID Wallet (cf-idw) including credential issuance, CIP45 sample DApp, Keria, and others.
+This Helm chart deploys various components of the Cardano Foundation ID Wallet (cf-idw), including credential issuance, CIP45 sample DApp, Keria, and others.
 
 ## Prerequisites
 
+Before you begin, ensure you have the following:
+
 - A Kubernetes cluster
-- [kubectl] installed
-- [helm] installed
-- Cardano Foundation helm chart repository added:
-```
-helm repo add cardano-foundation https://cardano-foundation.github.io/cf-helm-charts/
-```
+- [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) installed
+- [helm](https://helm.sh) installed
+- Add the Cardano Foundation Helm chart repository:
+  ```sh
+  helm repo add cardano-foundation https://cardano-foundation.github.io/cf-helm-charts/
+  ```
 
 ## Installation
 
-First of all, ensure you have your the proper `KUBECONFIG` and `kubectl context` set for your destination cluster. Then, you can follow one of the following methods to install the chart.
+Ensure your `KUBECONFIG` and `kubectl context` are set for your destination cluster. Then, follow one of the methods below to install the chart.
 
-## helm-install script
+### Using the helm-install Script
 
-This script will automatically configure the witnesses deployed by the chart that Keria service will use. It will also generate the Keria passcode and store it in a secret.
+1. **Download AND review the script**:
+   ```sh
+   curl -so /tmp/helm-install.sh https://raw.githubusercontent.com/cardano-foundation/cf-helm-charts/main/charts/cf-idw/helm-install.sh
+   ```
 
-Please do not blindly download and execute install scripts, we recommend that you always review them before executing:
+2. **Execute the script** with the required environment variables:
+   ```sh
+   export NAMESPACE=cf-idw-services
+   export WITNESS_COUNT=6  # Number of witnesses to deploy
+   export PUBLIC_DOMAINS=3x4mpl3.com,example.com  # Comma-separated list of public domains where the deployment will be served from 
+   bash /tmp/helm-install.sh
+   ```
 
-* Download and review the script at `/tmp/helm-install.sh`:
+3. **Get the full list of URLs** if you already have an ingress controller managing SSL certificates:
+   ```sh
+   for host in $(kubectl get ingress -n ${NAMESPACE} -o jsonpath='{.items[*].spec.rules[*].host}'); do
+     echo https://$host
+   done | sort
+   ```
 
-```sh
-curl -so /tmp/helm-install.sh https://raw.githubusercontent.com/cardano-foundation/cf-helm-charts/main/charts/cf-idw/helm-install.sh
-```
+### Manual Helm Installation
 
-* Execute the script providing these minimum required environment variables:
+1. **Add the Helm repository**:
+   ```sh
+   helm repo add cardano-foundation https://cardano-foundation.github.io/cf-helm-charts
+   ```
 
-```sh
-export NAMESPACE=cf-idw-services
-export WITNESS_COUNT=6                         # Number of witnesses to deploy
-export PUBLIC_DOMAINS=3x4mpl3.com,example.com  # Comma-separated list of public domains where the deployment will be served from 
-bash /tmp/helm-install.sh
-```
+2. **Customize the deployment**. Most of the default chart values will be okay for basic deployments, but after checking the [documentation](#Value) you might want to customize some like:
+   - `keria.passCode`. The chart will automatically generate one, but you might want to provide one yourself. You can generate one yourself using [signify-ts](https://github.com/WebOfTrust/signify-ts) or using our handy docker image:
+     ```sh
+     docker run -it --rm cardanofoundation/cf-keria-passcode-gen
+     ```
+   - `witness.witnessCount`. You might want to increase the default or just disable them by setting `witness.enabled` to `false`.
 
-If you already have an ingress controller in your cluster that manages SSL certificates, you can get the full list of URLs by executing the following:
+3. **Install the chart** with the release name `my-release`:
+   ```sh
+   export PUBLIC_DOMAINS="3x4mpl3.com,example.com"
+   helm install my-release --set ingressTLDs="{$PUBLIC_DOMAINS}" cardano-foundation/cf-idw
+   ```
 
-```
-for host in $(kubectl get ingress -n cf-idw-services -o jsonpath='{.items[*].spec.rules[*].host}' ); do echo https://$host; done | sort
-```
-
-## Manual helm install
-
-Firstly, you'll need to add our Helm repository:
-
-```sh
-helm repo add cardano-foundation https://cardano-foundation.github.io/cf-helm-charts
-```
-
-Most of the default values should be fine for a basic deployment. However, you can customize the deployment by creating a `values.yaml` file with the desired values from the [documentation](#Values) and passing it to `helm` by using the `-f values.yaml` argument. 
-
-For example, although the chart will generate a keria passcode for you automatically, you might still want to provide one yourself by setting the `keria.passCode` value. In order to do that, you can use [signify-ts](https://github.com/WebOfTrust/signify-ts) to generate a passcode, our use our handy docker image like this:
-
-```
-docker run -it --rm cardanofoundation/cf-keria-passcode-gen 
-```
-
-You can install the chart with the release name `my-release` by executing the following command with the minimum required value for the ingress controller `ingressTLDs` which will be used to configure the external URLs for the services:
-
-```sh
-PUBLIC_DOMAINS="3x4mpl3.com,example.com"
-
-helm install \
-  my-release \
-  --set ingressTLDs="{$PUBLIC_DOMAINS}" \
-  cardano-foundation/cf-idw
-```
-
-The chart will then show as install notes a snippet of code that you can use to configure keria to use the witnesses deployed by the chart. You can also use the following command to provide your own list of witnesses:
-
-```
-WITNESSES_URLS="https://witness0.other.com/oobi/BI3WKCsAmFq2NteYBf3Wt5iW7T1ynnBqponEMjHM0dtI https://witness1.other.com/oobi/BJftdAJsxd40opYt-dE0iOVZDXssITq_Xv2E83Hch1HX"
-
-helm upgrade my-release cardano-foundation/cf-idw --reuse-values \
-  --set keria.keriaIurls="$WITNESSES_URLS"
-```
+4. **Configure Keria** to use a set of witnesses. You can follow the helm chart install notes shown after the successful `helm install`, provide `keria.keriaIurls before hand in the `helm install` step or use update the deployment afterwards like this:
+   ```sh
+   export WITNESSES_URLS="https://witness0.other.com/oobi/BI3WKCsAmFq2NteYBf3Wt5iW7T1ynnBqponEMjHM0dtI/controller?role=witness https://witness1.other.com/oobi/BJftdAJsxd40opYt-dE0iOVZDXssITq_Xv2E83Hch1HX/controller?role=witness"
+   helm upgrade my-release cardano-foundation/cf-idw --reuse-values --set keria.keriaIurls="$WITNESSES_URLS"
+   ```
 
 # Values
 
