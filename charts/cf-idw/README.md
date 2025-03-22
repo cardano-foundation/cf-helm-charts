@@ -60,7 +60,7 @@ Ensure your `KUBECONFIG` and `kubectl context` are set for your destination clus
    helm install my-release --set ingressTLDs="{$PUBLIC_DOMAINS}" cardano-foundation/cf-idw
    ```
 
-4. **Configure Keria** to use a set of witnesses. You can follow the helm chart install notes shown after the successful `helm install`, provide `keria.keriaIurls before hand in the `helm install` step or use update the deployment afterwards like this:
+4. **Configure Keria** to use a set of witnesses. You can follow the helm chart install notes shown after the successful `helm install`, provide `keria.keriaIurls` before hand in the `helm install` step or use update the deployment afterwards like this:
    ```sh
    export WITNESSES_URLS="https://witness0.other.com/oobi/BI3WKCsAmFq2NteYBf3Wt5iW7T1ynnBqponEMjHM0dtI/controller?role=witness https://witness1.other.com/oobi/BJftdAJsxd40opYt-dE0iOVZDXssITq_Xv2E83Hch1HX/controller?role=witness"
    helm upgrade my-release cardano-foundation/cf-idw --reuse-values --set keria.keriaIurls="$WITNESSES_URLS"
