@@ -143,6 +143,16 @@ entries:
     version: 0.0.1
   cf-idw:
   - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-04-01T18:08:29.718820608Z"
+    description: A Helm chart for veridian wallet
+    digest: 52fdf4ab3b503aa3121aae1a11ef67a315a14da5f4b2a8ff960afe0df0273e05
+    name: cf-idw
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-idw-0.0.5/cf-idw-0.0.5.tgz
+    version: 0.0.5
+  - apiVersion: v2
     appVersion: 0.1.1
     created: "2025-04-01T09:52:18.459689104Z"
     description: A Helm chart for Kubernetes
@@ -213,4 +223,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-vault-0.0.1/cf-vault-0.0.1.tgz
     version: 0.0.1
-generated: "2025-04-01T09:52:18.459716985Z"
+generated: "2025-04-01T18:08:29.718848781Z"
