@@ -18,7 +18,7 @@ Ensure your `KUBECONFIG` and `kubectl context` are set for your destination clus
 
 1. **Download AND review the script**:
    ```sh
-   curl -so /tmp/helm-install.sh https://raw.githubusercontent.com/cardano-foundation/cf-helm-charts/main/charts/cf-idw/helm-install.sh
+   curl -so /tmp/helm-install.sh https://raw.githubusercontent.com/cardano-foundation/cf-helm-charts/refs/heads/main/charts/cf-idw/helm-install.sh
    ```
 
 2. **Execute the script** with the required environment variables:
