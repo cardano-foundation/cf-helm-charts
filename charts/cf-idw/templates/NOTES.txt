@@ -1,0 +1,22 @@
+#
+# Helm chart was successfully installed!
+# Now you need to get the Oobi of each witness and update the keriaIurls for keria service to work properly, you can do that by executing this snippet:
+#
+
+INITIAL_WITNESS_PORT={{ .Values.witness.initialHTTPPort }}
+WITNESS_COUNT={{ .Values.witness.witnessCount }}
+
+WITNESSES_URLS=""
+for seq in $(seq 0 $((WITNESS_COUNT - 1)));
+do
+  while [[ -z "$WITNESS_OOBI" ]]; do
+    WITNESS_OOBI=$(kubectl logs -n {{ .Release.Namespace }} witness-$seq-0 2>/dev/null | grep ^Witness | awk '{print $NF}')
+    sleep 1
+  done
+  WITNESS_PORT=$((INITIAL_WITNESS_PORT + seq))
+  WITNESSES_URLS="${WITNESSES_URLS#^ } http://witness-$seq:${WITNESS_PORT}/oobi/${WITNESS_OOBI}/controller?role=witness"
+  unset WITNESS_OOBI
+done
+
+helm upgrade -n {{ .Release.Namespace }} {{ .Release.Name }} cf-helm/cf-idw --reuse-values \
+  --set keria.keriaIurls="$WITNESSES_URLS"

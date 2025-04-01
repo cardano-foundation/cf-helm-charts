@@ -45,7 +45,7 @@ spec:
             - containerPort: {{ .port | default 3001 }}
               protocol: TCP
           volumeMounts:
-            - mountPath: /usr/local/var/keri
+            - mountPath: /app/data
               name: issuer-server-data
       volumes:
         - name: issuer-server-data

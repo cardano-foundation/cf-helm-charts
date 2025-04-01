@@ -4,8 +4,8 @@ ingressTLDs:
 credIssuance:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance"
-    tag: "develop"
+    repository: "cardanofoundation/cf-cred-issuance"
+    tag: "main"
   port: 3001
   ingress:
     enabled: true
@@ -15,8 +15,8 @@ credIssuance:
 credIssuanceUI:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance-ui"
-    tag: "develop"
+    repository: "cardanofoundation/cf-cred-issuance-ui"
+    tag: "main"
   port: 80
   ingress:
     enabled: true
@@ -26,8 +26,8 @@ credIssuanceUI:
 cip45:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cip45-sample-dapp"
-    tag: "develop"
+    repository: "cardanofoundation/cf-cip45-sample-dapp"
+    tag: "main"
   port: 80
   ingress:
     enabled: true
@@ -37,8 +37,9 @@ cip45:
 keria:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-keria"
-    tag: "develop"
+    repository: "cardanofoundation/cf-idw-keria"
+    tag: "main"
+  logLevel: "INFO"
   ports:
     - 3901
     - 3902
@@ -53,6 +54,7 @@ keria:
       - name: keria-boot
         port: 3903
   secret:
+    create: true
     name: cf-idw-secrets
     keriaPasscodeKey: KERIA_PASSCODE
 
@@ -60,7 +62,7 @@ keriaProvisioning:
   enabled: false
   kind: StatefulSet
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-keria-provisioning"
+    repository: "cardanofoundation/cf-keria-provisioning"
     tag: "main"
   port: 9030
   ingress:
@@ -83,11 +85,12 @@ keriaProvisioning:
 witness:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-witness"
+    repository: "cardanofoundation/cf-idw-witness"
     tag: "0.1.1-customize-keria-docker-image-863f2c2-9956455103"
   witnessCount: 6
   initialHTTPPort: 5642
   initialTCPPort: 5632
+  logLevel: "INFO"
   ingress:
     enabled: true
     hosts:
