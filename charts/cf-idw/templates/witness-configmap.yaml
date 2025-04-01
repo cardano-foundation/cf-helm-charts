@@ -5,7 +5,7 @@ metadata:
 data:
   witness-init.sh: |
     #!/bin/bash
-    if [ ! -e ${KERI_VAR_DIR}/db/witness/data.mdb ]; then
+    if [ ! -e ${KERI_VAR_DIR}/db/wit${WITNESS_COUNTER}/data.mdb ]; then
       mkdir -p ${KERI_VAR_DIR}/data
       mkdir -p ${KERI_SCRIPT_DIR}/keri/cf
       set -e
