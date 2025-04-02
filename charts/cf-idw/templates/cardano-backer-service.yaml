@@ -1,0 +1,17 @@
+{{ with .Values.cardanoBacker }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cardano-backer
+  name: cardano-backer
+spec:
+  ports:
+    {{- range $port := .ports }}
+    - name: {{ $port | quote }}
+      port: {{ $port }}
+      targetPort: {{ $port }}
+    {{- end }}
+  selector:
+    app: cardano-backer
+{{ end }}

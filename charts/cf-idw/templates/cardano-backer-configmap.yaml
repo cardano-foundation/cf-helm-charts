@@ -1,0 +1,50 @@
+{{ with .Values.cardanoBacker }}
+{{ if .enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cardano-backer-configmap
+data:
+  entrypoint.sh: |
+    #!/bin/sh
+
+    CONFIG_DIR="${BACKER_CONFIG_DIR:-$(pwd)}"
+    STORE_DIR="${BACKER_STORE_DIR:-$(pwd)/store}"
+    if [[ -z "${BACKER_SALT}" ]]; then
+      SALT=""
+    else
+      SALT="--salt ${BACKER_SALT}"
+    fi
+    
+    mkdir -p $CONFIG_DIR/keri/cf
+    cat > $CONFIG_DIR/keri/cf/backer.json <<EOF
+    {
+      "backer": {
+        "dt": "$(date -u +"%Y-%m-%dT%H:%M:%S.000000+00:00")",
+        "curls": ["${EXTERNAL_URL}"]
+      },
+      "dt": "$(date -u +"%Y-%m-%dT%H:%M:%S.000000+00:00")",
+      "iurls": [
+      ]
+    }
+    EOF
+    
+    cat > $CONFIG_DIR/backer_cfg.json <<EOF
+    {
+      "transferable": false,
+      "wits": [],
+      "icount": 1,
+      "ncount": 1,
+      "isith": "1",
+      "nsith": "1"
+    }
+    EOF
+    
+    kli init --name backer --nopasscode  --config-dir $CONFIG_DIR --config-file backer.json --base $STORE_DIR $SALT
+    
+    kli incept --name backer --alias backer --config $CONFIG_DIR --file backer_cfg.json --base $STORE_DIR
+    
+    backer start --name backer  --alias backer -T ${TCP_PORT:5665} -H ${HTTP_PORT:-5666} --ledger cardano --base $STORE_DIR
+
+{{ end }}
+{{ end }}
