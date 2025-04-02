@@ -9,8 +9,8 @@ data:
     #!/bin/sh
     set -x
 
-    CONFIG_DIR="${BACKER_CONFIG_DIR:-$(pwd)}"
-    STORE_DIR="${BACKER_STORE_DIR:-$(pwd)/store}"
+    CONFIG_DIR="${BACKER_CONFIG_DIR:-$PWD}"
+    STORE_DIR="./$PWD/store"
     if [[ -z "${BACKER_SALT}" ]]; then
       SALT=""
     else
