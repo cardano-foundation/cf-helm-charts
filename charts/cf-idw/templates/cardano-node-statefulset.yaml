@@ -52,12 +52,14 @@ spec:
               name: cardano-node-ipc
         {{- if .ogmios.enabled }}
         - name: ogmios-container
-          image: "{{ .ogmios.image.repository }}:{{ .ogmios.image.tag }}-{{ .network }}"
+          image: "{{ .ogmios.image.repository }}:{{ .ogmios.image.tag }}"
           command: ["/bin/ogmios"]
-          args: ["--host", "0.0.0.0", "--node-socket", "/ipc/node.socket", "--port", "$(OGMIOS_LISTEN_PORT)", "--node-config", "/config/cardano-node/config.json"]
+          args: ["--host", "0.0.0.0", "--node-socket", "/ipc/node.socket", "--port", "$(OGMIOS_LISTEN_PORT)", "--node-config", "/config/$(NETWORK)/cardano-node/config.json"]
           env:
             - name: OGMIOS_LISTEN_PORT
               value: {{ .ogmios.port | default "1337" | quote }}
+            - NETWORK
+              value: {{ .network | default "preprod" | quote }}
           ports:
             - containerPort: {{ .ogmios.port | default 1337 }}
               hostPort: {{ .ogmios.hostPort | default 1337 }}
