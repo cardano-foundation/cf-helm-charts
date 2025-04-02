@@ -16,6 +16,7 @@ spec:
       labels:
         app: cardano-node
     spec:
+      restartPolicy: Always
       {{- if .tolerations }}
       tolerations:
         {{ with index .tolerations }}
@@ -36,7 +37,7 @@ spec:
           {{- end }}
           env:
             - name: RESTORE_SNAPSHOT
-              value: "{{ .mithrilRestore | default "true" | quote }}"
+              value: {{ .mithrilRestore | default "true" | quote }}
             - name: NETWORK
               value: {{ .network | default "preprod" | quote }}
           ports:
