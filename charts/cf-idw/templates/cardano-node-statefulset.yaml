@@ -58,7 +58,7 @@ spec:
           env:
             - name: OGMIOS_LISTEN_PORT
               value: {{ .ogmios.port | default "1337" | quote }}
-            - NETWORK
+            - name: NETWORK
               value: {{ .network | default "preprod" | quote }}
           ports:
             - containerPort: {{ .ogmios.port | default 1337 }}
