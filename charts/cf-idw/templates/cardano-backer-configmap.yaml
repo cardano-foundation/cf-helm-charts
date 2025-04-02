@@ -7,6 +7,7 @@ metadata:
 data:
   entrypoint.sh: |
     #!/bin/sh
+    set -x
 
     CONFIG_DIR="${BACKER_CONFIG_DIR:-$(pwd)}"
     STORE_DIR="${BACKER_STORE_DIR:-$(pwd)/store}"
@@ -44,7 +45,7 @@ data:
     
     kli incept --name backer --alias backer --config $CONFIG_DIR --file backer_cfg.json --base $STORE_DIR
     
-    backer start --name backer  --alias backer -T ${TCP_PORT:5665} -H ${HTTP_PORT:-5666} --ledger cardano --base $STORE_DIR
+    backer start --name backer  --alias backer -T ${TCP_PORT:-5665} -H ${HTTP_PORT:-5666} --ledger cardano --base $STORE_DIR
 
 {{ end }}
 {{ end }}
