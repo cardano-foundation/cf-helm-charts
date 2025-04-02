@@ -10,7 +10,7 @@ data:
     set -x
 
     CONFIG_DIR="${BACKER_CONFIG_DIR:-$PWD}"
-    STORE_DIR="${BACKER_STORE_DIR:-$PWD/store"
+    STORE_DIR="${BACKER_STORE_DIR:-$PWD/store}"
     if [[ -z "${BACKER_SALT}" ]]; then
       SALT=""
     else
