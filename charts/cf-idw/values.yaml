@@ -28,6 +28,10 @@ cardanoBacker:
     name: cf-idw-secrets
     saltKey: BACKER_SALT
     walletKey: WALLET_ADDRESS_CBORHEX
+  ingress:
+    enabled: true
+    hosts:
+      - cardano-backer
 
 credIssuance:
   enabled: true
