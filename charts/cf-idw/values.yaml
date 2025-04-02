@@ -15,6 +15,8 @@ cardanoNode:
       repository: "cardanosolutions/ogmios"
       tag: "latest"
     port: 1337
+  tolerations: null
+  affinity: null
 
 cardanoBacker:
   enabled: true
