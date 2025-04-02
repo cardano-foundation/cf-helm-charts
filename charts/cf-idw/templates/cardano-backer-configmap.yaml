@@ -10,7 +10,7 @@ data:
     set -x
 
     CONFIG_DIR="${BACKER_CONFIG_DIR:-$PWD}"
-    STORE_DIR="./store"
+    STORE_DIR="${BACKER_STORE_DIR:-$PWD/store"
     if [[ -z "${BACKER_SALT}" ]]; then
       SALT=""
     else
@@ -43,7 +43,7 @@ data:
     
     kli init --name backer --nopasscode  --config-dir $CONFIG_DIR --config-file backer.json --base $STORE_DIR $SALT
     
-    kli incept --name backer --alias backer --config $CONFIG_DIR --file backer_cfg.json --base $STORE_DIR
+    kli incept --name backer --alias backer --config $CONFIG_DIR --file backer_cfg.json --base ./
     
     backer start --name backer  --alias backer -T ${TCP_PORT:-5665} -H ${HTTP_PORT:-5666} --ledger cardano --base $STORE_DIR
 
