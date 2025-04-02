@@ -30,6 +30,6 @@ spec:
       port: {{ .port | default 1337 }}
       targetPort: {{ .port | default 1337 }}
   selector:
-    app: ogmios
+    app: cardano-node
 {{ end }}
 {{ end }}
