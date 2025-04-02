@@ -17,7 +17,7 @@ spec:
   rules:
     {{- range $TLD := $root.ingressTLDs }}
       {{- range $host := $cardanoBacker.ingress.hosts }}
-    - host: {{ $host.name }}.{{ $TLD }}
+    - host: {{ $host }}.{{ $TLD }}
       http:
         paths:
           - path: /
@@ -26,14 +26,14 @@ spec:
               service:
                 name: cardano-backer
                 port:
-                  number: {{ $host.port | default 5666 }}
+                  number: {{ $cardanoBacker.port | default 3001 }}
       {{- end }}
     {{- end }}
   tls:
     - hosts:
     {{- range $TLD := $root.ingressTLDs }}
       {{- range $host := $cardanoBacker.ingress.hosts }}
-        - "{{ $host.name }}.{{ $TLD }}"
+        - "{{ $host }}.{{ $TLD }}"
       {{- end }}
     {{- end }}
 {{ end }}
