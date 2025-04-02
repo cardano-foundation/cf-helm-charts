@@ -53,6 +53,7 @@ spec:
         {{- if .ogmios.enabled }}
         - name: ogmios
           image: "{{ .ogmios.image.repository }}:{{ .ogmios.image.tag }}-{{ .network }}"
+          command: ["/bin/ogmios", "--host", "0.0.0.0", "--node-socket", "/ipc/node.socket", "--port", "${OGMIOS_PORT}"]
           env:
             - name: OGMIOS_PORT
               value: {{ .ogmios.port | default "1337" | quote }}
