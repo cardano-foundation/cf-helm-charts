@@ -13,7 +13,7 @@ cardanoNode:
     enabled: true
     image:
       repository: "cardanosolutions/ogmios"
-      tag: "latest"
+      tag: "v6.11.2_10.1.4"
     port: 1337
 
 cardanoBacker:
