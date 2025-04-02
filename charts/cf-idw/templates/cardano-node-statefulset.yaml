@@ -56,7 +56,10 @@ spec:
         {{- if .ogmios.enabled }}
         - name: ogmios-container
           image: "{{ .ogmios.image.repository }}:{{ .ogmios.image.tag }}-{{ .network }}"
-          command: ["/bin/ogmios", "--host", "0.0.0.0", "--node-socket", "/ipc/node.socket", "--port", "$(OGMIOS_PORT)"]
+          command: ["/bin/ogmios", "--host", "0.0.0.0", "--node-socket", "/ipc/node.socket", "--port", "$(OGMIOS_LISTEN_PORT)"]
+          env:
+            - name: OGMIOS_LISTEN_PORT
+              value: {{ .ogmios.port | default "1337" | quote }}
           volumeMounts:
             - mountPath: /ipc
               name: cardano-node-ipc
