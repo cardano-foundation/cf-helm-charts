@@ -32,7 +32,7 @@ spec:
   tls:
     - hosts:
     {{- range $TLD := $root.ingressTLDs }}
-      {{- range $host := $cardano-backer.ingress.hosts }}
+      {{- range $host := $cardanoBacker.ingress.hosts }}
         - "{{ $host.name }}.{{ $TLD }}"
       {{- end }}
     {{- end }}
