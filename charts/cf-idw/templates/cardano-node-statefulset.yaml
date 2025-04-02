@@ -41,8 +41,11 @@ spec:
             - name: NETWORK
               value: {{ .network | default "preprod" | quote }}
           ports:
-            - containerPort: 3001
-              hostPort: 3001
+            - containerPort: {{ .port | default 3001 }}
+              hostPort: {{ .hostPort | default 3001 }}
+              protocol: TCP
+            - containerPort: {{ .ogmios.port | default 1337 }}
+              hostPort: {{ .ogmios.hostPort | default 1337 }}
               protocol: TCP
           resources: {}
           volumeMounts:
@@ -53,10 +56,7 @@ spec:
         {{- if .ogmios.enabled }}
         - name: ogmios
           image: "{{ .ogmios.image.repository }}:{{ .ogmios.image.tag }}-{{ .network }}"
-          command: ["/bin/ogmios", "--host", "0.0.0.0", "--node-socket", "/ipc/node.socket", "--port", "${OGMIOS_PORT}"]
-          env:
-            - name: OGMIOS_PORT
-              value: {{ .ogmios.port | default "1337" | quote }}
+          command: ["/bin/ogmios", "--host", "0.0.0.0", "--node-socket", "/ipc/node.socket", "--port", "$(OGMIOS_PORT)"]
           volumeMounts:
             - mountPath: /ipc
               name: cardano-node-ipc
