@@ -32,10 +32,8 @@ spec:
         - name: cred-issuance-ui
           image: "{{ .image.repository }}:{{ .image.tag }}"
           env:
-            - name: REACT_APP_CREDENTIAL_ISSUANCE_SERVER_URL
-              value: {{ .reactAppCredentialIssuanceServerUrl | default "http://cred-issuance:3001" }}
-            - name: REACT_APP_CREDENTIAL_ISSUANCE_SERVER_PORT
-              value: {{ .reactAppCredentialIssuanceServerPort | default "3001" | quote }}
+            - name: VITE_SERVER_URL
+              value: {{ .serverUrl | default "http://cred-issuance:3001" }}
           ports:
             - containerPort: {{ .port | default 80 }}
               protocol: TCP
