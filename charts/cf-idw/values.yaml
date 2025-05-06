@@ -128,6 +128,8 @@ veridianAccessPass:
   secret:
     name: cf-idw-secrets
     sendEmailSecretKey: SEND_EMAIL_SECRET
+  db:
+    path: "/sqlite-data/access_pass.db"
   smtp:
     from: admin@example.com
     secret:
