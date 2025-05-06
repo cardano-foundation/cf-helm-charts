@@ -114,7 +114,7 @@ keriaProvisioning:
       hostKey: POSTGRES_HOST
       dbNameKey: POSTGRES_DB
 
-veridian-accesspass:
+veridianAccessPass:
   enabled: false
   kind: StatefulSet
   image:
