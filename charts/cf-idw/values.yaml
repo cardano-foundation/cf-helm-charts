@@ -118,7 +118,7 @@ veridianAccessPass:
   enabled: false
   kind: StatefulSet
   image:
-    repository: "cardanofoundation/cf-keria-provisioning"
+    repository: "cardanofoundation/veridian-accesspass"
     tag: "main"
   port: 3007
   ingress:
