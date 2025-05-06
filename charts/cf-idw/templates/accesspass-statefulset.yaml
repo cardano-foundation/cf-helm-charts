@@ -1,0 +1,95 @@
+{{ with .Values.veridianAccessPass }}
+{{ if .enabled }}
+{{ if eq .kind "Deployment" }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: veridian-accesspass
+  name: veridian-accesspass
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: veridian-accesspass
+  template:
+    metadata:
+      labels:
+        app: veridian-accesspass
+    spec:
+      restartPolicy: Always
+      {{- if .tolerations }}
+      tolerations:
+        {{ with index .tolerations }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- if .affinity }}
+      affinity:
+        {{ with index .affinity }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: veridian-accesspass
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          command: ["npm run migrate && npm run start"]
+          env:
+            - name: PORT
+              value: {{ .port | default 3007 | quote }}
+            - name: ENDPOINT
+              value: {{ .endpoint | default "http://veridian-accesspass:3007" }}
+            - name: KERIA_ENDPOINT
+              value: {{ .keriaEndpoint | default "http://keria:3901" }}
+            - name: KERIA_BOOT_ENDPOINT
+              value: {{ .keriaBootEndpoint | default "http://keria:3903" }}
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .smtp.secret.name }}
+                  key: {{ .smtp.secret.userKey }}
+            - name: SMTP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .smtp.secret.name }}
+                  key: {{ .smtp.secret.passKey }}
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .smtp.secret.name }}
+                  key: {{ .smtp.secret.hostKey }}
+            - name: SMTP_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .smtp.secret.name }}
+                  key: {{ .smtp.secret.portKey }}
+            - name: SMTP_FROM
+              value: {{ .smtp.from | default "admin@example.com" }}
+            - name: SEND_EMAIL_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secret.name }}
+                  key: {{ .secret.sendEmailSecretKey }}
+          ports:
+            - containerPort: {{ .port | default 3007 }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /sqlite-data
+              name: sqlite-data
+      volumes:
+        - name: sqlite-data
+          persistentVolumeClaim:
+            claimName: sqlite-data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: sqlite-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .volumeSize | default "1Gi" }}
+
+{{ end }}
+{{ end }}
+{{ end }}
