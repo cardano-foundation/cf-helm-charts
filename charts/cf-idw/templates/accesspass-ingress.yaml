@@ -1,0 +1,40 @@
+{{- $root := .Values -}}
+{{ with .Values.veridianAccessPass }}
+{{- if .ingress.enabled -}}
+{{- $veridianAccessPass := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: veridian-accesspass-ingress
+  labels:
+    app: veridian-accesspass
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $veridianAccessPass.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: veridian-accesspass
+                port:
+                  number: {{ $veridianAccessPass.port | default 3007 }}
+      {{- end }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $veridianAccessPass.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
+    {{- end }}
+{{ end }}
+{{ end }}
