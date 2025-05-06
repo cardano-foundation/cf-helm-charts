@@ -127,7 +127,7 @@ veridianAccessPass:
       - veridian-accesspass
   secret:
     name: cf-idw-secrets
-    sendEmaiSecretKey: SEND_EMAIL_SECRET
+    sendEmailSecretKey: SEND_EMAIL_SECRET
   smtp:
     from: admin@example.com
     secret:
