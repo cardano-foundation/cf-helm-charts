@@ -116,7 +116,7 @@ keriaProvisioning:
 
 veridian-accesspass:
   enabled: false
-  kind: Deployment
+  kind: StatefulSet
   image:
     repository: "cardanofoundation/cf-keria-provisioning"
     tag: "main"
