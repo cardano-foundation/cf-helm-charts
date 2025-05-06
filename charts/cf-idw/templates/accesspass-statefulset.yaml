@@ -1,6 +1,6 @@
 {{ with .Values.veridianAccessPass }}
 {{ if .enabled }}
-{{ if eq .kind "Deployment" }}
+{{ if eq .kind "StatefulSet" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
