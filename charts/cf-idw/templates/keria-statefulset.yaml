@@ -55,6 +55,10 @@ spec:
                 secretKeyRef:
                   name: {{ .secret.name }}
                   key: {{ .secret.keriaPasscodeKey }}
+            - name: ALLOW_INTRODUCTIONS
+              value: {{ .allowIntroductions | default "true" | quote }}
+            - name: REMOTE_SIGNING
+              value: {{ .remoteSigning | default "true" | quote }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
           command: ["keria", "start", "--loglevel", "$(LOG_LEVEL)", "--config-file", "backer-oobis", "--config-dir", "./scripts"]
           ports:

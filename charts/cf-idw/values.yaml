@@ -72,6 +72,8 @@ keria:
     repository: "cardanofoundation/cf-idw-keria"
     tag: "main"
   logLevel: "INFO"
+  allowIntroductions: true
+  remoteSigning: true
   ports:
     - 3901
     - 3902
