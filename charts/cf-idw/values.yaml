@@ -2,7 +2,7 @@ ingressTLDs:
   - "example.com"
 
 cardanoNode:
-  enabled: true
+  enabled: false
   image:
     repository: "ghcr.io/blinklabs-io/cardano-node"
     network: "preprod"
@@ -17,7 +17,7 @@ cardanoNode:
     port: 1337
 
 cardanoBacker:
-  enabled: true
+  enabled: false
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-cardano-backer"
     tag: "main"
@@ -72,6 +72,8 @@ keria:
     repository: "cardanofoundation/cf-idw-keria"
     tag: "main"
   logLevel: "INFO"
+  allowIntroductions: true
+  remoteSigning: true
   ports:
     - 3901
     - 3902
