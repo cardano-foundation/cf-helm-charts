@@ -1,0 +1,40 @@
+{{- $root := .Values -}}
+{{ with .Values.cardanoBacker }}
+{{- if .ingress.enabled -}}
+{{- $cardanoBacker := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cardano-backer-ingress
+  labels:
+    app: cardano-backer
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $cardanoBacker.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cardano-backer
+                port:
+                  number: {{ $cardanoBacker.port | default 3001 }}
+      {{- end }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $cardanoBacker.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
+    {{- end }}
+{{ end }}
+{{ end }}

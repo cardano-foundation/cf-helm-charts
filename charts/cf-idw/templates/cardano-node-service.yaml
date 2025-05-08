@@ -1,0 +1,35 @@
+{{ with .Values.cardanoNode }}
+{{ if .enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cardano-node
+  name: cardano-node
+spec:
+  ports:
+    - name: {{ .port | default "3001" | quote }}
+      port: {{ .port | default 3001 }}
+      targetPort: {{ .port | default 3001 }}
+  selector:
+    app: cardano-node
+{{ end }}
+{{ end }}
+---
+{{ with .Values.cardanoNode.ogmios }}
+{{ if .enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ogmios
+  name: ogmios
+spec:
+  ports:
+    - name: {{ .port | default "1337" | quote }}
+      port: {{ .port | default 1337 }}
+      targetPort: {{ .port | default 1337 }}
+  selector:
+    app: cardano-node
+{{ end }}
+{{ end }}

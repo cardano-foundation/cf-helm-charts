@@ -1,6 +1,38 @@
 ingressTLDs:
   - "example.com"
 
+cardanoNode:
+  enabled: true
+  image:
+    repository: "ghcr.io/blinklabs-io/cardano-node"
+    network: "preprod"
+  volumeSize: 20Gi
+  tag: "10.2.1-1"
+  mithrilRestore: true
+  ogmios:
+    enabled: true
+    image:
+      repository: "cardanosolutions/ogmios"
+      tag: "v6.11.2"
+    port: 1337
+
+cardanoBacker:
+  enabled: true
+  image:
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-cardano-backer"
+    tag: "main"
+  logLevel: "INFO"
+  port: 5666
+  secret:
+    create: true
+    name: cf-idw-secrets
+    saltKey: BACKER_SALT
+    walletKey: WALLET_ADDRESS_CBORHEX
+  ingress:
+    enabled: true
+    hosts:
+      - cardano-backer
+
 credIssuance:
   enabled: true
   image:

@@ -1,0 +1,85 @@
+{{ with .Values.cardanoBacker }}
+{{ if .enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: cardano-backer
+  name: cardano-backer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cardano-backer
+  template:
+    metadata:
+      labels:
+        app: cardano-backer
+    spec:
+      restartPolicy: Always
+      {{- if .tolerations }}
+      tolerations:
+        {{ with index .tolerations }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- if .affinity }}
+      affinity:
+        {{ with index .affinity }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: cardano-backer
+          env:
+            - name: HTTP_PORT
+              value: {{ .port | default "5666" | quote }}
+            - name: EXTERNAL_URL
+              value: {{ .externalUrl | default "http://cardano-backer" | quote }}
+            - name: NETWORK
+              value: {{ .network | default "preprod" | quote }}
+            - name: OGMIOS_HOST
+              value: {{ .ogmiosHost | default "ogmios" | quote }}
+            - name: OGMIOS_PORT
+              value: {{ .ogmiosPort | default "1337" | quote }}
+            - name: BACKER_SALT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secret.name }}
+                  key: {{ .secret.saltKey }}
+            - name: WALLET_ADDRESS_CBORHEX
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secret.name }}
+                  key: {{ .secret.walletKey }}
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          command: ["bash", "/configmap/entrypoint.sh"]
+          ports:
+            - containerPort: {{ .port }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /usr/local/var/keri
+              name: cardano-backer-data
+            - mountPath: /configmap
+              name: cardano-backer-configmap
+      volumes:
+        - name: cardano-backer-config
+          emptyDir:
+            sizeLimit: 10Mi
+        - name: cardano-backer-configmap
+          configMap:
+            name: cardano-backer-configmap
+        - name: cardano-backer-data
+          persistentVolumeClaim:
+            claimName: cardano-backer-data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: cardano-backer-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .volumeSize | default "1Gi" }}
+{{ end }}
+{{ end }}
