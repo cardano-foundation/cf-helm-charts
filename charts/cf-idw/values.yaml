@@ -116,6 +116,31 @@ keriaProvisioning:
       hostKey: POSTGRES_HOST
       dbNameKey: POSTGRES_DB
 
+veridianAccessPass:
+  enabled: false
+  kind: StatefulSet
+  image:
+    repository: "cardanofoundation/veridian-accesspass"
+    tag: "main"
+  port: 3007
+  ingress:
+    enabled: true
+    hosts:
+      - veridian-accesspass
+  secret:
+    name: cf-idw-secrets
+    sendEmailSecretKey: SEND_EMAIL_SECRET
+  db:
+    path: "/sqlite-data/access_pass.db"
+  smtp:
+    from: admin@example.com
+    secret:
+      name: cf-idw-secrets
+      hostKey: SMTP_HOST
+      portKey: SMTP_PORT
+      userKey: SMTP_USER
+      passKey: SMTP_PASS
+
 witness:
   enabled: true
   image:
