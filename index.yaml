@@ -144,6 +144,16 @@ entries:
   cf-idw:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-05-08T10:57:32.468377764Z"
+    description: A Helm chart for veridian wallet
+    digest: d12e97ac628c3b9777c98456e232aeba5a9787fff276255f1360ccfc27ddff6d
+    name: cf-idw
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-idw-0.0.8/cf-idw-0.0.8.tgz
+    version: 0.0.8
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-05-08T10:44:51.753655847Z"
     description: A Helm chart for veridian wallet
     digest: 591a492a417f3e3efe4863ea81e84e94d4546c1ca63f9daa39827e6e9406eb59
@@ -243,4 +253,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-vault-0.0.1/cf-vault-0.0.1.tgz
     version: 0.0.1
-generated: "2025-05-08T10:44:51.753696693Z"
+generated: "2025-05-08T10:57:32.468419712Z"
