@@ -1,11 +1,43 @@
 ingressTLDs:
   - "example.com"
 
+cardanoNode:
+  enabled: false
+  image:
+    repository: "ghcr.io/blinklabs-io/cardano-node"
+    network: "preprod"
+  volumeSize: 20Gi
+  tag: "10.2.1-1"
+  mithrilRestore: true
+  ogmios:
+    enabled: true
+    image:
+      repository: "cardanosolutions/ogmios"
+      tag: "v6.11.2"
+    port: 1337
+
+cardanoBacker:
+  enabled: false
+  image:
+    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-cardano-backer"
+    tag: "main"
+  logLevel: "INFO"
+  port: 5666
+  secret:
+    create: true
+    name: cf-idw-secrets
+    saltKey: BACKER_SALT
+    walletKey: WALLET_ADDRESS_CBORHEX
+  ingress:
+    enabled: true
+    hosts:
+      - cardano-backer
+
 credIssuance:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance"
-    tag: "develop"
+    repository: "cardanofoundation/cf-cred-issuance"
+    tag: "main"
   port: 3001
   ingress:
     enabled: true
@@ -15,8 +47,8 @@ credIssuance:
 credIssuanceUI:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cred-issuance-ui"
-    tag: "develop"
+    repository: "cardanofoundation/cf-cred-issuance-ui"
+    tag: "main"
   port: 80
   ingress:
     enabled: true
@@ -26,8 +58,8 @@ credIssuanceUI:
 cip45:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-cip45-sample-dapp"
-    tag: "develop"
+    repository: "cardanofoundation/cf-cip45-sample-dapp"
+    tag: "main"
   port: 80
   ingress:
     enabled: true
@@ -37,8 +69,11 @@ cip45:
 keria:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-keria"
-    tag: "develop"
+    repository: "cardanofoundation/cf-idw-keria"
+    tag: "main"
+  logLevel: "INFO"
+  allowIntroductions: true
+  remoteSigning: true
   ports:
     - 3901
     - 3902
@@ -53,6 +88,7 @@ keria:
       - name: keria-boot
         port: 3903
   secret:
+    create: true
     name: cf-idw-secrets
     keriaPasscodeKey: KERIA_PASSCODE
 
@@ -60,7 +96,7 @@ keriaProvisioning:
   enabled: false
   kind: StatefulSet
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-keria-provisioning"
+    repository: "cardanofoundation/cf-keria-provisioning"
     tag: "main"
   port: 9030
   ingress:
@@ -80,14 +116,40 @@ keriaProvisioning:
       hostKey: POSTGRES_HOST
       dbNameKey: POSTGRES_DB
 
+veridianAccessPass:
+  enabled: false
+  kind: StatefulSet
+  image:
+    repository: "cardanofoundation/veridian-accesspass"
+    tag: "main"
+  port: 3007
+  ingress:
+    enabled: true
+    hosts:
+      - veridian-accesspass
+  secret:
+    name: cf-idw-secrets
+    sendEmailSecretKey: SEND_EMAIL_SECRET
+  db:
+    path: "/sqlite-data/access_pass.db"
+  smtp:
+    from: admin@example.com
+    secret:
+      name: cf-idw-secrets
+      hostKey: SMTP_HOST
+      portKey: SMTP_PORT
+      userKey: SMTP_USER
+      passKey: SMTP_PASS
+
 witness:
   enabled: true
   image:
-    repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-witness"
+    repository: "cardanofoundation/cf-idw-witness"
     tag: "0.1.1-customize-keria-docker-image-863f2c2-9956455103"
   witnessCount: 6
   initialHTTPPort: 5642
   initialTCPPort: 5632
+  logLevel: "INFO"
   ingress:
     enabled: true
     hosts:

@@ -1,0 +1,17 @@
+{{ with .Values.veridianAccessPass }}
+{{ if .enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: veridian-accesspass
+  name: veridian-accesspass
+spec:
+  ports:
+    - name: {{ .port | default "3007" | quote }}
+      port: {{ .port | default 3007 }}
+      targetPort: {{ .port | default 3007 }}
+  selector:
+    app: veridian-accesspass
+{{ end }}
+{{ end }}

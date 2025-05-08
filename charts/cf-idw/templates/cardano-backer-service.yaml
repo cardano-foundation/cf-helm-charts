@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cardano-backer
+  name: cardano-backer
+spec:
+  ports:
+    - name: {{ .port | default "5666" | quote }}
+      port: {{ .port | default "5666" }}
+      targetPort: {{ .port | default "5666" }}
+  selector:
+    app: cardano-backer
