@@ -1,0 +1,26 @@
+{{ if .Values.ui.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uverify-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: uverify-ui
+  template:
+    metadata:
+      labels:
+        app: uverify-ui
+    spec:
+      containers:
+        - name: uverify-ui
+          image: {{ .Values.ui.image.repository }}:{{ .Values.ui.image.tag }}
+          ports:
+            - containerPort: {{ .Values.ui.port }}
+          env:
+            {{- range $key, $val := .Values.ui.env }}
+            - name: {{ $key }}
+              value: "{{ $val }}"
+            {{- end }}
+{{ end }}
