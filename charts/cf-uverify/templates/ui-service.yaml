@@ -1,0 +1,12 @@
+{{ if .Values.ui.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: uverify-ui
+spec:
+  ports:
+    - port: {{ .Values.ui.port }}
+      targetPort: {{ .Values.ui.port }}
+  selector:
+    app: uverify-ui
+{{ end }}
