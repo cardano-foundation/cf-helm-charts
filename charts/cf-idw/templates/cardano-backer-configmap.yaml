@@ -16,13 +16,16 @@ data:
     else
       SALT="--salt ${BACKER_SALT}"
     fi
+
+    export KERIA_CURLS="${KERIA_CURLS_URL}"
+    export KERIA_RENDERED_CURLS=$(for keria_curl in ${KERIA_CURLS}; do echo $keria_curl; done | jq -cRn '[inputs]')
     
     mkdir -p $CONFIG_DIR/keri/cf
     cat > $CONFIG_DIR/keri/cf/backer.json <<EOF
     {
       "backer": {
         "dt": "$(date -u +"%Y-%m-%dT%H:%M:%S.000000+00:00")",
-        "curls": ["${EXTERNAL_URL}"]
+        "curls": ${KERIA_RENDERED_CURLS},
       },
       "dt": "$(date -u +"%Y-%m-%dT%H:%M:%S.000000+00:00")",
       "iurls": [

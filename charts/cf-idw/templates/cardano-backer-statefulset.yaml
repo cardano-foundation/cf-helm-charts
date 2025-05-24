@@ -1,41 +1,53 @@
+{{- $root := .Values -}}
 {{ with .Values.cardanoBacker }}
-{{ if .enabled }}
+{{- $backer := . -}}
+{{- if $backer.enabled -}}
+{{- range $count := until (int .backerCount) }}
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: cardano-backer
-  name: cardano-backer
+    app: cardano-backer-{{ $count }}
+  name: cardano-backer-{{ $count }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cardano-backer
+      app: cardano-backer-{{ $count }}
   template:
     metadata:
       labels:
-        app: cardano-backer
+        app: cardano-backer-{{ $count }}
     spec:
       restartPolicy: Always
-      {{- if .tolerations }}
+      {{- if $backer.tolerations }}
       tolerations:
-        {{ with index .tolerations }}
+        {{ with index $backer.tolerations }}
 {{ toYaml . | nindent 8 }}
         {{- end }}
       {{- end }}
-      {{- if .affinity }}
+      {{- if $backer.affinity }}
       affinity:
-        {{ with index .affinity }}
+        {{ with index $backer.affinity }}
 {{ toYaml . | nindent 8 }}
         {{- end }}
       {{- end }}
       containers:
-        - name: cardano-backer
+        - name: cardano-backer-{{ $count }}
+          image: "{{ $backer.image.repository }}:{{ $backer.image.tag }}"
+          # Update the command and args if you need to pass the counter/port
           env:
+            - name: BACKER_COUNTER
+              value: {{ $count | quote }}
             - name: HTTP_PORT
-              value: {{ .port | default "5666" | quote }}
-            - name: EXTERNAL_URL
-              value: {{ .externalUrl | default "http://cardano-backer" | quote }}
+              value: {{ add $backer.initialHTTPPort $count | default 5666 | quote }}
+            - name: KERIA_CURLS_PROTO
+              value: {{ $backer.keriaCurlsProto | default "https" | quote }}
+            - name: KERIA_CURLS_EXTERNAL_HOST_TLD
+              value: {{ $root.ingressTLDs | first | quote }}
+            - name: KERIA_CURLS_URL
+              value: "$(KERIA_CURLS_PROTO)://backer-{{ $count }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)"
             - name: NETWORK
               value: {{ .network | default "preprod" | quote }}
             - name: OGMIOS_HOST
@@ -55,24 +67,15 @@ spec:
           image: "{{ .image.repository }}:{{ .image.tag }}"
           command: ["bash", "/configmap/entrypoint.sh"]
           ports:
-            - containerPort: {{ .port }}
+            - containerPort: {{ add $backer.initialHTTPPort $count | default 5666 }}
               protocol: TCP
           volumeMounts:
-            - mountPath: /usr/local/var/keri
+            - mountPath: /data
               name: cardano-backer-data
-            - mountPath: /configmap
-              name: cardano-backer-configmap
       volumes:
-        - name: cardano-backer-config
-          emptyDir:
-            sizeLimit: 10Mi
-        - name: cardano-backer-configmap
-          configMap:
-            name: cardano-backer-configmap
         - name: cardano-backer-data
           persistentVolumeClaim:
             claimName: cardano-backer-data
-
   volumeClaimTemplates:
     - metadata:
         name: cardano-backer-data
@@ -80,6 +83,7 @@ spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: {{ .volumeSize | default "1Gi" }}
+            storage: {{ $backer.volumeSize | default "1Gi" }}
+{{- end }}
 {{ end }}
 {{ end }}
