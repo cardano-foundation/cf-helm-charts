@@ -58,5 +58,10 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.backend.tadamon.secret.name }}
                   key: {{ .Values.backend.tadamon.secret.googleSheetsIdKey }}
+            - name: BLOCKFROST_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.blockfrost.secret.name }}
+                  key: {{ .Values.backend.blockfrost.secret.projectIdKey }}
 
 {{ end }}
