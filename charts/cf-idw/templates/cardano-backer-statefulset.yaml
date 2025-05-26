@@ -58,12 +58,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $backer.secret.name }}
-                  key: {{ $backer.secret.saltKey }}
+                  key: {{ $backer.secret.saltKey }}_{{ $count }}
             - name: WALLET_ADDRESS_CBORHEX
               valueFrom:
                 secretKeyRef:
                   name: {{ $backer.secret.name }}
-                  key: {{ $backer.secret.walletKey }}
+                  key: {{ $backer.secret.walletKey }}_{{ $count }}
           command: ["bash", "/configmap/entrypoint.sh"]
           ports:
             - containerPort: {{ add $backer.initialHTTPPort $count | default 5666 }}
