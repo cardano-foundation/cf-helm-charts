@@ -49,21 +49,21 @@ spec:
             - name: KERIA_CURLS_URL
               value: "$(KERIA_CURLS_PROTO)://backer-{{ $count }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)"
             - name: NETWORK
-              value: {{ .network | default "preprod" | quote }}
+              value: {{ $backer.network | default "preprod" | quote }}
             - name: OGMIOS_HOST
-              value: {{ .ogmiosHost | default "ogmios" | quote }}
+              value: {{ $backer.ogmiosHost | default "ogmios" | quote }}
             - name: OGMIOS_PORT
-              value: {{ .ogmiosPort | default "1337" | quote }}
+              value: {{ $backer.ogmiosPort | default "1337" | quote }}
             - name: BACKER_SALT
               valueFrom:
                 secretKeyRef:
-                  name: {{ .secret.name }}
-                  key: {{ .secret.saltKey }}
+                  name: {{ $backer.secret.name }}
+                  key: {{ $backer.secret.saltKey }}
             - name: WALLET_ADDRESS_CBORHEX
               valueFrom:
                 secretKeyRef:
-                  name: {{ .secret.name }}
-                  key: {{ .secret.walletKey }}
+                  name: {{ $backer.secret.name }}
+                  key: {{ $backer.secret.walletKey }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
           command: ["bash", "/configmap/entrypoint.sh"]
           ports:
