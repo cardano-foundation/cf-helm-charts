@@ -54,6 +54,10 @@ spec:
               value: {{ $backer.ogmiosHost | default "ogmios" | quote }}
             - name: OGMIOS_PORT
               value: {{ $backer.ogmiosPort | default "1337" | quote }}
+            - name: START_SLOT_NUMBER
+              value: {{ $backer.startSlotNumber | default "92593696" | quote }}
+            - name: START_BLOCK_HEADER_HASH
+              value: {{ $backer.startBlockHeaderHash | default "345893332931ff4b75b1c2daf7c1e283e4f63da14aca78936489f80e85e2e2cc" | quote }}
             - name: BACKER_SALT
               valueFrom:
                 secretKeyRef:
