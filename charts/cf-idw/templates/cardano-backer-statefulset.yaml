@@ -47,7 +47,7 @@ spec:
             - name: KERIA_CURLS_EXTERNAL_HOST_TLD
               value: {{ $root.ingressTLDs | first | quote }}
             - name: KERIA_CURLS_URL
-              value: "$(KERIA_CURLS_PROTO)://backer-{{ $count }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)"
+              value: "$(KERIA_CURLS_PROTO)://{{ $backer.ingress.hosts | first }}-{{ $count }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)"
             - name: NETWORK
               value: {{ $backer.network | default "preprod" | quote }}
             - name: OGMIOS_HOST
