@@ -38,6 +38,7 @@ spec:
         - "{{ $host }}-{{ $count }}.{{ $TLD }}"
       {{- end }}
     {{- end }}
+---
 {{- end }}
 {{ end }}
 {{ end }}
