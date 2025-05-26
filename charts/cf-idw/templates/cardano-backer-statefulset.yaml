@@ -69,12 +69,17 @@ spec:
             - containerPort: {{ add $backer.initialHTTPPort $count | default 5666 }}
               protocol: TCP
           volumeMounts:
-            - mountPath: /data
+            - mountPath: /usr/local/var/keri
               name: cardano-backer-data
+            - mountPath: /configmap
+              name: cardano-backer-configmap
       volumes:
         - name: cardano-backer-data
           persistentVolumeClaim:
             claimName: cardano-backer-data
+        - name: cardano-backer-configmap
+          configMap:
+            name: cardano-backer-configmap
   volumeClaimTemplates:
     - metadata:
         name: cardano-backer-data
