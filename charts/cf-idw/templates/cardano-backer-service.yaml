@@ -8,8 +8,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: backer
-  name: backer-{{ $count }}
+    app: cardano-backer
+  name: cardano-backer-{{ $count }}
 spec:
   ports:
     - name: {{ add $backer.initialHTTPPort $count | quote }}
@@ -17,7 +17,7 @@ spec:
       protocol: TCP
       targetPort: {{ add $backer.initialHTTPPort $count }}
   selector:
-    app: backer-{{ $count }}
+    app: cardano-backer-{{ $count }}
 {{- end }}
 {{ end }}
 {{ end }}
