@@ -64,7 +64,6 @@ spec:
                 secretKeyRef:
                   name: {{ $backer.secret.name }}
                   key: {{ $backer.secret.walletKey }}
-          image: "{{ .image.repository }}:{{ .image.tag }}"
           command: ["bash", "/configmap/entrypoint.sh"]
           ports:
             - containerPort: {{ add $backer.initialHTTPPort $count | default 5666 }}
