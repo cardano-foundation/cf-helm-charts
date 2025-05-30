@@ -4,6 +4,7 @@ ingressTLDs:
 backend:
   enabled: true
   image:
+    pullPolicy: IfNotPresent
     repository: uverify/uverify-backend
     tag: latest
   replicas: 1
@@ -32,6 +33,7 @@ backend:
     name: uverify-secret
     facilitatorAccountMnemonicKey: FACILITATOR_ACCOUNT_MNEMONIC
   env:
+    LOG_LEVEL: INFO
     SPRING_ACTIVE_PROFILES: "postgres,preprod"
     REMOTE_NODE_URL: "preprod-node.play.dev.cardano.org"
     REMOTE_NODE_PORT: 3001
@@ -49,6 +51,7 @@ backend:
 ui:
   enabled: true
   image:
+    pullPolicy: IfNotPresent
     repository: uverify/uverify-ui
     tag: latest
   replicas: 1
