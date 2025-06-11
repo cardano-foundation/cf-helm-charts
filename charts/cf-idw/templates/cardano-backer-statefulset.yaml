@@ -39,7 +39,7 @@ spec:
           # Update the command and args if you need to pass the counter/port
           env:
             - name: BACKER_LOG_LEVEL
-              value: {{ $backer.logLevel | default "debug" | quote }}
+              value: {{ $backer.logLevel | default "INFO" | quote }}
             - name: BACKER_COUNTER
               value: {{ $count | quote }}
             - name: HTTP_PORT
