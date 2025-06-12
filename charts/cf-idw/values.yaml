@@ -142,6 +142,17 @@ veridianAccessPass:
       userKey: SMTP_USER
       passKey: SMTP_PASS
 
+veridianDocusign:
+  enabled: true
+  image:
+    repository: "cardanofoundation/veridian-docusign"
+    tag: "main"
+  port: 80
+  ingress:
+    enabled: true
+    hosts:
+      - docusign
+
 witness:
   enabled: true
   image:

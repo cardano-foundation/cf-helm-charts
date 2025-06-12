@@ -1,0 +1,40 @@
+{{- $root := .Values -}}
+{{ with .Values.veridianDocusign }}
+{{- if .ingress.enabled -}}
+{{- $veridianDocusign := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: veridian-docusign-ingress
+  labels:
+    app: veridian-docusign
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $veridianDocusign.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: veridian-docusign
+                port:
+                  number: {{ $veridianDocusign.port | default 80 }}
+      {{- end }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $veridianDocusign.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
+    {{- end }}
+{{ end }}
+{{ end }}
