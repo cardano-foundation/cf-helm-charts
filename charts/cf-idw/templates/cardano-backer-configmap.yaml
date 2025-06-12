@@ -16,13 +16,16 @@ data:
     else
       SALT="--salt ${BACKER_SALT}"
     fi
+
+    export KERIA_CURLS="${KERIA_CURLS_URL}"
+    export KERIA_RENDERED_CURLS=$(for keria_curl in ${KERIA_CURLS}; do echo $keria_curl; done | jq -cRn '[inputs]')
     
     mkdir -p $CONFIG_DIR/keri/cf
     cat > $CONFIG_DIR/keri/cf/backer.json <<EOF
     {
       "backer": {
         "dt": "$(date -u +"%Y-%m-%dT%H:%M:%S.000000+00:00")",
-        "curls": ["${EXTERNAL_URL}"]
+        "curls": ${KERIA_RENDERED_CURLS},
       },
       "dt": "$(date -u +"%Y-%m-%dT%H:%M:%S.000000+00:00")",
       "iurls": [
@@ -45,7 +48,7 @@ data:
     
     kli incept --name backer --alias backer --config $CONFIG_DIR --file backer_cfg.json --base $STORE_DIR
     
-    backer start --name backer  --alias backer -T ${TCP_PORT:-5665} -H ${HTTP_PORT:-5666} --ledger cardano --base $STORE_DIR
+    backer start --name backer  --alias backer -T ${TCP_PORT:-5665} -H ${HTTP_PORT:-5666} --base $STORE_DIR
 
 {{ end }}
 {{ end }}

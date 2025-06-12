@@ -1,0 +1,68 @@
+{{ if .Values.backend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uverify-backend
+spec:
+  replicas: {{ .Values.backend.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: uverify-backend
+  template:
+    metadata:
+      labels:
+        app: uverify-backend
+    spec:
+      containers:
+        - name: uverify-backend
+          image: {{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.backend.port | default 9090 }}
+          env:
+            {{- range $key, $val := .Values.backend.env }}
+            - name: {{ $key }}
+              value: "{{ $val }}"
+            {{- end }}
+            - name: FACILITATOR_ACCOUNT_MNEMONIC
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.secret.name }}
+                  key: {{ .Values.backend.secret.facilitatorAccountMnemonicKey }}
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.db.secret.name }}
+                  key: {{ .Values.backend.db.secret.urlKey }}
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.db.secret.name }}
+                  key: {{ .Values.backend.db.secret.usernameKey }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.db.secret.name }}
+                  key: {{ .Values.backend.db.secret.passwordKey }}
+            - name: TADAMON_GOOGLE_SHEETS_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.tadamon.secret.name }}
+                  key: {{ .Values.backend.tadamon.secret.googleSheetsPrivateKeyKey }}
+            - name: TADAMON_GOOGLE_SHEETS_SERVICE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.tadamon.secret.name }}
+                  key: {{ .Values.backend.tadamon.secret.googleSheetsServiceAccountKey }}
+            - name: TADAMON_GOOGLE_SHEETS_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.tadamon.secret.name }}
+                  key: {{ .Values.backend.tadamon.secret.googleSheetsIdKey }}
+            - name: BLOCKFROST_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.blockfrost.secret.name }}
+                  key: {{ .Values.backend.blockfrost.secret.projectIdKey }}
+
+{{ end }}

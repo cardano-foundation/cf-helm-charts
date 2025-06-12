@@ -1,40 +1,44 @@
 {{- $root := .Values -}}
 {{ with .Values.cardanoBacker }}
-{{- if .ingress.enabled -}}
-{{- $cardanoBacker := . -}}
+{{- $backer := . -}}
+{{- if $backer.ingress.enabled -}}
+{{- range $count := until (int .backerCount) }}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: cardano-backer-ingress
+  name: cardano-backer-{{ $count }}
   labels:
     app: cardano-backer
   labels:
-  {{- with .ingress.annotations }}
+  {{- with $backer.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   rules:
     {{- range $TLD := $root.ingressTLDs }}
-      {{- range $host := $cardanoBacker.ingress.hosts }}
-    - host: {{ $host }}.{{ $TLD }}
+      {{- range $host := $backer.ingress.hosts }}
+    - host: {{ $host }}-{{ $count }}.{{ $TLD }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: cardano-backer
+                name: cardano-backer-{{ $count }}
                 port:
-                  number: {{ $cardanoBacker.port | default 3001 }}
+                  number: {{ add $backer.initialHTTPPort $count }}
       {{- end }}
     {{- end }}
   tls:
     - hosts:
     {{- range $TLD := $root.ingressTLDs }}
-      {{- range $host := $cardanoBacker.ingress.hosts }}
-        - "{{ $host }}.{{ $TLD }}"
+      {{- range $host := $backer.ingress.hosts }}
+        - "{{ $host }}-{{ $count }}.{{ $TLD }}"
       {{- end }}
     {{- end }}
+---
+{{- end }}
 {{ end }}
 {{ end }}

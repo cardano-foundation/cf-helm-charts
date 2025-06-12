@@ -86,6 +86,8 @@ spec:
               value: {{ .smtp.awsRegion | default "eu-west-1" | quote }}
             - name: SMTP_FROM
               value: {{ .smtp.from | default "admin@example.com" }}
+            - name: SMTP_REPLY_TO
+              value: {{ .smtp.replyTo | default "admin@example.com" }}
           ports:
             - containerPort: {{ .port | default 9030 }}
               protocol: TCP

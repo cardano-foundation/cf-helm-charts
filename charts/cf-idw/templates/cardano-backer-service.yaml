@@ -1,13 +1,23 @@
+{{- $root := .Values -}}
+{{ with .Values.cardanoBacker }}
+{{- $backer := . -}}
+{{- if $backer.enabled -}}
+{{- range $count := until (int .backerCount) }}
+---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     app: cardano-backer
-  name: cardano-backer
+  name: cardano-backer-{{ $count }}
 spec:
   ports:
-    - name: {{ .port | default "5666" | quote }}
-      port: {{ .port | default "5666" }}
-      targetPort: {{ .port | default "5666" }}
+    - name: {{ add $backer.initialHTTPPort $count | quote }}
+      port: {{ add $backer.initialHTTPPort $count }}
+      protocol: TCP
+      targetPort: {{ add $backer.initialHTTPPort $count }}
   selector:
-    app: cardano-backer
+    app: cardano-backer-{{ $count }}
+{{- end }}
+{{ end }}
+{{ end }}

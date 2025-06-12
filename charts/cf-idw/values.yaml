@@ -18,11 +18,12 @@ cardanoNode:
 
 cardanoBacker:
   enabled: false
+  backerCount: 6
   image:
     repository: "pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cf-idw-cardano-backer"
     tag: "main"
   logLevel: "INFO"
-  port: 5666
+  initialHTTPPort: 5666
   secret:
     create: true
     name: cf-idw-secrets

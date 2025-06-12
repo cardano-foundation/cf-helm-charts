@@ -1,0 +1,65 @@
+ingressTLDs:
+  - "example.com"
+
+backend:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+    repository: uverify/uverify-backend
+    tag: latest
+  replicas: 1
+  port: 9090
+  ingress:
+    enabled: true
+    hosts:
+      - backend
+  db:
+    secret:
+      name: uverify-secret
+      usernameKey: DB_USERNAME
+      passwordKey: DB_PASSWORD
+      urlKey: DB_URL
+  blockfrost:
+    secret:
+      name: uverify-secret
+      projectIdKey: BLOCKFROST_PROJECT_ID
+  tadamon:
+    secret:
+      name: uverify-secret
+      googleSheetsPrivateKeyKey: TADAMON_GOOGLE_SHEETS_PRIVATE_KEY
+      googleSheetsServiceAccountKey: TADAMON_GOOGLE_SHEETS_SERVICE_ACCOUNT
+      googleSheetsIdKey: TADAMON_GOOGLE_SHEETS_ID
+  secret:
+    name: uverify-secret
+    facilitatorAccountMnemonicKey: FACILITATOR_ACCOUNT_MNEMONIC
+  env:
+    LOG_LEVEL: INFO
+    SPRING_ACTIVE_PROFILES: "postgres,preprod"
+    REMOTE_NODE_URL: "preprod-node.play.dev.cardano.org"
+    REMOTE_NODE_PORT: 3001
+    PROTOCOL_MAGIC: 1
+    CARDANO_NETWORK: "PREPROD"
+    BLOCKFROST_BASE_URL: "https://cardano-preprod.blockfrost.io/api/v0/"
+    CORS_ALLOWED_ORIGINS: "*"
+    CONNECTED_GOODS_ENCRYPTION_SALT: ""
+    CONNECTED_GOODS_EXTENSION_ENABLED: false
+    CONNECTED_GOODS_SERVICE_WALLET_ADDRESS: ""
+    TADAMON_EXTENSION_ENABLED: true
+    TADAMON_ALLOWED_ADDRESSES: "addr_test1qqgmew..."
+    SERVICE_USER_ADDRESS: "addr_test1qqgmew..."
+
+ui:
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+    repository: uverify/uverify-ui
+    tag: latest
+  replicas: 1
+  port: 80
+  ingress:
+    enabled: true
+    hosts:
+      - ui
+  env:
+    VITE_BACKEND_URL: "http://uverify-backend:9090"
+    VITE_CARDANO_NETWORK: "preprod"
