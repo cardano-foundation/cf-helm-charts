@@ -144,6 +144,16 @@ entries:
   cf-idw:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-06-12T16:51:47.701501995Z"
+    description: A Helm chart for veridian wallet
+    digest: be4b677f551a003b46c5dedfc67b1fdeecff024b3f5e8be7d883a131830e1273
+    name: cf-idw
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-idw-0.0.9/cf-idw-0.0.9.tgz
+    version: 0.0.9
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-05-08T10:57:32.468377764Z"
     description: A Helm chart for veridian wallet
     digest: d12e97ac628c3b9777c98456e232aeba5a9787fff276255f1360ccfc27ddff6d
@@ -233,6 +243,17 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-pg-pool-ii-0.0.1/cf-pg-pool-ii-0.0.1.tgz
     version: 0.0.1
+  cf-uverify:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2025-06-12T16:51:47.88667036Z"
+    description: A Helm chart for deploying uverify
+    digest: 71577f954642b5931174047683549d3970759b1935d8bbc8e2137f2d4b1d60f2
+    name: cf-uverify
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-uverify-0.0.1/cf-uverify-0.0.1.tgz
+    version: 0.0.1
   cf-vault:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -253,4 +274,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-vault-0.0.1/cf-vault-0.0.1.tgz
     version: 0.0.1
-generated: "2025-05-08T10:57:32.468419712Z"
+generated: "2025-06-12T16:51:47.886728148Z"
