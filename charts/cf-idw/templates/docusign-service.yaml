@@ -1,0 +1,17 @@
+{{ with .Values.veridianDocusign }}
+{{ if .enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: veridian-docusign
+  name: veridian-docusign
+spec:
+  ports:
+    - name: {{ .port | default "80" | quote }}
+      port: {{ .port | default 80 }}
+      targetPort: {{ .port | default 80 }}
+  selector:
+    app: veridian-docusign
+{{ end }}
+{{ end }}
