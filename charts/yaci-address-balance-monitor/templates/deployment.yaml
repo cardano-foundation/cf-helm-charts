@@ -1,0 +1,80 @@
+{{ if eq .Values.db.type "postgres" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yaci-address-balance-monitor
+  labels:
+    app: yaci-address-balance-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yaci-address-balance-monitor
+  template:
+    metadata:
+      labels:
+        app: yaci-address-balance-monitor
+    spec:
+      containers:
+        - name: yaci-address-balance-monitor
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          env:
+            - name: ADDRESSES
+              value: "{{ .Values.addresses }}"
+            - name: START_SLOT
+              value: "{{ .Values.startSlot }}"
+            - name: START_SLOT_BLOCK_HASH
+              value: "{{ .Values.startSlotBlockHash }}"
+            - name: YACI_STORE_DB_TYPE
+              value: "postgres"
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secret.name }}
+                  key: {{ .Values.db.secret.hostKey }}
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secret.name }}
+                  key: {{ .Values.db.secret.portKey }}
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secret.name }}
+                  key: {{ .Values.db.secret.dbnameKey }}  
+            - name: DB_SCHEMA
+              value: {{ .Values.db.schema }}
+            - name: YACI_STORE_DB_URL
+              value: {{ .Values.db.url | default "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)?currentSchema=$(DB_SCHEMA)" }}
+            - name: YACI_STORE_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secret.name }}
+                  key: {{ .Values.db.secret.userKey }}
+            - name: YACI_STORE_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secret.name }}
+                  key: {{ .Values.db.secret.passwordKey }}
+          ports:
+            - containerPort: 8080
+              name: http
+          volumeMounts:
+            - name: node-exporter-data
+              mountPath: /data/node-exporter
+        - name: node-exporter
+          image: prom/node-exporter:latest
+          args:
+            - "--collector.disable-defaults"
+            - "--collector.textfile"
+            - "--collector.textfile.directory=/metrics"
+          ports:
+            - containerPort: 9100
+              name: metrics
+          volumeMounts:
+            - name: node-exporter-data
+              mountPath: /metrics
+      volumes:
+        - name: node-exporter-data
+          emptyDir: {}
+{{ end }}

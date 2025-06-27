@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: yaci-address-balance-monitor
+  labels:
+    release: cf-eks-monitoring
+spec:
+  selector:
+    matchLabels:
+      app: yaci-address-balance-monitor
+  endpoints:
+    - port: metrics
+      interval: 20s
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}

@@ -1,0 +1,23 @@
+network: preprod
+# addresses is a space-separated list of addresses
+addresses: 
+  addr_test1wr4se9nuh57rnwu350mzy7ltztnhekpptmpdkzwupaj49nqkldg8j
+  addr_test1qzpe8r5u08uvnyvl58yumkspvsp43rnjg4yutlhem2q3dehmnlkg05ptkzz3ca85qt8uy9lhz92800c4nhag8zdvkq3swaxg38
+# empty slot info = starts from genesis
+startSlot: ""
+startSlotBlockHash: ""
+db:
+  type: h2 # or postgres; will determine if a sts or a deploy is used
+  # secret and schema are actually only used for postgres
+  schema: yaci_store
+  secret:
+    name: postgres-secrets
+    userKey: "POSTGRES_USER"
+    passwordKey: "POSTGRES_PASSWORD"
+    dbnameKey: "POSTGRES_DB"
+    hostKey: "POSTGRES_HOST"
+    portKey: "POSTGRES_PORT"
+
+image:
+  repository: rcmorano/yaci-address-balance-monitor
+  tag: latest

@@ -1,0 +1,63 @@
+{{ if eq .Values.db.type "h2" }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: yaci-address-balance-monitor
+  labels:
+    app: yaci-address-balance-monitor
+spec:
+  serviceName: "yaci-address-balance-monitor"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yaci-address-balance-monitor
+  template:
+    metadata:
+      labels:
+        app: yaci-address-balance-monitor
+    spec:
+      containers:
+        - name: yaci-address-balance-monitor
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          env:
+            - name: YACI_STORE_DB_TYPE
+              value: "h2"
+            - name: ADDRESSES
+              value: "{{ .Values.addresses }}"
+            - name: START_SLOT
+              value: "{{ .Values.startSlot }}"
+            - name: START_SLOT_BLOCK_HASH
+              value: "{{ .Values.startSlotBlockHash }}"
+          ports:
+            - containerPort: 8080
+              name: http
+          volumeMounts:
+            - name: node-exporter-data
+              mountPath: /data/node-exporter
+        - name: node-exporter
+          image: python:3-alpine
+          command: 
+            - "python"
+            - "-c"
+            - "import http.server; http.server.HTTPServer(('0.0.0.0', 9100), type('Handler', (http.server.BaseHTTPRequestHandler,), {'do_GET': lambda s: (s.send_response(200), s.send_header('Content-type','text/plain'), s.end_headers(), s.wfile.write(open('/metrics/utxo_balances','rb').read()))})).serve_forever()"
+          ports:
+            - containerPort: 9100
+              name: metrics
+          volumeMounts:
+            - name: node-exporter-data
+              mountPath: /metrics
+      volumes:
+        - name: node-exporter-data
+          emptyDir: {}
+        - name: h2-data
+          persistentVolumeClaim:
+            claimName: h2-data
+  volumeClaimTemplates:
+    - metadata:
+        name: h2-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi
+{{ end }}
