@@ -18,6 +18,7 @@ spec:
       containers:
         - name: yaci-address-balance-monitor
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           env:
             - name: NETWORK
               value: "{{ .Values.network }}"

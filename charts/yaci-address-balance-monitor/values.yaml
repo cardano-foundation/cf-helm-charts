@@ -24,3 +24,5 @@ db:
 image:
   repository: rcmorano/yaci-address-balance-monitor
   tag: latest
+  pullPolicy: IfNotPresent
+
