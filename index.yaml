@@ -284,4 +284,12 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-vault-0.0.1/cf-vault-0.0.1.tgz
     version: 0.0.1
-generated: "2025-06-23T08:30:30.326894653Z"
+  yaci-address-balance-monitor:
+  - apiVersion: v1
+    created: "2025-06-27T12:48:58.853415149Z"
+    digest: 05308ae790769f5db95622e81be357866a16735e1156762927269d1f6f813ccc
+    name: yaci-address-balance-monitor
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
+    version: 0.0.1
+generated: "2025-06-27T12:48:58.85345308Z"
