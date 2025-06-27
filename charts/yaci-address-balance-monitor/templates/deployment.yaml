@@ -45,7 +45,7 @@ spec:
                   name: {{ .Values.db.secret.name }}
                   key: {{ .Values.db.secret.dbnameKey }}  
             - name: DB_SCHEMA
-              value: {{ .Values.db.schema }}
+              value: {{ .Values.db.postgres.schema }}
             - name: YACI_STORE_DB_URL
               value: {{ .Values.db.url | default "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)?currentSchema=$(DB_SCHEMA)" }}
             - name: YACI_STORE_DB_USER

@@ -9,7 +9,10 @@ startSlotBlockHash: ""
 db:
   type: h2 # or postgres; will determine if a sts or a deploy is used
   # secret and schema are actually only used for postgres
-  schema: yaci_store
+  h2:
+    storageSize: "2Gi" # you'd want ~10 for mainnet
+  postgres:
+    schema: yaci_store
   secret:
     name: postgres-secrets
     userKey: "POSTGRES_USER"

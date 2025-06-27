@@ -34,6 +34,8 @@ spec:
             - containerPort: 8080
               name: http
           volumeMounts:
+            - name: h2-data
+              mountPath: /data
             - name: node-exporter-data
               mountPath: /data/node-exporter
         - name: node-exporter
@@ -61,5 +63,5 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 2Gi
+            storage: {{ .Values.db.h2.storageSize }}
 {{ end }}
