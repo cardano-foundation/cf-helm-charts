@@ -26,3 +26,5 @@ image:
   tag: latest
   pullPolicy: IfNotPresent
 
+serviceMonitor:
+  prometheusReleaseLabel: cf-eks-monitoring
