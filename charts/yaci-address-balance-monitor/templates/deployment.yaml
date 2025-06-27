@@ -19,6 +19,8 @@ spec:
         - name: yaci-address-balance-monitor
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           env:
+            - name: NETWORK
+              value: "{{ .Values.network }}"
             - name: ADDRESSES
               value: "{{ .Values.addresses }}"
             - name: START_SLOT

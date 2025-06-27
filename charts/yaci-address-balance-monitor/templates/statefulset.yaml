@@ -20,14 +20,16 @@ spec:
         - name: yaci-address-balance-monitor
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           env:
-            - name: YACI_STORE_DB_TYPE
-              value: "h2"
+            - name: NETWORK
+              value: "{{ .Values.network }}"
             - name: ADDRESSES
               value: "{{ .Values.addresses }}"
             - name: START_SLOT
               value: "{{ .Values.startSlot }}"
             - name: START_SLOT_BLOCK_HASH
               value: "{{ .Values.startSlotBlockHash }}"
+            - name: YACI_STORE_DB_TYPE
+              value: "h2"
           ports:
             - containerPort: 8080
               name: http
