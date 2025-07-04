@@ -16,6 +16,7 @@ spec:
       labels:
         app: yaci-address-balance-monitor
     spec:
+      {{- if .tolerations }}
       tolerations:
         {{ with index .tolerations }}
 {{ toYaml . | nindent 8 }}
