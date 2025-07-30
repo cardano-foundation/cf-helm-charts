@@ -286,10 +286,17 @@ entries:
     version: 0.0.1
   yaci-address-balance-monitor:
   - apiVersion: v1
+    created: "2025-07-30T11:11:30.339657264Z"
+    digest: 8aee01ab9a6d747c16534ec4e96fd7ac79f97c24875f1acfea94145eaa792ba6
+    name: yaci-address-balance-monitor
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.2/yaci-address-balance-monitor-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v1
     created: "2025-06-27T12:48:58.853415149Z"
     digest: 05308ae790769f5db95622e81be357866a16735e1156762927269d1f6f813ccc
     name: yaci-address-balance-monitor
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2025-06-27T12:48:58.85345308Z"
+generated: "2025-07-30T11:11:30.3397022Z"
