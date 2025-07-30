@@ -1,6 +1,7 @@
 kube-prometheus-stack:
   enabled: true
-  fullnameOverride: "kube-prometheus-stack"
+  nodeExporter:
+    enabled: false
   global:
     rbac:
       create: true
@@ -26,21 +27,18 @@ kube-prometheus-stack:
         enabled: true
 
 metrics-server:
-  enabled: true
+  enabled: false
   fullnameOverride: "metrics-server"
-  apiService:
-    annotations:
-      somekey: "this-avoids-argocd-wanting-to-always-apply-null-annotations"
 
 promtail:
-  enabled: false
+  enabled: true
   fullnameOverride: "promtail"
   pipelineStages:
   - match:
       selector: '{namespace!=""} |~ ".*kube-probe/.*" !~ ".*stdout F $"'
 
 loki:
-  enabled: false
+  enabled: true
   fullnameOverride: "loki"
   loki:
     persistence:
