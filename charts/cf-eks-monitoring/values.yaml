@@ -28,6 +28,9 @@ kube-prometheus-stack:
 metrics-server:
   enabled: true
   fullnameOverride: "metrics-server"
+  apiService:
+    annotations:
+      somekey: "this-avoids-argocd-wanting-to-always-apply-null-annotations"
 
 promtail:
   enabled: false
