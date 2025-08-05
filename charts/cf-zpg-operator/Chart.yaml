@@ -1,0 +1,19 @@
+apiVersion: v2
+name: cf-zpg-operator
+description: A Helm chart bundling zalando pg operator plus minio ready for PITR
+type: application
+version: 0.0.1
+appVersion: 1.14.0
+dependencies:
+  - name: postgres-operator
+    version: 1.14.0
+    repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+    condition: postgres-operator.enabled
+  - name: postgres-operator-ui
+    version: 1.14.0
+    repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
+    condition: postgres-operator-ui.enabled
+  - name: minio
+    version: 5.4.0
+    repository: https://charts.min.io/
+    condition: promtail.enabled

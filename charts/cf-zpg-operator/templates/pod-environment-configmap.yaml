@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pod-environment
+data:
+  AWS_ACCESS_KEY_ID: $(rootUser)
+  AWS_ENDPOINT: http://minio:9000
+  AWS_REGION: minio
+  AWS_S3_FORCE_PATH_STYLE: "true"
+  AWS_SECRET_ACCESS_KEY: $(rootPassword)
+  BACKUP_NUM_TO_RETAIN: "10"
+  BACKUP_SCHEDULE: '*/5 * * * *'
+  LOG_S3_TAGS: '{"ClusterName": "$(SCOPE)"}'
+  USE_WALG_BACKUP: "false"
+  USE_WALG_RESTORE: "false"
+  WALE_S3_ENDPOINT: http+path://minio:9000
+  WALE_DISABLE_S3_SSE: "true"
+  WALG_DISABLE_S3_SSE: "true"
+  CLONE_AWS_ACCESS_KEY_ID: $(rootUser)
+  CLONE_AWS_ENDPOINT: http://minio:9000
+  CLONE_AWS_REGION: minio
+  CLONE_AWS_S3_FORCE_PATH_STYLE: "true"
+  CLONE_AWS_SECRET_ACCESS_KEY: $(rootPassword)
+  CLONE_BACKUP_NUM_TO_RETAIN: "10"
+  CLONE_BACKUP_SCHEDULE: '*/5 * * * *'
+  CLONE_LOG_S3_TAGS: '{"ClusterName": "$(SCOPE)"}'
+  CLONE_WALE_DISABLE_S3_SSE: "true"
+  CLONE_WALE_S3_ENDPOINT: http+path://minio:9000
+  CLONE_WALG_DISABLE_S3_SSE: "true"
+  STANDBY_AWS_ACCESS_KEY_ID: $(rootUser)
+  STANDBY_AWS_ENDPOINT: http://minio:9000
+  STANDBY_AWS_REGION: minio
+  STANDBY_AWS_S3_FORCE_PATH_STYLE: "true"
+  STANDBY_AWS_SECRET_ACCESS_KEY: $(rootPassword)
+  STANDBY_BACKUP_NUM_TO_RETAIN: "10"
+  STANDBY_BACKUP_SCHEDULE: '*/5 * * * *'
+  STANDBY_LOG_S3_TAGS: '{"ClusterName": "$(SCOPE)"}'
+  STANDBY_WALE_DISABLE_S3_SSE: "true"
+  STANDBY_WALE_S3_ENDPOINT: http+path://minio:9000
+  STANDBY_WALG_DISABLE_S3_SSE: "true"

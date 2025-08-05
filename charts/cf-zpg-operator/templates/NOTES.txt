@@ -1,0 +1,8 @@
+MinIO
+
+  To get root credentials for MinIO, run the following command:
+
+  kubectl get secret -n zpg-system minio-credentials --template='
+    MINIO_USER={{ "{{" }}.data.rootUser | base64decode {{ "}}" }}
+    MINIO_PASS={{ "{{" }}.data.rootPassword | base64decode {{ "}}" }}
+  '
