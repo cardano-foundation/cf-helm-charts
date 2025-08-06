@@ -1,0 +1,55 @@
+kind: "postgresql"
+apiVersion: "acid.zalan.do/v1"
+
+metadata:
+  name: "pgpoc"
+  # postgres-operator-ui is only able to display clusters in 1 ns, which by
+  # default is the same as the operator namespace, that's why default to use
+  # this and have all the clusters in the same namespace
+  namespace: zpg-system
+  labels:
+    team: acid
+
+spec:
+  teamId: "acid"
+#  tolerations:
+#  - key: postgres
+#    operator: Exists
+#    effect: NoSchedule
+#  nodeAffinity:
+#    requiredDuringSchedulingIgnoredDuringExecution:
+#      nodeSelectorTerms:
+#      - matchExpressions:
+#        - key: environment
+#          operator: In
+#          values:
+#          - pci
+  postgresql:
+    version: "17"
+  numberOfInstances: 1
+  enableMasterLoadBalancer: true
+  enableReplicaLoadBalancer: true
+  enableConnectionPooler: true
+  enableReplicaConnectionPooler: true
+  enableMasterPoolerLoadBalancer: true
+  enableReplicaPoolerLoadBalancer: true
+  enableLogicalBackup: true
+  maintenanceWindows:
+  volume:
+    size: "10Gi"
+  allowedSourceRanges:
+    # IP ranges to access your cluster go here
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 500m
+      memory: 500Mi
+  preparedDatabases:
+    appdb:
+      defaultUsers: true
+      secretNamespace: app-ns
+      schemas:
+        public:
+          defaultUsers: true
