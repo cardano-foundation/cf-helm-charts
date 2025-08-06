@@ -287,6 +287,29 @@ entries:
   cf-zpg-operator:
   - apiVersion: v2
     appVersion: 1.14.0
+    created: "2025-08-06T08:40:13.240978749Z"
+    dependencies:
+    - condition: postgres-operator.enabled
+      name: postgres-operator
+      repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+      version: 1.14.0
+    - condition: postgres-operator-ui.enabled
+      name: postgres-operator-ui
+      repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
+      version: 1.14.0
+    - condition: promtail.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.4.0
+    description: A Helm chart bundling zalando pg operator plus minio ready for PITR
+    digest: 4c1d778df143ff5a988c2af8ce8837295d5ba8a6a711980f8cf2f9cf8e771607
+    name: cf-zpg-operator
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-zpg-operator-0.0.4/cf-zpg-operator-0.0.4.tgz
+    version: 0.0.4
+  - apiVersion: v2
+    appVersion: 1.14.0
     created: "2025-08-06T07:48:17.186085676Z"
     dependencies:
     - condition: postgres-operator.enabled
@@ -369,4 +392,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2025-08-06T07:48:17.186158937Z"
+generated: "2025-08-06T08:40:13.241033662Z"
