@@ -2,14 +2,6 @@ postgres-operator:
   enabled: true
   fullnameOverride: "postgres-operator"
 
-  configGeneral:
-    wal_s3_bucket: "pg-wal"
-    # PITR settings
-    enable_wal_archive: true
-    wal_gs_prefix: ""
-    wal_storage: "s3"
-    aws_region: "minio"
-
   configKubernetes:
     pod_environment_configmap: "pg-system/pod-environment"
     pod_environment_secret: "minio-credentials"
@@ -18,7 +10,6 @@ postgres-operator:
   configAwsOrGcp:
     aws_region: "minio"               # Your custom region (use appropriate value for your setup)
     wal_s3_bucket: "pg-wal"           # Bucket for WAL archive
-    log_s3_bucket: "pg-wal-logs"      # (Optional) Bucket for shipping logs
   
   configLogicalBackup:
     logical_backup_s3_bucket: "pg-backups"
