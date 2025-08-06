@@ -2,7 +2,7 @@ apiVersion: v2
 name: cf-zpg-operator
 description: A Helm chart bundling zalando pg operator plus minio ready for PITR
 type: application
-version: 0.0.1
+version: 0.0.2
 appVersion: 1.14.0
 dependencies:
   - name: postgres-operator
