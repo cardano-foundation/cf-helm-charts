@@ -2,6 +2,28 @@ postgres-operator:
   enabled: true
   fullnameOverride: "postgres-operator"
 
+  # These are values that doesn't belong to zalando's chart that we use to
+  # configure it further, ie, for setting up the pod-environment configmap
+  zpg:
+    podEnvironment: # All these are also set as CLONE_* and STANDBY_*
+      # rootUser and rootPassword come from the mounted minio-credentials secret
+      AWS_ACCESS_KEY_ID: $(rootUser)
+      AWS_SECRET_ACCESS_KEY: $(rootPassword)
+      AWS_ENDPOINT: http://minio:9000
+      AWS_REGION: minio
+      AWS_S3_FORCE_PATH_STYLE: "true"
+      # NOTE: these are comments from backup script:
+      # DAYS_TO_RETAIN=$BACKUP_NUM_TO_RETAIN
+      # "we want keep at least N backups even if the number of days exceeded"
+      BACKUP_NUM_TO_RETAIN: "10"
+      BACKUP_SCHEDULE: '*/5 * * * *'
+      LOG_S3_TAGS: '{"ClusterName": "$(SCOPE)"}'
+      USE_WALG_BACKUP: "false"
+      USE_WALG_RESTORE: "false"
+      WALE_S3_ENDPOINT: http+path://minio:9000
+      WALE_DISABLE_S3_SSE: "true"
+      WALG_DISABLE_S3_SSE: "true"
+
   configKubernetes:
     pod_environment_configmap: "pg-system/pod-environment"
     pod_environment_secret: "minio-credentials"

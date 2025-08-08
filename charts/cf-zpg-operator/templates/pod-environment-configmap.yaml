@@ -3,42 +3,14 @@ kind: ConfigMap
 metadata:
   name: pod-environment
 data:
-  AWS_ACCESS_KEY_ID: $(rootUser)
-  AWS_ENDPOINT: http://minio:9000
-  AWS_REGION: minio
-  AWS_S3_FORCE_PATH_STYLE: "true"
-  AWS_SECRET_ACCESS_KEY: $(rootPassword)
-  # NOTE: these are comments from backup script:
-  # DAYS_TO_RETAIN=$BACKUP_NUM_TO_RETAIN
-  # "we want keep at least N backups even if the number of days exceeded"
-  BACKUP_NUM_TO_RETAIN: "10"
-  BACKUP_SCHEDULE: '*/5 * * * *'
-  LOG_S3_TAGS: '{"ClusterName": "$(SCOPE)"}'
-  USE_WALG_BACKUP: "false"
-  USE_WALG_RESTORE: "false"
-  WALE_S3_ENDPOINT: http+path://minio:9000
-  WALE_DISABLE_S3_SSE: "true"
-  WALG_DISABLE_S3_SSE: "true"
-  CLONE_AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-  CLONE_AWS_ENDPOINT: $(AWS_ENDPOINT)
-  CLONE_AWS_REGION: $(AWS_REGION)
-  CLONE_AWS_S3_FORCE_PATH_STYLE: $(AWS_S3_FORCE_PATH_STYLE)
-  CLONE_AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-  CLONE_BACKUP_NUM_TO_RETAIN: $(BACKUP_NUM_TO_RETAIN)
-  CLONE_BACKUP_SCHEDULE: ${BACKUP_SCHEDULE}
-  CLONE_LOG_S3_TAGS: $(LOG_S3_TAGS)
-  CLONE_WALE_DISABLE_S3_SSE: $(WAL_DISABLE_S3_SSE)
-  CLONE_WALE_S3_ENDPOINT: $(WALE_S3_ENDPOINT)
-  CLONE_WALG_DISABLE_S3_SSE: $(WALG_DISABLE_S3_SSE)
-  STANDBY_AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-  STANDBY_AWS_ENDPOINT: $(AWS_ENDPOINT)
-  STANDBY_AWS_REGION: $(AWS_REGION)
-  STANDBY_AWS_S3_FORCE_PATH_STYLE: $(AWS_S3_FORCE_PATH_STYLE)
-  STANDBY_AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-  STANDBY_BACKUP_NUM_TO_RETAIN: $(BACKUP_NUM_TO_RETAIN)
-  STANDBY_BACKUP_SCHEDULE: ${BACKUP_SCHEDULE}
-  STANDBY_LOG_S3_TAGS: $(LOG_S3_TAGS)
-  STANDBY_WALE_DISABLE_S3_SSE: $(WAL_DISABLE_S3_SSE)
-  STANDBY_WALE_S3_ENDPOINT: $(WALE_S3_ENDPOINT)
-  STANDBY_WALG_DISABLE_S3_SSE: $(WALG_DISABLE_S3_SSE)
-
+  {{ range $key, $val := index .Values "postgres-operator" "zpg" "podEnvironment" }}
+  {{ if (include "isMap" $val) -}}
+  {{ $key }}: {{ $val }}
+  CLONE_{{ $key }}: {{ $val }}
+  STANDBY_{{ $key }}: {{ $val }}
+  {{ else }}
+  {{ $key }}: {{ $val | quote }}
+  CLONE_{{ $key }}: {{ $val | quote }}
+  STANDBY_{{ $key }}: {{ $val | quote }}
+  {{ end }}
+  {{ end }}
