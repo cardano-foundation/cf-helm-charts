@@ -5,12 +5,12 @@ metadata:
 data:
   {{ range $key, $val := index .Values "postgres-operator" "zpg" "podEnvironment" }}
   {{ if (include "isMap" $val) -}}
-  {{ $key }}: {{ $val }}
-  CLONE_{{ $key }}: {{ $val }}
-  STANDBY_{{ $key }}: {{ $val }}
+  {{ $key }}: '{{ $val }}'
+  CLONE_{{ $key }}: '{{ $val }}'
+  STANDBY_{{ $key }}: '{{ $val }}'
   {{ else }}
-  {{ $key }}: {{ $val | quote }}
-  CLONE_{{ $key }}: {{ $val | quote }}
-  STANDBY_{{ $key }}: {{ $val | quote }}
+  {{ $key }}: "{{ $val }}"
+  CLONE_{{ $key }}: "{{ $val }}"
+  STANDBY_{{ $key }}: "{{ $val }}"
   {{ end }}
   {{ end }}
