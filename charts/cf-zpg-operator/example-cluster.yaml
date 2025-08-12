@@ -24,6 +24,8 @@ spec:
 #          operator: In
 #          values:
 #          - pci
+#  patroni:
+#    synchronous_mode: true
   postgresql:
     version: "17"
   numberOfInstances: 1
