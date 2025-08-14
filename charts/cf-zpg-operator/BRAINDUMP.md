@@ -3,6 +3,7 @@
 ```
 mc alias set myminio http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
 mc ls myminio/mybucket
+mc admin heal --recursive --remove myminio/
 ```
 
 # List backups from cli
