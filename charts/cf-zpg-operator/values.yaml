@@ -18,8 +18,8 @@ postgres-operator:
       BACKUP_NUM_TO_RETAIN: "10"
       BACKUP_SCHEDULE: '*/5 * * * *'
       LOG_S3_TAGS: '{"ClusterName": "$(SCOPE)"}'
-      USE_WALG_BACKUP: "false"
-      USE_WALG_RESTORE: "false"
+      USE_WALG_BACKUP: "true"
+      USE_WALG_RESTORE: "true"
       WALE_S3_ENDPOINT: http+path://minio:9000
       WALE_DISABLE_S3_SSE: "true"
       WALG_DISABLE_S3_SSE: "true"

@@ -22,3 +22,4 @@ kubectl port-forward -n zpg-system svc/minio-console 9001:9001
 
 https://postgres-operator.readthedocs.io/en/latest/user/#clone-directly
 https://gitlab.com/gitlab-com/runbooks/-/blob/master/docs/patroni/postgresql-backups-wale-walg.md
+https://postgres-operator.readthedocs.io/en/latest/reference/cluster_manifest/
