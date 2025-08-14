@@ -15,8 +15,8 @@ postgres-operator:
       # NOTE: these are comments from backup script:
       # DAYS_TO_RETAIN=$BACKUP_NUM_TO_RETAIN
       # "we want keep at least N backups even if the number of days exceeded"
-      BACKUP_NUM_TO_RETAIN: "10"
-      BACKUP_SCHEDULE: '*/5 * * * *'
+      BACKUP_NUM_TO_RETAIN: "7"
+      BACKUP_SCHEDULE: '0 2 * * *'
       LOG_S3_TAGS: '{"ClusterName": "$(SCOPE)"}'
       USE_WALG_BACKUP: "true"
       USE_WALG_RESTORE: "true"
