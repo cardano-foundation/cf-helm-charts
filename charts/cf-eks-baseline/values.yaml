@@ -8,10 +8,10 @@ traefik:
     type: "NodePort"
   ports:
     web:
-      exposed: "false"
+      expose:
+        default: false
     websecure:
       nodePort: 30443
-      exposed: "false"
 
 nginx:
   enabled: true
