@@ -29,6 +29,9 @@ postgres-operator:
     pod_environment_secret: "minio-credentials"
     enable_pod_antiaffinity: false
     enable_cross_namespace_secret: true
+    # https://github.com/zalando/postgres-operator/blob/master/docs/administrator.md#delete-protection-via-annotations
+    #delete_annotation_date_key: "delete-date"
+    #delete_annotation_name_key: "delete-clustername"
 
   configAwsOrGcp:
     aws_region: "minio"               # Your custom region (use appropriate value for your setup)
