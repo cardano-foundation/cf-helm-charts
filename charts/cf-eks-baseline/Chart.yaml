@@ -14,7 +14,7 @@ dependencies:
     repository: https://charts.external-secrets.io
     condition: external-secrets.enabled
   - name: aws-ebs-csi-driver
-    version: 2.30.0
+    version: 2.48.0
     repository: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
     condition: aws-ebs-csi-driver.enabled
   - name: nginx
