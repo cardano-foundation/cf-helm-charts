@@ -17,6 +17,10 @@ dependencies:
     version: 2.48.0
     repository: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
     condition: aws-ebs-csi-driver.enabled
+  - name: aws-efs-csi-driver
+    version: 3.2.3
+    repository: https://kubernetes-sigs.github.io/aws-efs-csi-driver
+    condition: aws-efs-csi-driver.enabled
   - name: nginx
     version: 16.0.6
     repository: https://charts.bitnami.com/bitnami
