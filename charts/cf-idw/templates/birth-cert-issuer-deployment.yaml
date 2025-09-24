@@ -34,6 +34,8 @@ spec:
           env:
             - name: OOBI_ENDPOINT
               value: "{{ .oobiEndpoint }}"
+            - name: KERIA_ENDPOINT
+              value: "{{ .keriaEndpoint }}"
             - name: KERIA_BOOT_ENDPOINT
               value: "{{ .keriaBootEndpoint }}"
           ports:
