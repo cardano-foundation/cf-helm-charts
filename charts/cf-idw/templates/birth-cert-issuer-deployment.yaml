@@ -1,4 +1,4 @@
-{{ with .Values.birth-cert-issuer }}
+{{ with index .Values "birth-cert-issuer" }}
 {{ if .enabled }}
 apiVersion: apps/v1
 kind: Deployment
