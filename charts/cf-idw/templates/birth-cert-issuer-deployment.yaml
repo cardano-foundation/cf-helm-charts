@@ -34,6 +34,8 @@ spec:
           env:
             - name: OOBI_ENDPOINT
               value: "{{ .oobiEndpoint }}"
+            - name: KERIA_BOOT_ENDPOINT
+              value: "{{ .keriaBootEndpoint }}"
           ports:
             - containerPort: {{ .port | default 3000 }}
               protocol: TCP
