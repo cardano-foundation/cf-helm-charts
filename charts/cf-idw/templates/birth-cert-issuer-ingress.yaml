@@ -1,0 +1,40 @@
+{{- $root := .Values -}}
+{{ with .Values.birth-cert-issuer }}
+{{- if .ingress.enabled -}}
+{{- $birth-cert-issuer := . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: birth-cert-issuer-ingress
+  labels:
+    app: birth-cert-issuer
+  labels:
+  {{- with .ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $birth-cert-issuer.ingress.hosts }}
+    - host: {{ $host }}.{{ $TLD }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: birth-cert-issuer
+                port:
+                  number: {{ $birth-cert-issuer.port | default 3000 }}
+      {{- end }}
+    {{- end }}
+  tls:
+    - hosts:
+    {{- range $TLD := $root.ingressTLDs }}
+      {{- range $host := $birth-cert-issuer.ingress.hosts }}
+        - "{{ $host }}.{{ $TLD }}"
+      {{- end }}
+    {{- end }}
+{{ end }}
+{{ end }}

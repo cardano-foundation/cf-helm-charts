@@ -67,6 +67,18 @@ cip45:
     hosts:
       - cip45
 
+birth-cert-issuer:
+  enabled: true
+  image:
+    repository: "cardanofoundation/sedi-birth-cert-issuer"
+    tag: "main"
+  port: 3000
+  ingress:
+    enabled: true
+    hosts:
+      - birth-cert-issuer
+  oobiEndpoint: "https://birth-cert-issuer.example.com/"
+
 keria:
   enabled: true
   image:

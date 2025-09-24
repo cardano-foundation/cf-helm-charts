@@ -1,0 +1,41 @@
+{{ with .Values.birth-cert-issuer }}
+{{ if .enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: birth-cert-issuer
+  name: birth-cert-issuer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: birth-cert-issuer
+  template:
+    metadata:
+      labels:
+        app: birth-cert-issuer
+    spec:
+      {{- if .tolerations }}
+      tolerations:
+        {{ with index .tolerations }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- if .affinity }}
+      affinity:
+        {{ with index .affinity }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: birth-cert-issuer
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          env:
+            - name: OOBI_ENDPOINT
+              value: "{{ .oobiEndpoint }}"
+          ports:
+            - containerPort: {{ .port | default 3000 }}
+              protocol: TCP
+{{ end }}
+{{ end }}

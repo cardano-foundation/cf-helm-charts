@@ -1,0 +1,17 @@
+{{ with .Values.birth-cert-issuer }}
+{{ if .enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: birth-cert-issuer
+  name: birth-cert-issuer
+spec:
+  ports:
+    - name: {{ .port | default "3000" | quote }}
+      port: {{ .port | default 3000 }}
+      targetPort: {{ .port | default 3000 }}
+  selector:
+    app: birth-cert-issuer
+{{ end }}
+{{ end }}
