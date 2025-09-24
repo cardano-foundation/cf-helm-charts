@@ -70,9 +70,9 @@ cip45:
 birth-cert-issuer:
   enabled: true
   image:
-    repository: "cardanofoundation/sedi-birth-cert-issuer"
+    repository: "cardanofoundation/sedi-birth-certificate-issuer"
     tag: "main"
-  port: 3000
+  port: 3457
   ingress:
     enabled: true
     hosts:
