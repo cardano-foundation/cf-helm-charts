@@ -1,4 +1,4 @@
-{{ with .Values.birth-cert-issuer }}
+{{ with index .Values "birth-cert-issuer" }}
 {{ if .enabled }}
 apiVersion: v1
 kind: Service

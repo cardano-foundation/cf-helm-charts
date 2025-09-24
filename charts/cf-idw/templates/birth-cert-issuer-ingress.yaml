@@ -1,5 +1,5 @@
 {{- $root := .Values -}}
-{{ with .Values.birth-cert-issuer }}
+{{ with index .Values "birth-cert-issuer" }}
 {{- if .ingress.enabled -}}
 {{- $birth-cert-issuer := . -}}
 apiVersion: networking.k8s.io/v1
