@@ -8,9 +8,9 @@ metadata:
   name: birth-cert-issuer
 spec:
   ports:
-    - name: {{ .port | default "3000" | quote }}
-      port: {{ .port | default 3000 }}
-      targetPort: {{ .port | default 3000 }}
+    - name: {{ .port | default "3457" | quote }}
+      port: {{ .port | default 3457 }}
+      targetPort: {{ .port | default 3457 }}
   selector:
     app: birth-cert-issuer
 {{ end }}

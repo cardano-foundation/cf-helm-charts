@@ -39,7 +39,7 @@ spec:
             - name: KERIA_BOOT_ENDPOINT
               value: "{{ .keriaBootEndpoint }}"
           ports:
-            - containerPort: {{ .port | default 3000 }}
+            - containerPort: {{ .port | default 3457 }}
               protocol: TCP
 {{ end }}
 {{ end }}
