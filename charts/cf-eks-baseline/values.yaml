@@ -20,12 +20,18 @@ nginx:
     repository: "bitnamilegacy/nginx"
   service:
     type: ClusterIP
+  readinessProbe:
+    enabled: true
+    path: /healthz
   serverBlock: |-
     server {
       listen 0.0.0.0:8080;
 
-      location / {
+      location /not-found {
         return 404 "Not Found";
+      }
+      location /healthz {
+        return 200 "OK";
       }
 
     }
