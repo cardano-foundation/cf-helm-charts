@@ -22,7 +22,7 @@ dependencies:
     repository: https://kubernetes-sigs.github.io/aws-efs-csi-driver
     condition: aws-efs-csi-driver.enabled
   - name: nginx
-    version: 22.1.0
+    version: 21.1.23
     repository: https://charts.bitnami.com/bitnami
     condition: nginx.enabled
   - name: node-local-dns
