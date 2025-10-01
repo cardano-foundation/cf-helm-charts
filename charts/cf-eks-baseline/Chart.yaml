@@ -2,7 +2,7 @@ apiVersion: v2
 name: cf-eks-baseline
 description: A Helm chart for deploying the baseline services to CF's EKS clusters
 type: application
-version: 0.2.0
+version: 0.3.0
 appVersion: 0.0.1
 dependencies:
   - name: traefik
@@ -22,8 +22,8 @@ dependencies:
     repository: https://kubernetes-sigs.github.io/aws-efs-csi-driver
     condition: aws-efs-csi-driver.enabled
   - name: nginx
-    version: 16.0.6
-    repository: https://charts.bitnami.com/bitnami
+    version: 22.1.0
+    repository: oci://registry-1.docker.io/bitnamicharts
     condition: nginx.enabled
   - name: node-local-dns
     version: 2.0.8
