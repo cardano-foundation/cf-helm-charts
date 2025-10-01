@@ -16,6 +16,8 @@ traefik:
 nginx:
   enabled: true
   fullnameOverride: "nginx"
+  image:
+    repository: "bitnamilegacy/nginx"
   service:
     type: ClusterIP
   serverBlock: |-
