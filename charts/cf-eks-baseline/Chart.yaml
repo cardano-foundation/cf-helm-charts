@@ -23,7 +23,7 @@ dependencies:
     condition: aws-efs-csi-driver.enabled
   - name: nginx
     version: 22.1.0
-    repository: oci://registry-1.docker.io/bitnamicharts
+    repository: https://charts.bitnami.com/bitnami
     condition: nginx.enabled
   - name: node-local-dns
     version: 2.0.8
