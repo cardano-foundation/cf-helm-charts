@@ -3,10 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ include "cf-yaci-devkit.fullname" . }}-node
   labels:
-    app.kubernetes.io/name: {{ include "cf-yaci-devkit.name" . }}
-    helm.sh/chart: {{ include "cf-yaci-devkit.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- include "cf-yaci-devkit.labels" . | nindent 4 }}
 data:
   node.properties: |
     {{ .Values.nodeProperties | nindent 4 }}

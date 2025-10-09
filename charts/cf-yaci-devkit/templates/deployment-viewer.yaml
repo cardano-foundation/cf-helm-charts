@@ -28,9 +28,9 @@ spec:
       {{- end }}
       containers:
         - name: viewer
-          image: {{ .Values.viewer.image.repository | default "nginx" }}:{{ .Values.viewer.image.tag | default "latest" }}
-          imagePullPolicy: {{ .Values.viewer.image.pullPolicy | default "IfNotPresent" }}
+          image: {{ .Values.viewer.image.repository }}:{{ .Values.viewer.image.tag }}
+          imagePullPolicy: {{ .Values.viewer.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.viewer.service.port | default 80 }}
+              containerPort: {{ .Values.viewer.service.port }}
               protocol: TCP

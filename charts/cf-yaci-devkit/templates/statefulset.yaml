@@ -61,23 +61,23 @@ spec:
             - name: yaci_store_mode
               value: "native"
             - name: topup_addresses
-              value: addr_test1qppcuzs25ghufz2mzg37hcm77px4matwz2hz072z4ms7umqasylaf2uure0h5dw6zmm4ctnxfm0m9gf8lst6fflthlhq5hrg7w:10000000
+              value: {{ .Values.yaci.topupAddresses | quote }}
             - name: HOST_N2N_PORT
-              value: "3001"
+              value: {{ .Values.yaci.ports.n2n | quote }}
             - name: HOST_N2C_SOCAT_PORT
-              value: "3333"
+              value: {{ .Values.yaci.ports.n2cSocat | quote }}
             - name: HOST_STORE_API_PORT
-              value: "8080"
+              value: {{ .Values.yaci.ports.storeApi | quote }}
             - name: HOST_VIEWER_PORT
-              value: "5173"
+              value: {{ .Values.yaci.ports.viewer | quote }}
             - name: HOST_CLUSTER_API_PORT
-              value: "10000"
+              value: {{ .Values.yaci.ports.clusterApi | quote }}
             - name: HOST_SUBMIT_API_PORT
-              value: "8090"
+              value: {{ .Values.yaci.ports.submitApi | quote }}
             - name: HOST_OGMIOS_PORT
-              value: "1337"
+              value: {{ .Values.yaci.ports.ogmios | quote }}
             - name: HOST_KUPO_PORT
-              value: "1442"
+              value: {{ .Values.yaci.ports.kupo | quote }}
           command:
              - "/app/yaci-cli"
              - "create-node"
@@ -126,9 +126,6 @@ spec:
   volumeClaimTemplates:
     - metadata:
         name: node-data
-        labels:
-          app.kubernetes.io/name: {{ include "cf-yaci-devkit.name" . }}
-          app.kubernetes.io/instance: {{ .Release.Name }}
       spec:
         accessModes: [ "{{ .Values.persistence.accessMode }}" ]
         resources:

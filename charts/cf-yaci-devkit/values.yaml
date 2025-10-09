@@ -141,10 +141,6 @@ viewer:
   service:
     port: 5173
 
-# Example node config for configmap-node
-nodeConfig:
-  exampleValue: "defaultValue"
-
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
   httpGet:
@@ -181,6 +177,18 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+yaci:
+  topupAddresses: addr_test1qppcuzs25ghufz2mzg37hcm77px4matwz2hz072z4ms7umqasylaf2uure0h5dw6zmm4ctnxfm0m9gf8lst6fflthlhq5hrg7w:10000000
+  ports:
+    n2n: 3001
+    n2cSocat: 3333
+    storeApi: 8080
+    viewer: 5173
+    clusterApi: 10000
+    submitApi: 8090
+    ogmios: 1337
+    kupo: 1442
 
 nodeProperties: |
   ################################################################################################################
