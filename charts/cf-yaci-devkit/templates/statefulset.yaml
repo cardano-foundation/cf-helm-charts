@@ -47,7 +47,42 @@ spec:
             - name: node
               containerPort: {{ .Values.service.cardanoNodePort }}
               protocol: TCP
-
+          env:
+            - name: yaci_store_enabled
+              value: "true"
+            - name: ogmios_enabled
+              value: "true"
+            - name: kupo_enabled
+              value: "false"
+            - name: node
+              value: "node1"
+            - name: yaci_cli_mode
+              value: "native"
+            - name: yaci_store_mode
+              value: "native"
+            - name: topup_addresses
+              value: addr_test1qppcuzs25ghufz2mzg37hcm77px4matwz2hz072z4ms7umqasylaf2uure0h5dw6zmm4ctnxfm0m9gf8lst6fflthlhq5hrg7w:10000000
+            - name: HOST_N2N_PORT
+              value: "3001"
+            - name: HOST_N2C_SOCAT_PORT
+              value: "3333"
+            - name: HOST_STORE_API_PORT
+              value: "8080"
+            - name: HOST_VIEWER_PORT
+              value: "5173"
+            - name: HOST_CLUSTER_API_PORT
+              value: "10000"
+            - name: HOST_SUBMIT_API_PORT
+              value: "8090"
+            - name: HOST_OGMIOS_PORT
+              value: "1337"
+            - name: HOST_KUPO_PORT
+              value: "1442"
+          command:
+             - "/app/yaci-cli"
+             - "create-node"
+             - "-o"
+             - "--start"
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

@@ -131,15 +131,29 @@ persistence:
   size: 10Gi
   storageClass: ""
 
+# Values for deployment-viewer
+viewer:
+  replicaCount: 1
+  image:
+    repository: bloxbean/yaci-viewer
+    tag: 0.10.2
+    pullPolicy: IfNotPresent
+  service:
+    port: 5173
+
+# Example node config for configmap-node
+nodeConfig:
+  exampleValue: "defaultValue"
+
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
   httpGet:
-    path: /
-    port: http
+    path: /api/v1/blocks/latest
+    port: blockfrost
 readinessProbe:
   httpGet:
-    path: /
-    port: http
+    path: /api/v1/blocks/latest
+    port: blockfrost
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
