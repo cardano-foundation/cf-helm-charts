@@ -131,15 +131,6 @@ persistence:
   size: 10Gi
   storageClass: ""
 
-# Values for deployment-viewer
-viewer:
-  replicaCount: 1
-  image:
-    repository: bloxbean/yaci-viewer
-    tag: 0.10.2
-    pullPolicy: IfNotPresent
-  service:
-    port: 5173
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
@@ -177,6 +168,16 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+viewer:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: bloxbean/yaci-viewer
+    tag: 0.10.2
+    pullPolicy: IfNotPresent
+  service:
+    port: 5173
 
 yaci:
   topupAddresses: addr_test1qppcuzs25ghufz2mzg37hcm77px4matwz2hz072z4ms7umqasylaf2uure0h5dw6zmm4ctnxfm0m9gf8lst6fflthlhq5hrg7w:10000000
