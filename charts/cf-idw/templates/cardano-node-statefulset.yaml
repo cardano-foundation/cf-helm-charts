@@ -1,5 +1,19 @@
 {{ with .Values.cardanoNode }}
 {{ if .enabled }}
+# check if .image.repository contains match different strings and set a variable accordingly
+# e.g. if it contains "dingo", set isDingo to true.
+# Assume it's official Haskell docker image by default
+{{- $isHaskell := true -}}
+{{- $isDingo := false -}}
+{{- $isAmaru := false -}}
+{{- if contains "dingo" .image.repository -}}
+  {{- $isDingo = true -}}
+  {{- $isHaskell = false -}}
+{{- end -}}
+{{- if contains "amaru" .image.repository -}}
+  {{- $isAmaru = true -}}
+  {{- $isHaskell = false -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -36,10 +50,20 @@ spec:
           command: ["bash", "-c", "sleep infinity"]
           {{- end }}
           env:
+            {{- if $isHaskell }}
             - name: RESTORE_SNAPSHOT
               value: {{ .mithrilRestore | default "true" | quote }}
             - name: NETWORK
               value: {{ .network | default "preprod" | quote }}
+            {{- end }}
+            {{- if $isDingo }}
+            - name: CARDANO_NETWORK
+              value: {{ .network | default "preprod" | quote }}
+            {{- end }}
+            {{- if $isAmaru }}
+            - name: AMARU_NETWORK
+              value: {{ .network | default "preprod" | quote }}
+            {{- end }}
           ports:
             - containerPort: {{ .port | default 3001 }}
               hostPort: {{ .hostPort | default 3001 }}
