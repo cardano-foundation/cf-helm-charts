@@ -60,14 +60,16 @@ spec:
             {{- if $isDingo }}
             - name: CARDANO_NETWORK
               value: {{ .network | default "preprod" | quote }}
+            - name: CARDANO_CONFIG
+              value: /opt/cardano/config/{{ .network | default "preprod" }}/config.json
             - name: CARDANO_SOCKET_PATH
-              value: "/ipc/node.socket"
+              value: /ipc/node.socket
             {{- end }}
             {{- if $isAmaru }}
             - name: AMARU_NETWORK
               value: {{ .network | default "preprod" | quote }}
             - name: DATA_DIR
-              value: "/data"
+              value: /data
             {{- end }}
           ports:
             - containerPort: {{ .port | default 3001 }}
