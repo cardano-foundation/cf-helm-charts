@@ -5,7 +5,7 @@
 # Assume it's official Haskell docker image by default
 {{- $isHaskell := true -}}
 {{- $isDingo := false -}}
-{{- $isAmaru := false -}}
+{{- $isAmaru := false -}} # note amaru doesn't support comms thru socket, so it cannot be used with ogmios
 {{- if contains "dingo" .image.repository -}}
   {{- $isDingo = true -}}
   {{- $isHaskell = false -}}
@@ -59,10 +59,14 @@ spec:
             {{- if $isDingo }}
             - name: CARDANO_NETWORK
               value: {{ .network | default "preprod" | quote }}
+            - name: CARDANO_SOCKET_PATH
+              value: "/ipc/node.socket"
             {{- end }}
             {{- if $isAmaru }}
             - name: AMARU_NETWORK
               value: {{ .network | default "preprod" | quote }}
+            - name: DATA_DIR
+              value: "/data"
             {{- end }}
           ports:
             - containerPort: {{ .port | default 3001 }}
