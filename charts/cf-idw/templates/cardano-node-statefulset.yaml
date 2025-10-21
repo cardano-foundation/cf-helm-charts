@@ -14,6 +14,7 @@
   {{- $isAmaru = true -}}
   {{- $isHaskell = false -}}
 {{- end -}}
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
