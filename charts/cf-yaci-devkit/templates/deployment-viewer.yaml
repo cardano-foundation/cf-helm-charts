@@ -1,0 +1,38 @@
+{{- if .Values.viewer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cf-yaci-devkit.fullname" . }}-viewer
+  labels:
+    {{- include "cf-yaci-devkit.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.viewer.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "cf-yaci-devkit.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+      {{- with .Values.viewer.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "cf-yaci-devkit.labels" . | nindent 8 }}
+        {{- with .Values.viewer.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: viewer
+          image: {{ .Values.viewer.image.repository }}:{{ .Values.viewer.image.tag }}
+          imagePullPolicy: {{ .Values.viewer.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.viewer.service.port }}
+              protocol: TCP
+{{- end}}
