@@ -276,6 +276,33 @@ entries:
   cf-eks-monitoring:
   - apiVersion: v2
     appVersion: 0.0.1
+    created: "2025-10-28T16:22:04.183271209Z"
+    dependencies:
+    - condition: metrics-server.enabled
+      name: metrics-server
+      repository: https://kubernetes-sigs.github.io/metrics-server/
+      version: 3.13.0
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 75.15.1
+    - condition: loki.enabled
+      name: loki
+      repository: https://grafana.github.io/helm-charts
+      version: 6.33.0
+    - condition: alloy.enabled
+      name: alloy
+      repository: https://grafana.github.io/helm-charts
+      version: 1.2.1
+    description: A Helm chart for deploying CF's monitoring stack to EKS clusters
+    digest: 57deef7e2e5993d453339fe85aa9d66491e069870dd42de82f41543be576582f
+    name: cf-eks-monitoring
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-eks-monitoring-0.1.1/cf-eks-monitoring-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.0.1
     created: "2025-10-16T07:54:25.881386346Z"
     dependencies:
     - condition: metrics-server.enabled
@@ -715,4 +742,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2025-10-16T07:54:25.881434496Z"
+generated: "2025-10-28T16:22:04.183341331Z"
