@@ -33,8 +33,9 @@ metrics-server:
       somekey: "this-avoids-argocd-wanting-to-always-apply-null-annotations"
 
 alloy:
+  enabled: false
   alloy:
-    enabled: false
+    lokiUrl: http://loki:3100/loki/api/v1/push
     configMap:
       content: |-
         logging {
@@ -44,7 +45,7 @@ alloy:
 
         loki.write "default" {
           endpoint {
-            url = "http://loki-gateway/loki/api/v1/push"
+            url = {{ .Values.alloy.lokiUrl | quote }} 
           }
         }
 
