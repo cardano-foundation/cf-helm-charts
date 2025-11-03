@@ -12,13 +12,12 @@ spec:
       {{- include "cf-yaci-devkit.viewer.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      labels:
       {{- with .Values.viewer.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "cf-yaci-devkit.labels" . | nindent 8 }}
+        {{- include "cf-yaci-devkit.viewer.selectorLabels" . | nindent 8 }}
         {{- with .Values.viewer.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

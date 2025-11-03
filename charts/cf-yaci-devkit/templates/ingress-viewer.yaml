@@ -29,9 +29,7 @@ spec:
       http:
         paths:
           - path: {{ .path | default "/" }}
-            {{- with .pathType }}
-            pathType: {{ . }}
-            {{- end }}
+            pathType: {{ .pathType | default "Prefix" }}
             backend:
               service:
                 name: {{ include "cf-yaci-devkit.fullname" $ }}-viewer
