@@ -24,13 +24,11 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            {{- with .pathType }}
+          - path: {{ .path | default "/" }}
+            {{- with .pathType  }}
             pathType: {{ . }}
             {{- end }}
             backend:
@@ -38,6 +36,4 @@ spec:
                 name: {{ include "cf-yaci-devkit.fullname" $ }}
                 port:
                   number: {{ $.Values.service.blockfrostPort }}
-          {{- end }}
-    {{- end }}
 {{- end }}

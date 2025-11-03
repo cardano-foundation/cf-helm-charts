@@ -9,7 +9,7 @@ spec:
   replicas: {{ .Values.viewer.replicaCount | default 1 }}
   selector:
     matchLabels:
-      {{- include "cf-yaci-devkit.selectorLabels" . | nindent 6 }}
+      {{- include "cf-yaci-devkit.viewer.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
@@ -31,8 +31,21 @@ spec:
         - name: viewer
           image: {{ .Values.viewer.image.repository }}:{{ .Values.viewer.image.tag }}
           imagePullPolicy: {{ .Values.viewer.image.pullPolicy }}
+          env:
+            - name: PUBLIC_INDEXER_BASE_URL
+              value: {{ .Values.viewer.publicIndexer.baseUrl }}
+            - name: PUBLIC_INDEXER_WS_URL
+              value: {{ .Values.viewer.publicIndexer.wsUrl }}
           ports:
             - name: http
               containerPort: {{ .Values.viewer.service.port }}
               protocol: TCP
+          {{- with .Values.viewer.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.viewer.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
 {{- end}}

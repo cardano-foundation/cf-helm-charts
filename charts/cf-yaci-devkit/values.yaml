@@ -179,6 +179,30 @@ viewer:
   service:
     port: 5173
 
+  publicIndexer:
+    baseUrl: "https://cf-yaci-devkit:8080/api/v1"
+    wsUrl: "ws://cf-yaci-devkit:8080/ws/liveblocks"
+    
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+
 yaci:
   topupAddresses: addr_test1qppcuzs25ghufz2mzg37hcm77px4matwz2hz072z4ms7umqasylaf2uure0h5dw6zmm4ctnxfm0m9gf8lst6fflthlhq5hrg7w:10000000
   ports:

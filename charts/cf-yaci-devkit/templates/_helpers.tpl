@@ -49,6 +49,10 @@ Selector labels
 app.kubernetes.io/name: {{ include "cf-yaci-devkit.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+{{- define "cf-yaci-devkit.viewer.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "cf-yaci-devkit.name" . }}-viewer
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
 
 {{/*
 Create the name of the service account to use
