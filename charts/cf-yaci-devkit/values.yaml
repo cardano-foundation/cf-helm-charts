@@ -141,6 +141,10 @@ readinessProbe:
   httpGet:
     path: /api/v1/blocks/latest
     port: blockfrost
+startupProbe:
+  httpGet:
+    path: /api/v1/blocks/latest
+    port: blockfrost
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
@@ -202,6 +206,7 @@ viewer:
     httpGet:
       path: /
       port: http
+    failureThreshold: 6
 
 yaci:
   topupAddresses: addr_test1qppcuzs25ghufz2mzg37hcm77px4matwz2hz072z4ms7umqasylaf2uure0h5dw6zmm4ctnxfm0m9gf8lst6fflthlhq5hrg7w:10000000
