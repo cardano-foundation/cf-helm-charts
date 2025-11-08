@@ -82,6 +82,7 @@ spec:
              - "/app/yaci-cli"
              - "create-node"
              - "--start"
+             - "-o"
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
