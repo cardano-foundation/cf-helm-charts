@@ -1,0 +1,83 @@
+ingestDomain: ingest-signoz.cluster.local
+grpcIngessDomain: grpc-ingest-signoz.cluster.local
+
+signoz:
+  enabled: true
+  fullnameOverride: "signoz"
+
+  signoz:
+    smtpVars:
+      enabled: true
+      existingSecret:
+        name: signoz-secrets
+        fromKey: SMTP_FROM
+        hostKey: SMTP_HOST
+        portKey: SMTP_PORT
+        usernameKey: SMTP_USER
+        passwordKey: SMTP_PASS
+    env:
+      signoz_emailing_smtp_tls_enabled: true
+      signoz_alertmanager_provider: signoz
+      signoz_alertmanager_signoz_global_smtp__smarthost: $(SIGNOZ_EMAILING_SMTP_ADDRESS)
+      signoz_alertmanager_signoz_global_smtp__require__tls: true
+      signoz_alertmanager_signoz_global_smtp__auth__username: $(SIGNOZ_EMAILING_SMTP_AUTH_USERNAME)
+      signoz_alertmanager_signoz_global_smtp__auth__password: $(SIGNOZ_EMAILING_SMTP_AUTH_PASSWORD)
+      signoz_alertmanager_signoz_global_smtp__from: $(SIGNOZ_EMAILING_SMTP_FROM)
+      signoz_prometheus_active_query_tracker_enabled: true
+      signoz_log_level: info
+    ingress:
+      enabled: true
+  
+  clickhouse:
+    installCustomStorageClass: true
+    user: admin
+    password: "str0ngp4ss!"
+    allowedNetworkIps:
+      - "10.0.0.0/8"
+      - "100.64.0.0/10"
+      - "172.0.0.0/8"
+      - "192.0.0.0/24"
+      - "198.18.0.0/15"
+      - "192.168.0.0/16"
+    clickhouseOperator:
+      version: 0.25.2
+      image:
+        repository: altinity/clickhouse-operator
+        tag: 0.25.2
+      metricsExporter:
+        image:
+          registry: docker.io
+          repository: altinity/metrics-exporter
+          tag: 0.25.2
+  
+  postgresql:
+    enabled: true
+
+k8s-infra:
+  enabled: true
+  fullnameOverride: "k8s-infra"
+  global:
+    cloud: aws
+  otelCollectorEndpoint: signoz-otel-collector:4317
+  otelInsecure: true
+  #signozApiKey: dummy
+  presets:
+    otlpExporter:
+      enabled: true
+    loggingExporter:
+      enabled: true
+    resourceDetection:
+      detectors:
+        - eks
+        - system
+    prometheus:
+      enabled: true
+      scrapeInterval: 30s
+      namespaceScoped: false # all namespaces
+      namespaces: [] # all namespaces
+      includePodLabel: true
+      annotationsPrefix: signoz.io
+      # presets.prometheus.includePodLabel -- Include all pod labels in the metrics (can cause high cardinality).
+      # @section -- Prometheus Metrics Presets
+      includePodLabel: false
+

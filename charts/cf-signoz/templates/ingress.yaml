@@ -1,0 +1,93 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: ingest-signoz-auth
+  namespace: signoz
+spec:
+  forwardAuth:
+    # Service that performs the validation logic
+    #address: http://172.1.10.224:8080/
+    address: http://signoz.signoz.svc.cluster.local:8080/api/v1/rules
+    # CRITICAL: Tell Traefik to send this specific header to the auth service
+    authRequestHeaders:
+      - "SIGNOZ-API-KEY"
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: rename-ingestion-key
+  namespace: signoz
+spec:
+  plugin:
+    traefik-plugin-rewriteheader:
+      create: signoz-api-key
+      fromhead: signoz-ingestion-key
+      regex: .* 
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: signoz-strip-prefix
+  namespace: signoz
+spec:
+  stripPrefix:
+    prefixes:
+      - /logs/json
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: signoz-otel-collector-route
+  namespace: signoz
+spec:
+  # --- TLS Configuration ---
+  # Traefik automatically applies TLS if a rule is defined with the 'websecure' entrypoint, but we skip that here to keep the ingressroute ingress agnostic.
+  tls: {}
+
+  # --- Routing Rules (Matches the Ingress 'rules' array) ---
+  routes:
+  
+  # --- Rule 1: Host 'ingest-signoz.cluster.local' ---
+  - match: {{ .Values.ingestDomain | default "ingest-signoz.cluster.local" }} && PathPrefix(`/logs/json`)
+    kind: Rule
+    # Attach the middlewares for this specific path
+    middlewares:
+    - name: rename-ingestion-key
+      namespace: signoz
+    - name: ingest-signoz-auth
+      namespace: signoz
+    - name: signoz-strip-prefix
+      namespace: signoz
+    services:
+    - name: signoz-otel-collector
+      port: 8082
+      
+  # --- Rule 2: Host 'ingest-signoz.stg.cf-idw.global.metadata.dev.cf-deployments.org' - OTLP path ---
+  # This rule matches the second path in the first host of your original Ingress: host: ingest-signoz.stg.cf-idw.global.metadata.dev.cf-deployments.org, path: /
+  - match: {{ .Values.ingestDomain | default "ingest-signoz.cluster.local" }} && PathPrefix(`/logs/json`)
+    kind: Rule
+    # The middlewares (rename and auth) from the original ingress apply to ALL paths under the HTTP host rule.
+    # We apply the same middlewares here to maintain the original behavior.
+    middlewares:
+    - name: rename-ingestion-key
+      namespace: signoz
+    - name: ingest-signoz-auth
+      namespace: signoz
+    services:
+    - name: signoz-otel-collector
+      port: 4318
+
+  # --- Rule 3: Host 'grpc-ingest-signoz.stg.cf-idw.global.metadata.dev.cf-deployments.org' (GRPC) ---
+  # Note: For GRPC, Traefik typically needs a different entry point (if configured) or HTTP/2 support.
+  # This config assumes the service on port 4317 is expecting HTTP/2/gRPC.
+  - match: {{ .Values.grpcIngestDomain | default "grpc-ingest-signoz.cluster.local" }} && PathPrefix(`/`)
+    kind: Rule
+    middlewares:
+    - name: rename-ingestion-key
+      namespace: signoz
+    - name: ingest-signoz-auth
+      namespace: signoz
+    services:
+    - name: signoz-otel-collector
+      port: 4317
+      scheme: h2c

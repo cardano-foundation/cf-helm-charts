@@ -1,0 +1,15 @@
+apiVersion: v2
+name: cf-signoz
+description: A Helm chart for deploying signoz with opinionated defaults
+type: application
+version: 0.0.1
+appVersion: 0.100.0
+dependencies:
+  - name: signoz
+    version: 0.100.0
+    repository: https://charts.signoz.io
+    condition: signoz.enabled
+  - name: k8s-infra
+    version: 0.14.2
+    repository: https://charts.signoz.io
+    condition: k8s-infra.enabled
