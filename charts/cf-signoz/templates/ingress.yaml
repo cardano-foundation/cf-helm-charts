@@ -48,7 +48,7 @@ spec:
   routes:
   
   # --- Rule 1: Host 'ingest-signoz.cluster.local' ---
-  - match: {{ .Values.ingestDomain | default "ingest-signoz.cluster.local" }} && PathPrefix(`/logs/json`)
+  - match: Host(`{{ .Values.ingestDomain | default "ingest-signoz.cluster.local" }}`) && PathPrefix(`/logs/json`)
     kind: Rule
     # Attach the middlewares for this specific path
     middlewares:
@@ -64,7 +64,7 @@ spec:
       
   # --- Rule 2: Host 'ingest-signoz.stg.cf-idw.global.metadata.dev.cf-deployments.org' - OTLP path ---
   # This rule matches the second path in the first host of your original Ingress: host: ingest-signoz.stg.cf-idw.global.metadata.dev.cf-deployments.org, path: /
-  - match: {{ .Values.ingestDomain | default "ingest-signoz.cluster.local" }} && PathPrefix(`/logs/json`)
+  - match: Host(`{{ .Values.ingestDomain | default "ingest-signoz.cluster.local" }}`) && PathPrefix(`/logs/json`)
     kind: Rule
     # The middlewares (rename and auth) from the original ingress apply to ALL paths under the HTTP host rule.
     # We apply the same middlewares here to maintain the original behavior.
@@ -80,7 +80,7 @@ spec:
   # --- Rule 3: Host 'grpc-ingest-signoz.stg.cf-idw.global.metadata.dev.cf-deployments.org' (GRPC) ---
   # Note: For GRPC, Traefik typically needs a different entry point (if configured) or HTTP/2 support.
   # This config assumes the service on port 4317 is expecting HTTP/2/gRPC.
-  - match: {{ .Values.grpcIngestDomain | default "grpc-ingest-signoz.cluster.local" }} && PathPrefix(`/`)
+  - match: Host(`{{ .Values.grpcIngestDomain | default "grpc-ingest-signoz.cluster.local" }}`) && PathPrefix(`/`)
     kind: Rule
     middlewares:
     - name: rename-ingestion-key
