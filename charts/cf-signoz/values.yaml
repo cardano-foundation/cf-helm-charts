@@ -1,6 +1,17 @@
 ingestDomain: ingest-signoz.cluster.local
 grpcIngessDomain: grpc-ingest-signoz.cluster.local
 
+kube-prometheus-stack:
+  enabled: true
+  fullnameOverride: "kube-prometheus-stack"
+  global:
+    rbac:
+      create: true
+  prometheus:
+    prometheusSpec:
+      retention: 2d
+      retentionSize: 10GB
+
 metrics-server:
   enabled: true
   fullnameOverride: "metrics-server"
