@@ -19,6 +19,11 @@ metrics-server:
 opentelemetry-operator:
   enabled: true
   fullnameOverride: "opentelemetry-operator"
+  admissionWebhooks:
+    certManager:
+      enabled: false
+    autoGenerateCert:
+      enabled: true
 
 signoz:
   enabled: true
