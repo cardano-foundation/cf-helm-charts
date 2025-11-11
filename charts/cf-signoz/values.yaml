@@ -19,9 +19,10 @@ metrics-server:
 opentelemetry-operator:
   enabled: true
   fullnameOverride: "opentelemetry-operator"
-  extraEnvs:
-    - name: ENABLE_WEBHOOKS
-      value: "false"
+  manager:
+    extraEnvs:
+      - name: ENABLE_WEBHOOKS
+       value: "false"
   admissionWebhooks:
     create: false
     certManager:
