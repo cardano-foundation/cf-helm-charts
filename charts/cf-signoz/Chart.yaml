@@ -23,5 +23,5 @@ dependencies:
     condition: kube-prometheus-stack.enabled
   - name: opentelemetry-operator
     version: 0.99.0
-    repository: https://open-telemetry.github.io/opentelemetry-operator
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
     condition: opentelemetry-operator.enabled
