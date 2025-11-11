@@ -71,7 +71,15 @@ spec:
   config:
     receivers:
       prometheus:
-        config: {}
+        config:
+          scrape_configs:
+          - job_name: 'kubernetes-pods'
+            kubernetes_sd_configs:
+              - role: pod
+            relabel_configs:
+              - source_labels: [__meta_kubernetes_namespace]
+                regex: 'signoz'
+                action: drop
     exporters:
       otlp:
         endpoint: "signoz-otel-collector.signoz.svc:4317"
