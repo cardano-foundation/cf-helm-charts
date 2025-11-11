@@ -2,11 +2,11 @@ apiVersion: v2
 name: cf-eks-baseline
 description: A Helm chart for deploying the baseline services to CF's EKS clusters
 type: application
-version: 0.3.2
+version: 0.3.3
 appVersion: 0.0.1
 dependencies:
   - name: traefik
-    version: 37.0.0
+    version: 37.3.0
     repository: https://helm.traefik.io/traefik
     condition: traefik.enabled
   - name: external-secrets
