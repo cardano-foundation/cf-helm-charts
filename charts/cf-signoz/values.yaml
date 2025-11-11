@@ -94,6 +94,11 @@ k8s-infra:
   otelInsecure: true
   #signozApiKey: dummy
   presets:
+    logsCollection:
+      blacklist:
+        enabled: true
+        namespaces:
+          - signoz
     otlpExporter:
       enabled: true
     loggingExporter:

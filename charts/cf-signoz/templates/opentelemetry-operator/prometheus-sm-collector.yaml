@@ -11,8 +11,26 @@ kind: ClusterRole
 metadata:
   name: otel-target-allocator
 rules:
+  # Core Kubernetes resources needed for discovery
   - apiGroups: [""]
     resources: ["services", "endpoints", "pods", "nodes", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  # Prometheus Operator CRDs (monitoring.coreos.com) needed for ServiceMonitor/PodMonitor/Probe/scrapeconfigs access
+  - apiGroups: ["monitoring.coreos.com"]
+    resources:
+      - servicemonitors
+      - podmonitors
+      - probes
+      - scrapeconfigs
+      - prometheuses
+      - prometheusrules
+      - alertmanagers
+      - thanosrulers
+    verbs: ["get", "list", "watch"]
+  # EndpointSlice discovery (discovery.k8s.io) used by Prometheus Kubernetes SD
+  - apiGroups: ["discovery.k8s.io"]
+    resources:
+      - endpointslices
     verbs: ["get", "list", "watch"]
 ---
 # ClusterRoleBinding to bind the SA
@@ -38,6 +56,7 @@ metadata:
     helm.sh/hook-delete-policy: before-hook-creation
 spec:
   mode: statefulset
+  upgradeStrategy: "automatic"
   targetAllocator:
     enabled: true
     serviceAccount: otel-target-allocator
@@ -49,20 +68,14 @@ spec:
     receivers:
       prometheus:
         config:
-          scrape_configs:
-            - job_name: 'otel-collector'
-              scrape_interval: 10s
-              static_configs:
-                - targets: ['0.0.0.0:8888']
     exporters:
-      signoz_otlp:
-        otlp:
-          endpoint: "signoz-otel-collector.signoz.svc.cluster.local:4317"
-          tls:
-            insecure: true
+      otlp:
+        endpoint: "signoz-otel-collector.signoz.svc:4317"
+        tls:
+          insecure: true
 
     service:
       pipelines:
         metrics:
           receivers: [prometheus]
-          exporters: [signoz_otlp]
+          exporters: [otlp]
