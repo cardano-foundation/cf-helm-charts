@@ -16,6 +16,10 @@ metrics-server:
   enabled: true
   fullnameOverride: "metrics-server"
 
+opentelemetry-operator:
+  enabled: true
+  fullnameOverride: "opentelemetry-operator"
+
 signoz:
   enabled: true
   fullnameOverride: "signoz"
