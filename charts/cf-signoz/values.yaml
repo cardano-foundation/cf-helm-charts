@@ -22,7 +22,7 @@ opentelemetry-operator:
   manager:
     extraEnvs:
       - name: ENABLE_WEBHOOKS
-       value: "false"
+        value: "false"
   admissionWebhooks:
     create: false
     certManager:
