@@ -32,7 +32,10 @@ subjects:
 apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
-  name: otelcol
+  name: otel-target-allocator
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
 spec:
   mode: statefulset
   targetAllocator:

@@ -6,8 +6,7 @@ metadata:
 spec:
   forwardAuth:
     # Service that performs the validation logic
-    #address: http://172.1.10.224:8080/
-    address: http://signoz.signoz.svc.cluster.local:8080/api/v1/rules
+    address: http://signoz.signoz.svc:8080/api/v1/rules
     # CRITICAL: Tell Traefik to send this specific header to the auth service
     authRequestHeaders:
       - "SIGNOZ-API-KEY"
