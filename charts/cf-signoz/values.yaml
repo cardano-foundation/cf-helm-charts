@@ -29,6 +29,7 @@ opentelemetry-operator:
       enabled: false
     autoGenerateCert:
       enabled: true
+      recreate: false
 
 signoz:
   enabled: true
