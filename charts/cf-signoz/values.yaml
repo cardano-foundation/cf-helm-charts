@@ -24,7 +24,7 @@ opentelemetry-operator:
       - name: ENABLE_WEBHOOKS
         value: "false"
   admissionWebhooks:
-    create: false
+    create: true
     certManager:
       enabled: false
     autoGenerateCert:
