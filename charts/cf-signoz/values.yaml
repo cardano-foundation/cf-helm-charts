@@ -1,6 +1,10 @@
 ingestDomain: ingest-signoz.cluster.local
 grpcIngessDomain: grpc-ingest-signoz.cluster.local
 
+metrics-server:
+  enabled: true
+  fullnameOverride: "metrics-server"
+
 signoz:
   enabled: true
   fullnameOverride: "signoz"
