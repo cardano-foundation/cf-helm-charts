@@ -1,4 +1,4 @@
-{{ - if .Values.opentelemetryOperator.enabled }}
+{{ if index .Values "opentelemetry-operator" "enabled" }}
 ---
 # ServiceAccount for the target allocator
 apiVersion: v1
@@ -80,4 +80,4 @@ spec:
         metrics:
           receivers: [prometheus]
           exporters: [otlp]
-{{- end }}
+{{ end }}
