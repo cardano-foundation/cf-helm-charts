@@ -71,7 +71,7 @@ spec:
   config:
     receivers:
       prometheus:
-        config:
+        config: {}
     exporters:
       otlp:
         endpoint: "signoz-otel-collector.signoz.svc:4317"
