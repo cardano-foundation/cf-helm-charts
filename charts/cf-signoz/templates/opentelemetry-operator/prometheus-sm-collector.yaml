@@ -59,6 +59,18 @@ spec:
   upgradeStrategy: "automatic"
   targetAllocator:
     enabled: true
+    {{ with .Values.affinity }}
+    affinity:
+      {{ toYaml . | indent 6 }}
+    {{ end }}
+    {{ with .Values.nodeSelector }}
+    nodeSelector:
+      {{ toYaml . | indent 6 }}
+    {{ end }}
+    {{ with .Values.tolerations }}
+    tolerations:
+      {{ toYaml . | indent 6 }}
+    {{ end }}
     serviceAccount: otel-target-allocator
     prometheusCR:
       enabled: true

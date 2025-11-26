@@ -1,6 +1,10 @@
 ingestDomain: ingest-signoz.cluster.local
 grpcIngessDomain: grpc-ingest-signoz.cluster.local
 
+affinity: {}
+tolerations: []
+nodeSelector: {}
+
 kube-prometheus-stack:
   enabled: true
   fullnameOverride: "kube-prometheus-stack"
