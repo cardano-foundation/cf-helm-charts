@@ -56,15 +56,15 @@ metadata:
     helm.sh/hook-delete-policy: before-hook-creation
 spec:
   mode: statefulset
-  {{- with .Values.global.affinity }}
+  {{- with .Values.affinity }}
   affinity:
   {{ toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.global.nodeSelector }}
+  {{- with .Values..nodeSelector }}
   nodeSelector:
   {{ toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.global.tolerations }}
+  {{- with .Values.tolerations }}
   tolerations:
   {{ toYaml . | nindent 4 }}
   {{- end }}
