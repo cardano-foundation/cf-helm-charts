@@ -30,6 +30,6 @@ dependencies:
     repository: https://charts.deliveryhero.io/
     condition: node-local-dns.enabled
   - name: snapscheduler
-    version: 1.3.0
+    version: 3.5.0
     repository: https://backube.github.io/helm-charts/
     condition: snapscheduler.enabled
