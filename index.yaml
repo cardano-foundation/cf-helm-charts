@@ -3,6 +3,45 @@ entries:
   cf-eks-baseline:
   - apiVersion: v2
     appVersion: 0.0.1
+    created: "2025-12-09T09:00:25.443111069Z"
+    dependencies:
+    - condition: traefik.enabled
+      name: traefik
+      repository: https://helm.traefik.io/traefik
+      version: 37.3.0
+    - condition: external-secrets.enabled
+      name: external-secrets
+      repository: https://charts.external-secrets.io
+      version: 0.9.16
+    - condition: aws-ebs-csi-driver.enabled
+      name: aws-ebs-csi-driver
+      repository: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+      version: 2.53.0
+    - condition: aws-efs-csi-driver.enabled
+      name: aws-efs-csi-driver
+      repository: https://kubernetes-sigs.github.io/aws-efs-csi-driver
+      version: 3.2.6
+    - condition: nginx.enabled
+      name: nginx
+      repository: https://charts.bitnami.com/bitnami
+      version: 21.1.23
+    - condition: node-local-dns.enabled
+      name: node-local-dns
+      repository: https://charts.deliveryhero.io/
+      version: 2.0.8
+    - condition: snapscheduler.enabled
+      name: snapscheduler
+      repository: https://backube.github.io/helm-charts/
+      version: 3.5.0
+    description: A Helm chart for deploying the baseline services to CF's EKS clusters
+    digest: deef5f954cbc6bd2ba914b028c74a62cf84f03a5ad79200d0bc2e0f6adf4a1f8
+    name: cf-eks-baseline
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-eks-baseline-0.4.0/cf-eks-baseline-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: 0.0.1
     created: "2025-12-02T15:01:47.610245788Z"
     dependencies:
     - condition: traefik.enabled
@@ -812,4 +851,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2025-12-02T15:01:47.610330216Z"
+generated: "2025-12-09T09:00:25.443193522Z"
