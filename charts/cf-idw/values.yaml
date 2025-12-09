@@ -92,6 +92,9 @@ keria:
     create: true
     name: cf-idw-secrets
     keriaPasscodeKey: KERIA_PASSCODE
+  volumeSnapshot:
+    enabled: false
+    className: ebs-csi-aws
 
 keriaProvisioning:
   enabled: false

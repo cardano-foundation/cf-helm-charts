@@ -91,5 +91,11 @@ spec:
         resources:
           requests:
             storage: {{ .volumeSize | default "1Gi" }}
+        {{- with .volumeRestore }}
+        dataSource:
+          name: {{ .snapshotName }}
+          kind: VolumeSnapshot
+          apiGroup: snapshot.storage.k8s.io
+        {{- end }}
 {{ end }}
 {{ end }}
