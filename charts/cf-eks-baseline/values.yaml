@@ -47,3 +47,7 @@ metrics-server:
 aws-ebs-csi-driver:
   enabled: true
   fullnameOverride: "aws-ebs-csi-driver"
+
+snapscheduler:
+  enabled: false
+  fullnameOverride: "snapscheduler"

@@ -2,7 +2,7 @@ apiVersion: v2
 name: cf-eks-baseline
 description: A Helm chart for deploying the baseline services to CF's EKS clusters
 type: application
-version: 0.3.4
+version: 0.4.0
 appVersion: 0.0.1
 dependencies:
   - name: traefik
@@ -29,3 +29,7 @@ dependencies:
     version: 2.0.8
     repository: https://charts.deliveryhero.io/
     condition: node-local-dns.enabled
+  - name: snapscheduler
+    version: 3.5.0
+    repository: https://backube.github.io/helm-charts/
+    condition: snapscheduler.enabled
