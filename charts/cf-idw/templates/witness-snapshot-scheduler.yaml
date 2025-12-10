@@ -3,6 +3,7 @@
 {{- $volumeSnapshot := . }}
 {{- if .enabled }}
 {{- range $count := until (int $.Values.witness.witnessCount) }}
+---
 apiVersion: snapscheduler.backube/v1
 kind: SnapshotSchedule
 metadata:
