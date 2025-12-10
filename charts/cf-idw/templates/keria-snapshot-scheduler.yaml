@@ -1,5 +1,6 @@
 {{ with .Values.keria.volumeSnapshot }}
 {{ if .enabled }}
+---
 apiVersion: snapscheduler.backube/v1
 kind: SnapshotSchedule
 metadata:
