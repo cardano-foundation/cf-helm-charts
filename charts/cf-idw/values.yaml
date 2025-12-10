@@ -169,3 +169,14 @@ witness:
     enabled: true
     hosts:
       - witness
+  volumeSnapshot:
+    enabled: false
+    className: ebs-csi-aws
+  # Restores all or selected witnesses using the provided snapshot
+  # volumeRestore:
+  #   witness-0: witness-0-snapshot
+  #   witness-1: witness-1-snapshot
+  #   witness-2: witness-2-snapshot
+  #   witness-3: witness-3-snapshot
+  #   witness-4: witness-4-snapshot
+  #   witness-5: witness-5-snapshot
