@@ -92,6 +92,15 @@ spec:
         resources:
           requests:
             storage: {{ $witness.volumeSize | default "1Gi" }}
+        {{- with $witness.volumeRestore }}
+        {{- $volumeRestore := index $witness.volumeRestore (printf "witness-%d" $count) -}}
+        {{- with $volumeRestore }}
+        dataSource:
+          name: {{ . }}
+          kind: VolumeSnapshot
+          apiGroup: snapshot.storage.k8s.io
+        {{- end }}
+        {{- end }}
 {{- end }}
 {{ end }}
 {{ end }}

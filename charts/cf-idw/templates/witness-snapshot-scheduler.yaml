@@ -1,0 +1,23 @@
+{{- if .Values.witness.enabled -}}
+{{- with .Values.witness.volumeSnapshot }}
+{{- $volumeSnapshot := . }}
+{{- if .enabled }}
+{{- range $count := until (int $.Values.witness.witnessCount) }}
+---
+apiVersion: snapscheduler.backube/v1
+kind: SnapshotSchedule
+metadata:
+  name: witness-{{ $count }}
+spec:
+  claimSelector:
+    matchLabels:
+      app: witness-{{ $count }}
+  retention:
+    maxCount: {{ $volumeSnapshot.maxCount | default 5 }}
+  schedule: {{ $volumeSnapshot.schedule | default "0 0 * * *" }}
+  snapshotTemplate:
+    snapshotClassName: {{ $volumeSnapshot.className | default "ebs-csi-aws" }} 
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
