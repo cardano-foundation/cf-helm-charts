@@ -1,0 +1,39 @@
+{{- if .Values.viewer.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "cf-yaci-devkit.fullname" . }}-viewer
+  labels:
+    {{- include "cf-yaci-devkit.labels" . | nindent 4 }}
+  {{- with .Values.viewer.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.viewer.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if .Values.viewer.ingress.tls }}
+  tls:
+    {{- range .Values.viewer.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.viewer.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: {{ .path | default "/" }}
+            pathType: {{ .pathType | default "Prefix" }}
+            backend:
+              service:
+                name: {{ include "cf-yaci-devkit.fullname" $ }}-viewer
+                port:
+                  number: {{ $.Values.viewer.service.port }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,329 @@
+# Default values for cf-yaci-devkit.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: bloxbean/yaci-cli
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.10.6"
+
+# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  blockfrostPort: 8080
+  cardanoNodePort: 3001
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+# -- Expose the service via gateway-api HTTPRoute
+# Requires Gateway API resources and suitable controller installed within the cluster
+# (see: https://gateway-api.sigs.k8s.io/guides/)
+httpRoute:
+  # HTTPRoute enabled.
+  enabled: false
+  # HTTPRoute annotations.
+  annotations: {}
+  # Which Gateways this Route is attached to.
+  parentRefs:
+  - name: gateway
+    sectionName: http
+    # namespace: default
+  # Hostnames matching HTTP header.
+  hostnames:
+  - chart-example.local
+  # List of rules and filters applied.
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /headers
+  #   filters:
+  #   - type: RequestHeaderModifier
+  #     requestHeaderModifier:
+  #       set:
+  #       - name: My-Overwrite-Header
+  #         value: this-is-the-only-value
+  #       remove:
+  #       - User-Agent
+  # - matches:
+  #   - path:
+  #       type: PathPrefix
+  #       value: /echo
+  #     headers:
+  #     - name: version
+  #       value: v2
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Persistence settings for StatefulSet volumeClaimTemplates
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  storageClass: ""
+
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  httpGet:
+    path: /api/v1/blocks/latest
+    port: blockfrost
+readinessProbe:
+  httpGet:
+    path: /api/v1/blocks/latest
+    port: blockfrost
+startupProbe:
+  httpGet:
+    path: /api/v1/blocks/latest
+    port: blockfrost
+
+# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+viewer:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: bloxbean/yaci-viewer
+    tag: 0.10.6
+    pullPolicy: IfNotPresent
+  service:
+    port: 5173
+
+  publicIndexer:
+    baseUrl: "https://cf-yaci-devkit:8080/api/v1"
+    wsUrl: "ws://cf-yaci-devkit:8080/ws/liveblocks"
+    
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    failureThreshold: 6
+
+yaci:
+  topupAddresses: addr_test1qppcuzs25ghufz2mzg37hcm77px4matwz2hz072z4ms7umqasylaf2uure0h5dw6zmm4ctnxfm0m9gf8lst6fflthlhq5hrg7w:10000000
+  ports:
+    n2n: 3001
+    n2cSocat: 3333
+    storeApi: 8080
+    viewer: 5173
+    clusterApi: 10000
+    submitApi: 8090
+    ogmios: 1337
+    kupo: 1442
+
+nodeProperties: |
+  ################################################################################################################
+  ## Following genesis configurations can be changed for the devnet
+
+  ## In Yaci DevKit's Docker version, protocolMagic is set to 42 and networkId is set to Testnet. These values are not configurable in the Docker version.
+  ## To create a custom network with different protocolMagic and networkId, you can use Yaci CLI binary directly.
+  #################################################################################################################
+
+  #maxKESEvolutions=60
+  #securityParam=80
+  #slotsPerKESPeriod=129600
+  #updateQuorum=1
+  #peerSharing=true
+
+  ## Shelley Genesis
+  #maxLovelaceSupply=45000000000000000
+  #poolPledgeInfluence=0
+  #decentralisationParam=0
+  #eMax=18
+  #keyDeposit=2000000
+  #maxBlockBodySize=65536
+  #maxBlockHeaderSize=1100
+  #maxTxSize=16384
+  #minFeeA=44
+  #minFeeB=155381
+  #minPoolCost=340000000
+  #minUTxOValue=1000000
+  #nOpt=100
+  #poolDeposit=500000000
+
+  #protocolMajorVer=8
+  #protocolMinorVer=0
+  #monetaryExpansionRate=0.003f
+  #treasuryGrowthRate=0.20f
+
+  ##Default addresses
+  #initialAddresses[0].address=addr_test1qzx9hu8j4ah3auytk0mwcupd69hpc52t0cw39a65ndrah86djs784u92a3m5w475w3w35tyd6v3qumkze80j8a6h5tuqq5xe8y
+  #initialAddresses[0].balance=450000000
+  #initialAddresses[0].staked=true
+  #
+  #initialAddresses[1].address=addr_test1qqwpl7h3g84mhr36wpetk904p7fchx2vst0z696lxk8ujsjyruqwmlsm344gfux3nsj6njyzj3ppvrqtt36cp9xyydzqzumz82
+  #initialAddresses[1].balance=250000000
+  #initialAddresses[1].staked=false
+
+  ##Alonzo
+  #collateralPercentage=150
+  #prMem=5.77e-2
+  #prSteps=7.21e-5
+  #lovelacePerUTxOWord=34482
+  #maxBlockExUnitsMem=62000000
+  #maxBlockExUnitsSteps=20000000000
+  #maxCollateralInputs=3
+  #maxTxExUnitsMem=14000000
+  #maxTxExUnitsSteps=10000000000
+  #maxValueSize=5000
+
+  ##Conway
+  #pvtcommitteeNormal=0.51f
+  #pvtCommitteeNoConfidence=0.51f
+  #pvtHardForkInitiation=0.51f
+  #pvtMotionNoConfidence=0.51f
+  #pvtPPSecurityGroup=0.51f
+
+  #dvtMotionNoConfidence=0.51f
+  #dvtCommitteeNormal=0.51f
+  #dvtCommitteeNoConfidence=0.51f
+  #dvtUpdateToConstitution=0.51f
+  #dvtHardForkInitiation=0.51f
+  #dvtPPNetworkGroup=0.51f
+  #dvtPPEconomicGroup=0.51f
+  #dvtPPTechnicalGroup=0.51f
+  #dvtPPGovGroup=0.51f
+  #dvtTreasuryWithdrawal=0.51f
+
+  #committeeMinSize=0
+  #committeeMaxTermLength=200
+  #govActionLifetime=10
+  #govActionDeposit=1000000000
+  #dRepDeposit=2000000
+  #dRepActivity=20
+
+  #constitutionScript=7713eb6a46b67bfa1ca082f2b410b0a4e502237d03f7a0b7cbf1b025
+  #constitutionUrl=https://devkit.yaci.xyz/constitution.json
+  #constitutionDataHash=f89cc2469ce31c3dfda2f3e0b56c5c8b4ee4f0e5f66c30a3f12a95298b01179e
+
+  ## CC Members
+  #ccMembers[0].hash=scriptHash-8fc13431159fdda66347a38c55105d50d77d67abc1c368b876d52ad1
+  #ccMembers[0].term=340
+
+  ########################################################################################################
+  # Workaround for : https://github.com/bloxbean/yaci-devkit/issues/65
+  #
+  # The following parameters are enabled for a V2 cost model-related issue where there are 10 extra elements if the devnet
+  # is started with the Conway era at epoch 0. The following parameters are enabled to configure the Conway era hard fork (HF) at epoch 1.
+  # The network will start in the Babbage era and then hard fork (HF) to the Conway era at epoch 1.
+
+  # The shiftStartTimeBehind=true flag is enabled to shift the start time of the network to a time behind the current time by adjusting security parameter
+  # which changes the stability window. This is to speed up the process of reaching the Conway era.
+  #
+  # This should only be done in a development environment because if the stability window is larger than the epoch length, the reward/treasury calculations will be incorrect or ignored.
+  # Therefore, for a real multi-node network, you should start the network at the current time and allow it to reach the Conway era at epoch 1.
+  # So, the shiftStartTimeBehind flag should be "false" for non-development / multi-node networks.
+  #
+  #########################################################################################################
+  conwayHardForkAtEpoch=1
+  shiftStartTimeBehind=true
+
