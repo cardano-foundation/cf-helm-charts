@@ -24,6 +24,7 @@ spec:
     {{- end }}
   {{- end }}
   rules:
+    {{- range .Values.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -34,4 +35,5 @@ spec:
                 name: {{ include "cf-yaci-devkit.fullname" $ }}
                 port:
                   number: {{ $.Values.service.blockfrostPort }}
+    {{- end }}
 {{- end }}
