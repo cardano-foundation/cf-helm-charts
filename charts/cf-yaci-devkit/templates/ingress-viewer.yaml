@@ -36,4 +36,9 @@ spec:
                 port:
                   number: {{ $.Values.viewer.service.port }}
     {{- end }}
+  tls:
+    - hosts:
+      {{- range .Values.viewer.ingress.hosts }}
+      - {{ .host }}
+      {{- end }}
 {{- end }}

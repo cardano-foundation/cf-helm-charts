@@ -36,4 +36,9 @@ spec:
                 port:
                   number: {{ $.Values.service.blockfrostPort }}
     {{- end }}
+  tls:
+    - hosts:
+      {{- range .Values.ingress.hosts }}
+      - {{ .host }}
+      {{- end }}
 {{- end }}

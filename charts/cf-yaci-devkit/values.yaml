@@ -134,17 +134,14 @@ persistence:
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
-  httpGet:
-    path: /api/v1/blocks/latest
-    port: blockfrost
+  tcpSocket:
+    port: 3001
 readinessProbe:
-  httpGet:
-    path: /api/v1/blocks/latest
-    port: blockfrost
+  tcpSocket:
+    port: 3001
 startupProbe:
-  httpGet:
-    path: /api/v1/blocks/latest
-    port: blockfrost
+  tcpSocket:
+    port: 3001
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
