@@ -478,6 +478,16 @@ entries:
   cf-idw:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-01-29T13:15:02.687075246Z"
+    description: A Helm chart for veridian wallet
+    digest: ae763e648ce575ca38623b9714bc95c6fb07b2beee484d56550b0f91f5dd63d2
+    name: cf-idw
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-idw-0.0.15/cf-idw-0.0.15.tgz
+    version: 0.0.15
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-12-16T08:59:07.417956368Z"
     description: A Helm chart for veridian wallet
     digest: 9c78e5b9c67c5efad6c7ba73187a23b715a62bdfbe8f78a639e146a62116d0ea
@@ -659,6 +669,29 @@ entries:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-vault-0.0.1/cf-vault-0.0.1.tgz
     version: 0.0.1
   cf-zpg-operator:
+  - apiVersion: v2
+    appVersion: 1.15.1
+    created: "2026-01-29T13:15:02.878801959Z"
+    dependencies:
+    - condition: postgres-operator.enabled
+      name: postgres-operator
+      repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+      version: 1.15.1
+    - condition: postgres-operator-ui.enabled
+      name: postgres-operator-ui
+      repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
+      version: 1.15.1
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.4.0
+    description: A Helm chart bundling zalando pg operator plus minio ready for PITR
+    digest: 97daa4e8dc8aa74a5967fad5fd5565c9d93ffd496e9163458bf3192ff3fa3744
+    name: cf-zpg-operator
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-zpg-operator-0.1.0/cf-zpg-operator-0.1.0.tgz
+    version: 0.1.0
   - apiVersion: v2
     appVersion: 1.14.0
     created: "2025-08-14T08:44:59.0091302Z"
@@ -881,4 +914,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2025-12-16T08:59:07.418044071Z"
+generated: "2026-01-29T13:15:02.878957889Z"
