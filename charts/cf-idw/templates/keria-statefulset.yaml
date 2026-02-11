@@ -88,6 +88,10 @@ spec:
         name: keria-data
       spec:
         accessModes: [ "ReadWriteOnce" ]
+        # if defined, set storageClass, otherwise leave it empty
+        {{- with .volumeStorageClass }}
+        storageClassName: {{ . }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .volumeSize | default "1Gi" }}
