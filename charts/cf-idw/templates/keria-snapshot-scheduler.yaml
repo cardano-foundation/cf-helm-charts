@@ -1,0 +1,17 @@
+{{ with .Values.keria.volumeSnapshot }}
+{{ if .enabled }}
+apiVersion: snapscheduler.backube/v1
+kind: SnapshotSchedule
+metadata:
+  name: keria
+spec:
+  claimSelector:
+    matchLabels:
+      app: keria
+  retention:
+    maxCount: {{ .maxCount | default 14 }}
+  schedule: {{ .schedule | default "0 0 * * *" }}
+  snapshotTemplate:
+    snapshotClassName: {{ .className | default "ebs-csi-aws" }} 
+{{ end }}
+{{ end }}
