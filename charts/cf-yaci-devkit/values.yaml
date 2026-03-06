@@ -195,6 +195,12 @@ viewer:
             pathType: ImplementationSpecific
     tls: []
 
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
   livenessProbe:
     httpGet:
       path: /
