@@ -35,8 +35,8 @@ spec:
               value: {{ .keriaBootEndpoint | default "http://keria:3903" }}
             - name: KERIA_ENDPOINT
               value: {{ .keriaEndpoint | default "http://keria:3901" }}
-            - name: OOBI_ENDPOINT
-              value: {{ .oobiEndpoint | default "http://cred-issuance:3001" }}
+            - name: SCHEMA_ENDPOINT
+              value: {{ .schemaEndpoint | default "http://cred-issuance:3001" }}
             - name: PORT
               value: {{ .port | default "3001" | quote }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
