@@ -34,7 +34,7 @@ spec:
             - name: DB_PATH
               value: /app/data/cred-issuance.db
           command: ["npm", "run", "generate"]
-          image: "{{ image.repository }}:{{ image.tag }}"
+          image: "{{ .image.repository }}:{{ .image.tag }}"
           name: init-db
           volumeMounts:
             - mountPath: /app/data
