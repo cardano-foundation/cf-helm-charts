@@ -29,6 +29,16 @@ spec:
 {{ toYaml . | nindent 8 }}
         {{- end }}
       {{- end }}
+      initContainers:
+        - env:
+            - name: DB_PATH
+              value: /app/data/cred-issuance.db
+          command: ["npm", "run", "generate"]
+          image: "{{ image.repository }}:{{ image.tag }}"
+          name: init-db
+          volumeMounts:
+            - mountPath: /app/data
+              name: issuer-server-data
       containers:
         - env:
             - name: KERIA_BOOT_ENDPOINT
