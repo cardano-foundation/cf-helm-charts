@@ -39,6 +39,8 @@ spec:
               value: {{ .schemaEndpoint | default "http://cred-issuance:3001" }}
             - name: PORT
               value: {{ .port | default "3001" | quote }}
+            - name: DB_PATH
+              value: /app/data/cred-issuance.db
           image: "{{ .image.repository }}:{{ .image.tag }}"
           name: cred-issuance
           ports:
