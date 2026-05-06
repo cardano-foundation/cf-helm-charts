@@ -23,15 +23,16 @@ spec:
       restartPolicy: Always
       {{- with .tolerations -}}
         {{- $tolerations := index $witness.tolerations (printf "witness-%d" $count) -}}
-      tolerations:
-        {{- toYaml $tolerations | nindent 8 }}
+        {{- with $tolerations }}
+      tolerations: {{ . }}
         {{- end }}
       {{- end }}
-      affinity:
-        {{- with .affinity -}}
-          {{- $affinity := index $witness.affinity (printf "witness-%d" $count) -}}
-      {{- toYaml $affinity | nindent 8 }}
+      {{- with .affinity -}}
+        {{- $affinity := index $witness.affinity (printf "witness-%d" $count) -}}
+        {{- with $affinity }}
+      affinity: {{ . }}
         {{- end }}
+      {{- end }}
 
       initContainers:
         - name: init-witness
