@@ -1,0 +1,16 @@
+{{ - if .Values.traefik.externalPing.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ping-public-bridge
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  # make path configurable via .Values.traefik.externalPing.path
+  - match: Path(`{{ .Values.traefik.externalPing.path | default "/ping" }}`)
+    kind: Rule
+    services:
+    - name: ping@internal  # Bridges to the internal ping logic
+      kind: TraefikService
+{{- end }}
