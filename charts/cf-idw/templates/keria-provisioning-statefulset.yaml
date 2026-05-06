@@ -78,6 +78,10 @@ spec:
         name: keria-provisioning-h2-data
       spec:
         accessModes: [ "ReadWriteOnce" ]
+        # if defined, set storageClass, otherwise leave it empty
+        {{- if .volumeStorageClass }}
+        storageClassName: {{ .volumeStorageClass }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .volumeSize | default "1Gi" }}

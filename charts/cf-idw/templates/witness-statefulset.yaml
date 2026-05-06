@@ -89,6 +89,10 @@ spec:
         name: keri-witness-data
       spec:
         accessModes: [ "ReadWriteOnce" ]
+        # if defined, set storageClass, otherwise leave it empty
+        {{- with $witness.volumeStorageClass }}
+        storageClassName: {{ . }}
+        {{- end }}
         resources:
           requests:
             storage: {{ $witness.volumeSize | default "1Gi" }}
