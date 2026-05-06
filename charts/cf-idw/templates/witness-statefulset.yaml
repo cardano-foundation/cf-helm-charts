@@ -21,18 +21,21 @@ spec:
         app: witness-{{ $count }}
     spec:
       restartPolicy: Always
-      {{- if $witness.tolerations }}
+      # get tolerations from .Values.witness.witness-$count.tolerations if defined
+      {{- with index $witness (printf "witness-%d" $count) -}}
+      {{- with .tolerations -}}
       tolerations:
-        {{ with index $witness "tolerations" "witness-$count" }}
-{{ toYaml . | nindent 8 }}
-        {{- end }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if $witness.affinity }}
+      {{- end }}
+      # do the same for affinity
+      {{- with index $witness (printf "witness-%d" $count) -}}
+      {{- with .affinity -}}
       affinity:
-        {{ with index $witness "affinity" "witness-$count" }}
-{{ toYaml . | nindent 8 }}
-        {{- end }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- end }}
+
       initContainers:
         - name: init-witness
           image: "{{ $witness.image.repository }}:{{ $witness.image.tag }}"
