@@ -24,16 +24,12 @@ spec:
       {{- with .tolerations -}}
       tolerations: 
         {{- $tolerations := index $witness.tolerations (printf "witness-%d" $count) -}}
-        {{- with $tolerations }}
-{{ toYaml . | indent 8 }}
-        {{- end }}
+{{ toYaml $tolerations | indent 8 }}
       {{- end }}
       {{- with .affinity -}}
       affinity:
         {{- $affinity := index $witness.affinity (printf "witness-%d" $count) -}}
-        {{- with $affinity }}
-{{ toYaml . | indent 8 }}
-        {{- end }}
+{{ toYaml $affinity | indent 8 }}
       {{- end }}
 
       initContainers:
