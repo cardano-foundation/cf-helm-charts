@@ -57,6 +57,9 @@ spec:
         name: issuer-server-data
       spec:
         accessModes: [ "ReadWriteOnce" ]
+        {{- with .volumeStorageClass }}
+        storageClassName: {{ . }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .volumeSize | default "1Gi" }}
