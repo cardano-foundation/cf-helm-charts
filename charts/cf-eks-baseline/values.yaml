@@ -12,6 +12,9 @@ traefik:
         default: false
     websecure:
       nodePort: 30443
+  externalPing:
+    enabled: false
+    path: /ping
 
 nginx:
   enabled: true
