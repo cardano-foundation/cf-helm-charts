@@ -62,6 +62,7 @@ signoz:
             key: SMTP_PORT
   
       signoz_emailing_smtp_from:
+        valueFrom:
           secretKeyRef:
             name: signoz-secrets
             key: SMTP_FROM
