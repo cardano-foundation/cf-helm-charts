@@ -3,14 +3,14 @@ name: cf-signoz
 description: A Helm chart for deploying signoz with opinionated defaults
 type: application
 version: 0.0.1
-appVersion: 0.100.0
+appVersion: 0.122.0
 dependencies:
   - name: signoz
-    version: 0.100.0
+    version: 0.122.0
     repository: https://charts.signoz.io
     condition: signoz.enabled
   - name: k8s-infra
-    version: 0.14.2
+    version: 0.16.0
     repository: https://charts.signoz.io
     condition: k8s-infra.enabled
   - name: metrics-server
@@ -18,10 +18,10 @@ dependencies:
     repository: https://kubernetes-sigs.github.io/metrics-server/
     condition: metrics-server.enabled
   - name: kube-prometheus-stack
-    version: 79.4.1
+    version: 85.0.3
     repository: https://prometheus-community.github.io/helm-charts
     condition: kube-prometheus-stack.enabled
   - name: opentelemetry-operator
-    version: 0.99.0
+    version: 0.113.1
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
     condition: opentelemetry-operator.enabled
