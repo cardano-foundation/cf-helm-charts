@@ -42,27 +42,54 @@ signoz:
   fullnameOverride: "signoz"
 
   signoz:
-    smtpVars:
-      enabled: true
-      existingSecret:
-        name: signoz-secrets
-        fromKey: SMTP_FROM
-        hostKey: SMTP_HOST
-        portKey: SMTP_PORT
-        usernameKey: SMTP_USER
-        passwordKey: SMTP_PASS
-    env:
-      signoz_emailing_smtp_tls_enabled: true
-      signoz_alertmanager_provider: signoz
-      signoz_alertmanager_signoz_global_smtp__smarthost: $(SIGNOZ_EMAILING_SMTP_ADDRESS)
-      signoz_alertmanager_signoz_global_smtp__require__tls: true
-      signoz_alertmanager_signoz_global_smtp__auth__username: $(SIGNOZ_EMAILING_SMTP_AUTH_USERNAME)
-      signoz_alertmanager_signoz_global_smtp__auth__password: $(SIGNOZ_EMAILING_SMTP_AUTH_PASSWORD)
-      signoz_alertmanager_signoz_global_smtp__from: $(SIGNOZ_EMAILING_SMTP_FROM)
-      signoz_prometheus_active_query_tracker_enabled: true
-      signoz_log_level: info
     ingress:
       enabled: true
+    env:
+      signoz_telemetrystore_provider: clickhouse
+  
+      signoz_emailing_enabled: true
+      signoz_emailing_smtp_tls__enabled: true
+
+      SMTP_HOST:
+        valueFrom:
+          secretKeyRef:
+            name: signoz-secrets
+            key: SMTP_HOST
+      SMTP_PORT:
+        valueFrom:
+          secretKeyRef:
+            name: signoz-secrets
+            key: SMTP_PORT
+  
+      signoz_emailing_smtp_from:
+          secretKeyRef:
+            name: signoz-secrets
+            key: SMTP_FROM
+  
+      # Must be a single host:port value, e.g. smtp.example.com:587
+      signoz_emailing_smtp_address: $(SMTP_HOST):$(SMTP_PORT)
+  
+      signoz_emailing_smtp_username:
+        valueFrom:
+          secretKeyRef:
+            name: signoz-secrets
+            key: SMTP_USER
+  
+      signoz_emailing_smtp_password:
+        valueFrom:
+          secretKeyRef:
+            name: signoz-secrets
+            key: SMTP_PASS
+  
+      signoz_alertmanager_provider: signoz
+      signoz_alertmanager_signoz_global_smtp__smarthost: "$(SIGNOZ_EMAILING_SMTP_ADDRESS)"
+      signoz_alertmanager_signoz_global_smtp__require__tls: true
+      signoz_alertmanager_signoz_global_smtp__auth__username: "$(SIGNOZ_EMAILING_SMTP_USERNAME)"
+      signoz_alertmanager_signoz_global_smtp__auth__password: "$(SIGNOZ_EMAILING_SMTP_PASSWORD)"
+      signoz_alertmanager_signoz_global_smtp__from: "$(SIGNOZ_EMAILING_SMTP_FROM)"
+  
+      signoz_prometheus_active__query__tracker_enabled: true
+      signoz_log_level: info
   
   clickhouse:
     installCustomStorageClass: true
