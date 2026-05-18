@@ -1,6 +1,7 @@
 {{- $root := .Values -}}
 {{ with .Values.cardanoBacker }}
 {{- $backer := . -}}
+{{- if $backer.enabled -}}
 {{- if $backer.ingress.enabled -}}
 {{- range $count := until (int .backerCount) }}
 ---
@@ -39,6 +40,7 @@ spec:
       {{- end }}
     {{- end }}
 ---
+{{- end }}
 {{- end }}
 {{ end }}
 {{ end }}

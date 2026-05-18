@@ -1,3 +1,4 @@
+{{ $root := .Values }}
 {{ with .Values.keria }}
 {{ if .enabled }}
 apiVersion: apps/v1
@@ -33,10 +34,16 @@ spec:
         - name: configure
           image: "rcmorano/alpine-bash-jq-curl"
           env:
+            - name: INGRESS_TLD
+              value: {{ $root.ingressTLDs | first | quote }}
+            - name: INITIAL_WITNESS_PORT
+              value: {{ $root.witness.initialHTTPPort | default "5642" | quote }}
+            - name: WITNESS_COUNT
+              value: {{ $root.witness.witnessCount | default "6" | quote }}
             - name: KERIA_CURLS
               value: {{ .keriaCurls | default "http://keria:3901" | quote }}
             - name: KERIA_IURLS
-              value: {{ .keriaIurls | default "http://witness:5642/oobi/dummy1 http://witness:5643/oobi/dummy2" | quote }}
+              value: {{ .keriaIurls | default "autodetect" | quote }}
           command: ["sh", "-x", "/configmap/initContainer-entrypoint.sh"]
           volumeMounts:
             - mountPath: /configmap
