@@ -24,7 +24,7 @@ data:
           sleep 1
         done
         WITNESS_PUBLIC_URL=https://witness-${seq}.${INGRESS_TLD}/oobi/${WITNESS_OOBI}/controller?role=witness
-        KERIA_IURLS="$KERIA_IURLS $WITNESS_URL"
+        KERIA_IURLS="$KERIA_IURLS $WITNESS_PUBLIC_URL"
       done
     fi
     export KERIA_RENDERED_IURLS=$(for keria_iurl in ${KERIA_IURLS}; do echo $keria_iurl; done | jq -cRn '[inputs]')
