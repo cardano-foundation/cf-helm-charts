@@ -14,20 +14,19 @@ data:
 
     if [ "$KERIA_IURLS" == "autodetect" ]
     then
-      CHART_NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
-      WITNESS_COUNT=$(kubectl get statefulset -n $CHART_NAMESPACE | grep -E '^witness-[0-9]+$' | wc -l)
       KERIA_IURLS=""
-      for wit in $(seq 0 $((WITNESS_COUNT-1)))
+      CHART_NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+      for seq in $(seq 0 $((WITNESS_COUNT-1)))
       do
-        WITNESS_OOBI=$(kubectl logs -n ${CHART_NAMESPACE} witness-$seq-0 2>/dev/null | grep ^Witness | awk '{print $NF}')
-        WITNESS_URL=https://witness-${seq}.${INGRESS_TLD}/oobi/${WITNESS_OOBI}/controller?role=witness
+        WITNESS_PORT=$(( INITIAL_WITNESS_PORT + seq ))
+        WITNESS_BASE_URL=http://witness-${seq}:${WITNESS_PORT}
+        WITNESS_OOBI=$(curl -s $WITNESS_BASE_URL/oobi | jq -r .k.[] 2> /dev/null)
+        WITNESS_PUBLIC_URL=https://witness-${seq}.${INGRESS_TLD}/oobi/${WITNESS_OOBI}/controller?role=witness
         KERIA_IURLS="$KERIA_IURLS $WITNESS_URL"
       done
-      envsubst < /configmap/backer-oobis.json.tpl > /config/backer-oobis.json
-    else
-      export KERIA_RENDERED_IURLS=$(for keria_iurl in ${KERIA_IURLS}; do echo $keria_iurl; done | jq -cRn '[inputs]')
-      envsubst < /configmap/backer-oobis.json.tpl > /config/backer-oobis.json
     fi
+    export KERIA_RENDERED_IURLS=$(for keria_iurl in ${KERIA_IURLS}; do echo $keria_iurl; done | jq -cRn '[inputs]')
+    envsubst < /configmap/backer-oobis.json.tpl > /config/backer-oobis.json
 
   witness.json.tpl: |
     {
