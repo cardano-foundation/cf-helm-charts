@@ -18,8 +18,6 @@ spec:
         app: keria
     spec:
       restartPolicy: Always
-      serviceAccountName: keria
-      automountServiceAccountToken: true
       {{- if .tolerations }}
       tolerations:
         {{ with index .tolerations }}
