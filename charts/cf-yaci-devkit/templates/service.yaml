@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cf-yaci-devkit.fullname" . }}
+  labels:
+    {{- include "cf-yaci-devkit.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.blockfrostPort }}
+      targetPort: blockfrost
+      protocol: TCP
+      name: blockfrost
+# TOOD: make it nodeport
+    - port: {{ .Values.service.cardanoNodePort }}
+      targetPort: node
+      protocol: TCP
+      name: node 
+  selector:
+    {{- include "cf-yaci-devkit.selectorLabels" . | nindent 4 }}
