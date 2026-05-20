@@ -17,6 +17,7 @@ data:
       CHART_NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
       for seq in $(seq 0 $((WITNESS_COUNT-1)))
       do
+        WITNESS_OOBI=""
         WITNESS_PORT=$(( INITIAL_WITNESS_PORT + seq ))
         WITNESS_BASE_URL=http://witness-${seq}:${WITNESS_PORT}
         while [[ -z "$WITNESS_OOBI" ]]; do

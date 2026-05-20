@@ -1,6 +1,7 @@
 {{- $root := .Values -}}
 {{ with .Values.witness }}
 {{- $witness := . -}}
+{{- if $witness.enabled -}}
 {{- if $witness.ingress.enabled -}}
 {{- range $count := until (int .witnessCount) }}
 ---
@@ -40,5 +41,6 @@ spec:
     {{- end }}
 ---
 {{- end }}
+{{ end }}
 {{ end }}
 {{ end }}
