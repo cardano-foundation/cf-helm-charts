@@ -4,7 +4,7 @@ metadata:
   name: yaci-address-balance-monitor
   labels:
     # This should match your prometheus release label
-    release: {{ .Values.prometheusReleaseLabel | default "cf-eks-monitoring" }}
+    release: {{ .Values.serviceMonitor.prometheusReleaseLabel | default "cf-eks-monitoring" }}
 spec:
   selector:
     matchLabels:
