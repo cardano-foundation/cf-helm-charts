@@ -44,6 +44,8 @@ spec:
               value: {{ .keriaCurls | default "http://keria:3901" | quote }}
             - name: KERIA_IURLS
               value: {{ .keriaIurls | default "autodetect" | quote }}
+            - name: KERIA_IURLS_PROTOCOL # only used if KERIA_IURLS is set to autodetect
+              value: {{ .keriaIurlsProtocol | default "https" | quote }}
           command: ["sh", "-x", "/configmap/initContainer-entrypoint.sh"]
           volumeMounts:
             - mountPath: /configmap
