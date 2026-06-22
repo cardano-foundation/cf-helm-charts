@@ -816,6 +816,17 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-vault-0.0.1/cf-vault-0.0.1.tgz
     version: 0.0.1
+  cf-yaci-devkit:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2026-06-22T08:54:20.033281989Z"
+    description: A Helm chart for Kubernetes
+    digest: aff842c7af261a7b78fce33ccd3a08b30265a0337acfbf39895817904523480c
+    name: cf-yaci-devkit
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-yaci-devkit-0.1.0/cf-yaci-devkit-0.1.0.tgz
+    version: 0.1.0
   cf-zpg-operator:
   - apiVersion: v2
     appVersion: 1.15.1
@@ -1069,4 +1080,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2026-06-22T08:52:45.100876594Z"
+generated: "2026-06-22T08:54:20.033395333Z"
