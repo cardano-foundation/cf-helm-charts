@@ -50,8 +50,11 @@ spec:
               value: {{ $witness.keriaCurlsProto | default "https" | quote }}
             - name: KERIA_CURLS_EXTERNAL_HOST_TLD
               value: {{ $root.ingressTLDs | first | quote }}
+            # get first .Values.witness.hosts entry if it exists, otherwise use the default ingress domain
+            - name: WITNESS_INGRESS_HOST_PREFIX
+              value: {{ $witness.ingress.hosts | first | default "witness" | quote }}
             - name: KERIA_CURLS_URL
-              value: "$(KERIA_CURLS_PROTO)://witness-{{ $count }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)"
+              value: "$(KERIA_CURLS_PROTO)://$(WITNESS_INGRESS_HOST_PREFIX)-{{ $count }}.$(KERIA_CURLS_EXTERNAL_HOST_TLD)"
             - name: WITNESS_COUNTER
               value: {{ $count | quote }}
             - name: INITIAL_PORT
