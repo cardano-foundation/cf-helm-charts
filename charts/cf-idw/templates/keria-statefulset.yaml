@@ -40,6 +40,9 @@ spec:
               value: {{ $root.witness.initialHTTPPort | default "5642" | quote }}
             - name: WITNESS_COUNT
               value: {{ $root.witness.witnessCount | default "6" | quote }}
+            # get first .Values.witness.hosts entry if it exists, otherwise use the default ingress domain
+            - name: WITNESS_INGRESS_HOST_PREFIX
+              value: {{ $root.witness.hosts | first | default "witness" | quote }}
             - name: KERIA_CURLS
               value: {{ .keriaCurls | default "http://keria:3901" | quote }}
             - name: KERIA_IURLS
