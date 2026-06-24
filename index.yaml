@@ -556,6 +556,16 @@ entries:
   cf-idw:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-06-24T09:57:55.819165368Z"
+    description: A Helm chart for veridian wallet
+    digest: 35270a3a5924521e414ccb24b0459f2f6d849bdda985d5f2c74568ae81444ed7
+    name: cf-idw
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-idw-0.0.25/cf-idw-0.0.25.tgz
+    version: 0.0.25
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2026-06-24T09:40:15.959268985Z"
     description: A Helm chart for veridian wallet
     digest: a1aeca233b495601cf2e16799fc9d95640d8fc3bdf7ca547c16086f5a5d9ed82
@@ -1100,4 +1110,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2026-06-24T09:40:15.959492966Z"
+generated: "2026-06-24T09:57:55.819354443Z"
