@@ -24,7 +24,7 @@ data:
           WITNESS_OOBI=$(curl -s $WITNESS_BASE_URL/oobi | jq -r .k.[] 2> /dev/null)
           sleep 1
         done
-        WITNESS_PUBLIC_URL=${KERIA_IURLS_PROTOCOL:-https}://witness-${seq}.${INGRESS_TLD}/oobi/${WITNESS_OOBI}/controller?role=witness
+        WITNESS_PUBLIC_URL=${KERIA_IURLS_PROTOCOL:-https}://${WITNESS_INGRESS_HOST_PREFIX:-witness}-${seq}.${INGRESS_TLD}/oobi/${WITNESS_OOBI}/controller?role=witness
         KERIA_IURLS="$KERIA_IURLS $WITNESS_PUBLIC_URL"
       done
     fi
