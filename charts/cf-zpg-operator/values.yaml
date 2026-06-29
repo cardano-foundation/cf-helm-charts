@@ -25,7 +25,7 @@ postgres-operator:
       WALG_DISABLE_S3_SSE: "true"
 
   configKubernetes:
-    pod_environment_configmap: "pg-system/pod-environment"
+    pod_environment_configmap: "zpg-system/pod-environment"
     pod_environment_secret: "minio-credentials"
     enable_pod_antiaffinity: false
     enable_cross_namespace_secret: true
