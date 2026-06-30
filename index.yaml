@@ -815,6 +815,38 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-pg-pool-ii-0.0.1/cf-pg-pool-ii-0.0.1.tgz
     version: 0.0.1
+  cf-signoz:
+  - apiVersion: v2
+    appVersion: 0.100.0
+    created: "2026-06-30T09:57:04.058103541Z"
+    dependencies:
+    - condition: signoz.enabled
+      name: signoz
+      repository: https://charts.signoz.io
+      version: 0.100.0
+    - condition: k8s-infra.enabled
+      name: k8s-infra
+      repository: https://charts.signoz.io
+      version: 0.14.2
+    - condition: metrics-server.enabled
+      name: metrics-server
+      repository: https://kubernetes-sigs.github.io/metrics-server/
+      version: 3.13.0
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 79.4.1
+    - condition: opentelemetry-operator.enabled
+      name: opentelemetry-operator
+      repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+      version: 0.99.0
+    description: A Helm chart for deploying signoz with opinionated defaults
+    digest: 51e28c2ee0ca4976fff9bca41ae87a9655cfe7559c47cf90b1f35d9a13e2b423
+    name: cf-signoz
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-signoz-0.0.1/cf-signoz-0.0.1.tgz
+    version: 0.0.1
   cf-uverify:
   - apiVersion: v2
     appVersion: 0.0.1
@@ -1110,4 +1142,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2026-06-24T09:57:55.819354443Z"
+generated: "2026-06-30T09:57:04.058234375Z"
