@@ -1,0 +1,117 @@
+---
+# ServiceAccount for the target allocator
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-target-allocator
+---
+# ClusterRole allowing discovery of k8s objects (services/endpoints/pods/namespaces/nodes)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otel-target-allocator
+rules:
+  # Core Kubernetes resources needed for discovery
+  - apiGroups: [""]
+    resources: ["services", "endpoints", "pods", "nodes", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  # Prometheus Operator CRDs (monitoring.coreos.com) needed for ServiceMonitor/PodMonitor/Probe/scrapeconfigs access
+  - apiGroups: ["monitoring.coreos.com"]
+    resources:
+      - servicemonitors
+      - podmonitors
+      - probes
+      - scrapeconfigs
+      - prometheuses
+      - prometheusrules
+      - alertmanagers
+      - thanosrulers
+    verbs: ["get", "list", "watch"]
+  # EndpointSlice discovery (discovery.k8s.io) used by Prometheus Kubernetes SD
+  - apiGroups: ["discovery.k8s.io"]
+    resources:
+      - endpointslices
+    verbs: ["get", "list", "watch"]
+---
+# ClusterRoleBinding to bind the SA
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-target-allocator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otel-target-allocator
+subjects:
+  - kind: ServiceAccount
+    name: otel-target-allocator
+    namespace: signoz
+---
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-target-allocator
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  mode: statefulset
+  {{- with .Values.affinity }}
+  affinity:
+  {{ toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.nodeSelector }}
+  nodeSelector:
+  {{ toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.tolerations }}
+  tolerations:
+  {{ toYaml . | nindent 4 }}
+  {{- end }}
+  upgradeStrategy: "automatic"
+  targetAllocator:
+    enabled: true
+  {{- with .Values.affinity }}
+    affinity:
+  {{ toYaml . | nindent 6 }}
+  {{- end }}
+  {{- with .Values.nodeSelector }}
+    nodeSelector:
+  {{ toYaml . | nindent 6 }}
+  {{- end }}
+  {{- with .Values.tolerations }}
+    tolerations:
+  {{ toYaml . | nindent 6 }}
+  {{- end }}
+    serviceAccount: otel-target-allocator
+    prometheusCR:
+      enabled: true
+      podMonitorSelector: {}
+      serviceMonitorSelector:
+        matchExpressions:
+          - key: "app"
+            operator: NotIn
+            values: ["kube-prometheus-stack-kubelet"]
+  config:
+    receivers:
+      prometheus:
+        config:
+          scrape_configs:
+          - job_name: 'kubernetes-pods'
+            kubernetes_sd_configs:
+              - role: pod
+            relabel_configs:
+              - source_labels: [__meta_kubernetes_namespace]
+                regex: 'signoz'
+                action: drop
+    exporters:
+      otlp:
+        endpoint: "signoz-otel-collector.signoz.svc:4317"
+        tls:
+          insecure: true
+
+    service:
+      pipelines:
+        metrics:
+          receivers: [prometheus]
+          exporters: [otlp]
