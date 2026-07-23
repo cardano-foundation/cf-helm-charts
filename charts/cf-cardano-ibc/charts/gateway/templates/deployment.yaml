@@ -90,13 +90,13 @@ spec:
             - name: HISTORY_DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "gateway.historyDbSecretName" . }}
-                  key: {{ (index .Values.global "historyDb").secretUsernameKey }}
+                  name: {{ include "gateway.yaciDbSecretName" . }}
+                  key: {{ (index .Values.global "yaciDb").secretUsernameKey }}
             - name: HISTORY_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "gateway.historyDbSecretName" . }}
-                  key: {{ (index .Values.global "historyDb").secretPasswordKey }}
+                  name: {{ include "gateway.yaciDbSecretName" . }}
+                  key: {{ (index .Values.global "yaciDb").secretPasswordKey }}
           ports:
             - name: rest
               containerPort: {{ .Values.restPort }}

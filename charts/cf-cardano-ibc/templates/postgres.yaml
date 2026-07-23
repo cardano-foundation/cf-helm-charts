@@ -14,7 +14,7 @@ apiVersion: acid.zalan.do/v1
 kind: postgresql
 metadata:
   name: {{ .Values.postgres.clusterName | quote }}
-  namespace: {{ .Values.postgres.namespace | default .Release.Namespace | quote }}
+  namespace: {{ .Values.postgres.namespace | quote }}
   labels:
     {{- include "cf-cardano-ibc.labels" . | nindent 4 }}
     app.kubernetes.io/component: postgres

@@ -57,8 +57,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 
-{{- define "gateway.historyDbHost" -}}
-{{- if and .Values.global (index .Values.global "historyDb") (index .Values.global "historyDb" "host") }}{{- (index .Values.global "historyDb").host -}}
+{{- define "gateway.yaciDbHost" -}}
+{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "host") }}{{- (index .Values.global "yaciDb").host -}}
 {{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s.%s.svc.cluster.local" $pg.clusterName ($pg.namespace | default .Release.Namespace) -}}
 {{- else }}{{- .Values.env.HISTORY_DB_HOST | default "yaci-store-postgres" -}}
 {{- end }}
@@ -71,8 +71,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 
-{{- define "gateway.historyDbSecretName" -}}
-{{- if and .Values.global (index .Values.global "historyDb") (index .Values.global "historyDb" "secretName") }}{{- (index .Values.global "historyDb").secretName -}}
+{{- define "gateway.yaciDbSecretName" -}}
+{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "secretName") }}{{- (index .Values.global "yaciDb").secretName -}}
 {{- else if and .Values.global (index .Values.global "postgres") }}{{- printf "%s-yaci" (index .Values.global "postgres").clusterName -}}
 {{- else }}{{- "" -}}
 {{- end }}

@@ -16,7 +16,7 @@ endpoint.
 - **cf-kupo** (standalone chart) — defaults to `--ogmios-host` (WebSocket to
   Ogmios); can flip to its own socat sidecar via `source: node-socket`.
 - **yaci-store** (subchart) — chain-follows the in-cluster cardano-node over n2n
-  (TCP 3001); history DB is an external Zalando Postgres Operator cluster.
+  (TCP 3001); yaci DB is an external Zalando Postgres Operator cluster.
 - **gateway** (subchart) — two Deployments: `gateway-app` (REST 8000 / gRPC
   5001) and `gateway-bridge-history-sync`; `.env` rendered from values.
 - **hermes** (subchart) — config.toml + keys via ConfigMap/Secret; points Cardano
@@ -27,7 +27,7 @@ endpoint.
 
 - **Postgres** — provisioned by the Zalando Postgres Operator; this chart only
   consumes the operator's Service DNS + credential Secrets (`global.gatewayDb`,
-  `global.historyDb`).
+  `global.yaciDb`).
 - **Injective chain** — external RPC endpoints (`global.injective.*`); the chart
   does not run an `injectived` container.
 - **Smart-contract deployment** — `caribic deploy_preprod_bridge` /

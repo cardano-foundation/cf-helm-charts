@@ -39,7 +39,7 @@ app.kubernetes.io/part-of: cardano-ibc
 {{/* Credential Secret name for a given PG user.
      Matches the operator's default secret_name_template '{cluster}-{user}'.
      If your operator uses a different template, override via
-     global.gatewayDb.secretName / global.historyDb.secretName. */}}
+     global.gatewayDb.secretName / global.yaciDb.secretName. */}}
 {{- define "cf-cardano-ibc.pgSecret" -}}
 {{- printf "%s-%s" .Values.postgres.clusterName . | trunc 63 | trimSuffix "-" }}
 {{- end }}

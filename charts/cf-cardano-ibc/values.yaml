@@ -43,14 +43,14 @@ global:
     namespace: ""               # defaults to the release namespace
   gatewayDb:
     host: ""                         # if empty, derived from global.postgres.clusterName
-    name: gateway_app
+    name: gateway
     secretName: ""                   # if empty, derived to <cluster>-gateway
     secretUsernameKey: username
     secretPasswordKey: password
     synchronize: "true"
-  historyDb:
+  yaciDb:
     host: ""                         # if empty, derived from global.postgres.clusterName
-    name: yaci_store
+    name: yaci
     secretName: ""                   # if empty, derived to <cluster>-yaci
     secretUsernameKey: username
     secretPasswordKey: password
@@ -67,7 +67,7 @@ postgres:
   namespace: ""                # defaults to the release namespace
   teamId: cardano-ibc
   version: "15"
-  numberOfInstances: 2
+  numberOfInstances: 1
   volume:
     size: 10Gi
     storageClass: ""
@@ -87,15 +87,12 @@ postgres:
   ## Databases — map of database name → owner user.
   ## The owner must be declared in spec.users above.
   databases:
-    gateway_app: gateway
-    yaci_store: yaci
+    gateway: gateway
+    yaci: yaci
   ## Optional PostgreSQL.conf parameters.
   parameters: {}
   ## Optional sidecars (e.g. logical replication, exporters).
   sidecars: []
-
-## Hardware profiles (entry / mid / advanced) — see subchart values for per-component detail.
-profile: mid
 
 ## Subchart toggles.
 cf-cardano-node:

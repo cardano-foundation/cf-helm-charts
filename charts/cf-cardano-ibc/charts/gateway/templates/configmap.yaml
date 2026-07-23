@@ -29,5 +29,5 @@ data:
   GATEWAY_DB_NAME: {{ include "gateway.gatewayDbName" . | quote }}
   GATEWAY_DB_SYNCHRONIZE: {{ .Values.env.GATEWAY_DB_SYNCHRONIZE | quote }}
 
-  HISTORY_DB_HOST: {{ include "gateway.historyDbHost" . | quote }}
+  HISTORY_DB_HOST: {{ include "gateway.yaciDbHost" . | quote }}
   HISTORY_DB_NAME: {{ .Values.env.HISTORY_DB_NAME | default "yaci_store" | quote }}
