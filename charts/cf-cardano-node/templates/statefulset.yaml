@@ -51,12 +51,12 @@ spec:
               value: "0.0.0.0"
             - name: CARDANO_PORT
               value: {{ .Values.n2nPort | toString | quote }}
-            - name: CARDANO_DATABASE_PATH
-              value: {{ .Values.nodeDbPath | quote }}
-            - name: CARDANO_CONFIG
-              value: {{ printf "%s/%s/config.json" .Values.configContainerPath .Values.network | quote }}
-            - name: CARDANO_TOPOLOGY
-              value: {{ printf "%s/%s/topology.json" .Values.configContainerPath .Values.network | quote }}
+            # - name: CARDANO_DATABASE_PATH
+            #   value: {{ .Values.nodeDbPath | quote }}
+            # - name: CARDANO_CONFIG
+            #   value: {{ printf "%s/%s/config.json" .Values.configContainerPath .Values.network | quote }}
+            # - name: CARDANO_TOPOLOGY
+            #   value: {{ printf "%s/%s/topology.json" .Values.configContainerPath .Values.network | quote }}
             - name: NETWORK
               value: {{ .Values.network | quote }}
             - name: PROTOCOL_MAGIC
@@ -72,10 +72,12 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: node-data
-              mountPath: /node
+              mountPath: /data
             - name: node-config
               mountPath: {{ .Values.configContainerPath }}
               readOnly: true
+            - mountPath: /ipc
+              name: cardano-node-ipc
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           startupProbe:
@@ -147,6 +149,8 @@ spec:
           volumeMounts:
             - name: node-data
               mountPath: /node
+            - mountPath: /ipc
+              name: cardano-node-ipc
           startupProbe:
             exec:
               command:
@@ -183,6 +187,10 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: cardano-node-ipc
+          emptyDir:
+            sizeLimit: 1Mi
+
 
   volumeClaimTemplates:
     - metadata:

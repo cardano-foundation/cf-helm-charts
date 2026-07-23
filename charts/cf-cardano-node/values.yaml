@@ -14,7 +14,7 @@ protocolMagic: 1
 ## cardano-node image. Defaults to the blinklabs community image pinned in caribic.
 image:
   repository: ghcr.io/blinklabs-io/cardano-node
-  tag: "10.1.4-3"
+  tag: "11.0.1"
   pullPolicy: IfNotPresent
 
 ## Follower mode: the node peers with the public network but does not produce blocks.
@@ -64,13 +64,13 @@ persistence:
   storageClass: ""
 
 ## Resource profile. Override per-component with `resources`.
-resources:
-  requests:
-    cpu: "2"
-    memory: 12Gi
-  limits:
-    cpu: "8"
-    memory: 24Gi
+resources: {}
+  # requests:
+  #   cpu: "2"
+  #   memory: 12Gi
+  # limits:
+  #   cpu: "8"
+  #   memory: 24Gi
 
 ## Init-container resources (socat wait-for-socket, etc.).
 initContainerResources:
@@ -87,7 +87,7 @@ mithril:
   # image, aggregatorEndpoint, genesisVerificationKey, snapshotDigest resolved per-network at runtime
 
 ## node socket path inside the container.
-socketPath: /node/node.socket
+socketPath: /ipc/node.socket
 nodeDbPath: /node/db
 configContainerPath: /config
 
