@@ -16,15 +16,30 @@ spec:
       labels:
         {{- include "gateway.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: gateway-app
-        {{- with .Values.podLabels }}{{- toYaml . | nindent 8 }}{{- end }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.podAnnotations }}
-      annotations: {{- toYaml . | nindent 8 }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}imagePullSecrets: {{- toYaml . | nindent 8 }}{{- end }}
-      {{- with .Values.nodeSelector }}nodeSelector: {{- toYaml . | nindent 8 }}{{- end }}
-      {{- with .Values.affinity }}affinity: {{- toYaml . | nindent 8 }}{{- end }}
-      {{- with .Values.tolerations }}tolerations: {{- toYaml . | nindent 8 }}{{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 
       initContainers:
         - name: wait-for-yaci-store
@@ -139,7 +154,10 @@ spec:
         {{- include "gateway.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: gateway-history-sync
     spec:
-      {{- with .Values.imagePullSecrets }}imagePullSecrets: {{- toYaml . | nindent 8 }}{{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       initContainers:
         - name: wait-for-yaci-store
           image: busybox:1.36
