@@ -31,4 +31,3 @@ data:
 
   HISTORY_DB_HOST: {{ include "gateway.historyDbHost" . | quote }}
   HISTORY_DB_NAME: {{ .Values.env.HISTORY_DB_NAME | default "yaci_store" | quote }}
-  HISTORY_DB_USERNAME: {{ .Values.env.HISTORY_DB_USERNAME | default "yaci" | quote }}

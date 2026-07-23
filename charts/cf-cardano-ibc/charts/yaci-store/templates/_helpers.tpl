@@ -34,19 +34,15 @@ app.kubernetes.io/component: yaci-store
 
 {{- define "yaci-store.historyDbHost" -}}
 {{- if .Values.historyDb.host }}{{- .Values.historyDb.host -}}
-{{- else if and .Values.global (index .Values.global "historyDb") }}{{- (index .Values.global "historyDb").host -}}
+{{- else if and .Values.global (index .Values.global "historyDb") (index .Values.global "historyDb" "host") }}{{- (index .Values.global "historyDb").host -}}
+{{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s.%s.svc.cluster.local" $pg.clusterName ($pg.namespace | default .Release.Namespace) -}}
 {{- else }}{{- "yaci-store-postgres" -}}
 {{- end }}
 {{- end }}
 
-{{- define "yaci-store.historyDbUsername" -}}
-{{- if and .Values.global (index .Values.global "historyDb") (index .Values.global "historyDb" "username") }}{{- (index .Values.global "historyDb").username -}}
-{{- else }}{{- "yaci" -}}
-{{- end }}
-{{- end }}
-
-{{- define "yaci-store.historyDbPassword" -}}
-{{- if and .Values.global (index .Values.global "historyDb") (index .Values.global "historyDb" "password") }}{{- (index .Values.global "historyDb").password -}}
-{{- else }}{{- "dbpass" -}}
+{{- define "yaci-store.historyDbSecretName" -}}
+{{- if and .Values.global (index .Values.global "historyDb") (index .Values.global "historyDb" "secretName") }}{{- (index .Values.global "historyDb").secretName -}}
+{{- else if and .Values.global (index .Values.global "postgres") }}{{- printf "%s-yaci" (index .Values.global "postgres").clusterName -}}
+{{- else }}{{- "" -}}
 {{- end }}
 {{- end }}

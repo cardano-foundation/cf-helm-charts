@@ -1,9 +1,9 @@
 ## cf-cardano-ibc — Cardano↔Injective IBC bridge
 ##
 ## Peers a self-hosted Cardano follower node + indexers with the IBC Gateway and
-## Hermes relayer. Postgres is provisioned out-of-chart by the Zalando Postgres
-## Operator; the chart only consumes the operator's Service DNS + credential
-## Secrets. Injective is an external RPC endpoint.
+## Hermes relayer. Postgres is provisioned by the Zalando Postgres Operator from
+## a single `postgresql` CRD rendered by this chart (postgres.enabled=true).
+## Injective is an external RPC endpoint.
 
 global:
   ## Registry prefix for images built from the cardano-ibc-incubator repo
@@ -30,22 +30,69 @@ global:
     grpcAddr: https://testnet.sentry.chain.grpc.injective.network:443
     eventSourceUrl: wss://testnet.sentry.tm.injective.network:443/websocket
 
-  ## Postgres (Zalando Postgres Operator) — Service DNS + credential Secret per DB.
-  ## The chart does NOT provision Postgres; these must point at operator-managed clusters.
+  ## Postgres — single Zalando Postgres Operator cluster.
+  ## When postgres.enabled=true (default), the chart renders a `postgresql` CRD
+  ## that creates one cluster with a database + user per service. The values
+  ## below tell the gateway / yaci-store subcharts where to connect and which
+  ## credential Secrets to mount. They default to the operator's standard
+  ## Service DNS (<cluster>.<ns>.svc.cluster.local) and Secret naming
+  ## (<cluster>-<user>); override if your operator uses a different
+  ## secret_name_template.
+  postgres:
+    clusterName: cardano-ibc-pg
+    namespace: ""               # defaults to the release namespace
   gatewayDb:
-    host: gateway-pg.db.svc.cluster.local
+    host: ""                         # if empty, derived from global.postgres.clusterName
     name: gateway_app
-    secretName: gateway-pg-credentials
+    secretName: ""                   # if empty, derived to <cluster>-gateway
     secretUsernameKey: username
     secretPasswordKey: password
     synchronize: "true"
   historyDb:
-    host: yaci-store-pg.db.svc.cluster.local
+    host: ""                         # if empty, derived from global.postgres.clusterName
     name: yaci_store
-    username: yaci
-    password: dbpass
-    secretName: ""
-    # If secretName is empty, username/password come from historyDb.username/.password.
+    secretName: ""                   # if empty, derived to <cluster>-yaci
+    secretUsernameKey: username
+    secretPasswordKey: password
+
+## Zalando Postgres Operator cluster — a single PG cluster shared by all
+## services. The operator creates one database per service with a dedicated
+## owner user, plus a credential Secret per user.
+postgres:
+  enabled: true
+  ## Controller annotation (operator pod identifier). Set to the operator
+  ## instance name if you run multiple operators.
+  controller: ""
+  clusterName: cardano-ibc-pg
+  namespace: ""                # defaults to the release namespace
+  teamId: cardano-ibc
+  version: "15"
+  numberOfInstances: 2
+  volume:
+    size: 10Gi
+    storageClass: ""
+  connectionPooler:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ## Login users — one per service. Empty list = normal LOGIN role.
+  users:
+    gateway: []
+    yaci: []
+  ## Databases — map of database name → owner user.
+  ## The owner must be declared in spec.users above.
+  databases:
+    gateway_app: gateway
+    yaci_store: yaci
+  ## Optional PostgreSQL.conf parameters.
+  parameters: {}
+  ## Optional sidecars (e.g. logical replication, exporters).
+  sidecars: []
 
 ## Hardware profiles (entry / mid / advanced) — see subchart values for per-component detail.
 profile: mid

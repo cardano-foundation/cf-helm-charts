@@ -45,7 +45,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "gateway.gatewayDbHost" -}}
-{{- if and .Values.global (index .Values.global "gatewayDb") }}{{- (index .Values.global "gatewayDb").host -}}
+{{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "host") }}{{- (index .Values.global "gatewayDb").host -}}
+{{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s.%s.svc.cluster.local" $pg.clusterName ($pg.namespace | default .Release.Namespace) -}}
 {{- else }}{{- .Values.env.GATEWAY_DB_HOST | default "postgres-gateway" -}}
 {{- end }}
 {{- end }}
@@ -57,7 +58,22 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "gateway.historyDbHost" -}}
-{{- if and .Values.global (index .Values.global "historyDb") }}{{- (index .Values.global "historyDb").host -}}
+{{- if and .Values.global (index .Values.global "historyDb") (index .Values.global "historyDb" "host") }}{{- (index .Values.global "historyDb").host -}}
+{{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s.%s.svc.cluster.local" $pg.clusterName ($pg.namespace | default .Release.Namespace) -}}
 {{- else }}{{- .Values.env.HISTORY_DB_HOST | default "yaci-store-postgres" -}}
+{{- end }}
+{{- end }}
+
+{{- define "gateway.gatewayDbSecretName" -}}
+{{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "secretName") }}{{- (index .Values.global "gatewayDb").secretName -}}
+{{- else if and .Values.global (index .Values.global "postgres") }}{{- printf "%s-gateway" (index .Values.global "postgres").clusterName -}}
+{{- else }}{{- "gateway-pg-credentials" -}}
+{{- end }}
+{{- end }}
+
+{{- define "gateway.historyDbSecretName" -}}
+{{- if and .Values.global (index .Values.global "historyDb") (index .Values.global "historyDb" "secretName") }}{{- (index .Values.global "historyDb").secretName -}}
+{{- else if and .Values.global (index .Values.global "postgres") }}{{- printf "%s-yaci" (index .Values.global "postgres").clusterName -}}
+{{- else }}{{- "" -}}
 {{- end }}
 {{- end }}

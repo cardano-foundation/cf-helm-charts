@@ -77,32 +77,26 @@ spec:
                 name: {{ .Values.secrets.deployerSkRef.name }}
             {{- end }}
           env:
-            {{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "secretName") }}
             - name: GATEWAY_DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ (index .Values.global "gatewayDb").secretName }}
+                  name: {{ include "gateway.gatewayDbSecretName" . }}
                   key: {{ (index .Values.global "gatewayDb").secretUsernameKey }}
             - name: GATEWAY_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ (index .Values.global "gatewayDb").secretName }}
+                  name: {{ include "gateway.gatewayDbSecretName" . }}
                   key: {{ (index .Values.global "gatewayDb").secretPasswordKey }}
-            {{- end }}
-            {{- if and .Values.global (index .Values.global "historyDb") }}
-            - name: HISTORY_DB_PASSWORD
-              {{- if (index .Values.global "historyDb" "secretName") }}
+            - name: HISTORY_DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ (index .Values.global "historyDb").secretName }}
-                  key: password
-              {{- else }}
-              value: {{ (index .Values.global "historyDb").password | quote }}
-              {{- end }}
-            {{- else }}
+                  name: {{ include "gateway.historyDbSecretName" . }}
+                  key: {{ (index .Values.global "historyDb").secretUsernameKey }}
             - name: HISTORY_DB_PASSWORD
-              value: "dbpass"
-            {{- end }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "gateway.historyDbSecretName" . }}
+                  key: {{ (index .Values.global "historyDb").secretPasswordKey }}
           ports:
             - name: rest
               containerPort: {{ .Values.restPort }}

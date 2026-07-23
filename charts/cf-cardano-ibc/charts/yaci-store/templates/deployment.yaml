@@ -88,9 +88,15 @@ spec:
             - name: HISTORY_DB_NAME
               value: {{ .Values.historyDb.name | quote }}
             - name: HISTORY_DB_USERNAME
-              value: {{ include "yaci-store.historyDbUsername" . | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "yaci-store.historyDbSecretName" . }}
+                  key: {{ (index .Values.global "historyDb").secretUsernameKey }}
             - name: HISTORY_DB_PASSWORD
-              value: {{ include "yaci-store.historyDbPassword" . | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "yaci-store.historyDbSecretName" . }}
+                  key: {{ (index .Values.global "historyDb").secretPasswordKey }}
           ports:
             - name: http
               containerPort: 8080
