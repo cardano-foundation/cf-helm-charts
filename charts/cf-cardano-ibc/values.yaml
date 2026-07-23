@@ -51,13 +51,13 @@ global:
 profile: mid
 
 ## Subchart toggles.
-cardano-node:
+cf-cardano-node:
   enabled: true
 
-ogmios:
+cf-ogmios:
   enabled: true
 
-kupo:
+cf-kupo:
   enabled: true
 
 yaci-store:

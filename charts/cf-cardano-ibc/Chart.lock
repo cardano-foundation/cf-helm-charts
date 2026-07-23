@@ -20,5 +20,5 @@ dependencies:
 - name: dapps
   repository: file://charts/dapps
   version: 0.1.0
-digest: sha256:aa467bdae52bdaed7f15304ef0ceb3f73ba555e7b30f307d01b1a6c76de0ee5a
-generated: "2026-07-22T22:12:46.039605+02:00"
+digest: sha256:bcea9364b185fbe916828c8d8040ad4baf31ba4415d6662c831bc1fdbe71ef3e
+generated: "2026-07-23T12:33:58.958958+02:00"
