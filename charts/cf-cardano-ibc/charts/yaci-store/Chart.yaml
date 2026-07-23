@@ -1,0 +1,11 @@
+apiVersion: v2
+name: yaci-store
+description: "Yaci Store — historical block/witness backend for the Cardano IBC probabilistic light client. Chain-follows a cardano-node over n2n TCP; history DB is external (Zalando PG)."
+type: application
+version: 0.1.0
+appVersion: "2.0.0"
+keywords:
+  - cardano
+  - yaci
+  - indexer
+  - ibc

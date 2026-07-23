@@ -1,0 +1,69 @@
+image:
+  repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-gateway
+  tag: ""
+  pullPolicy: IfNotPresent
+
+## Ports.
+restPort: 8000
+grpcPort: 5001
+
+## Whether to also deploy the bridge-history-sync sidecar Deployment.
+historySync:
+  enabled: true
+
+## Gateway env rendered into a ConfigMap (see deployment.yaml). Endpoints below
+## default to in-cluster Service names; override per-environment in values.
+env:
+  PORT: "8000"
+  GRPC_HOST: "0.0.0.0"
+  GRPC_PORT: "5001"
+
+  CARDANO_CHAIN_ID: cardano-preprod
+  CARDANO_NETWORK_MAGIC: "1"
+  CARDANO_LIGHT_CLIENT_MODE: stake-weighted-stability
+  CARDANO_EPOCH_NONCE_GENESIS: ""
+  CARDANO_STABILITY_THRESHOLD_DEPTH: "10"
+  CARDANO_STABILITY_THRESHOLD_UNIQUE_POOLS: "2"
+  CARDANO_STABILITY_THRESHOLD_UNIQUE_STAKE_BPS: "6000"
+
+  HANDLER_JSON_PATH: /usr/src/app/cardano/offchain/deployments/handler.json
+
+  # Endpoints — templated to in-cluster Services by the deployment.
+  KUPO_ENDPOINT: http://kupo:1442
+  OGMIOS_ENDPOINT: http://ogmios:1337
+  YACI_STORE_ENDPOINT: http://yaci-store:8080
+  CARDANO_CHAIN_HOST: cardano-node
+  CARDANO_CHAIN_PORT: "3001"
+
+  GATEWAY_DB_SYNCHRONIZE: "true"
+
+## Secrets consumed by the Gateway (referenced, not created).
+secrets:
+  deployerSkRef:
+    name: cardano-keys
+    key: deployer-sk
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: 1Gi
+  limits:
+    cpu: "1"
+    memory: 2Gi
+
+historySyncResources:
+  requests:
+    cpu: "100m"
+    memory: 512Mi
+  limits:
+    cpu: "500m"
+    memory: 1Gi
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+affinity: {}
+tolerations: []
+imagePullSecrets: []

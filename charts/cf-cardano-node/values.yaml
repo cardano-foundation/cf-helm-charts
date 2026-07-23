@@ -1,0 +1,104 @@
+## cf-cardano-node
+##
+## A self-contained Cardano follower node. Peers with a public Cardano network
+## (preprod by default) over node-to-node (TCP 3001) and exposes its node-to-client
+## Unix socket over TCP via a socat sidecar, so in-cluster consumers (Ogmios, Kupo)
+## can reach it without sharing a socket volume.
+##
+## Works standalone or as a dependency of cf-cardano-ibc.
+
+## Cardano network to follow.
+network: preprod
+protocolMagic: 1
+
+## cardano-node image. Defaults to the blinklabs community image pinned in caribic.
+image:
+  repository: ghcr.io/blinklabs-io/cardano-node
+  tag: "10.1.4-3"
+  pullPolicy: IfNotPresent
+
+## Follower mode: the node peers with the public network but does not produce blocks.
+## Set topology to a ConfigMap name carrying topology.json + the genesis/config files,
+## OR provide them inline (see `configFiles`).
+mode: follower
+
+## Public peer list for topology.json. For preprod, use the public preprod relays.
+## Inline content for topology.json; if empty, a ConfigMap named in `topologyConfigMap` is used.
+topology: |
+  {
+    "bootstrapPeers": [],
+    "localRoots": [],
+    "publicRoots": [
+      { "access": "public", "adresses": [] }
+    ]
+  }
+
+## Node config files mounted into /config/<network>/. Provide at minimum:
+##   config.json, topology.json, byron-genesis.json, shelley-genesis.json,
+##   alonzo-genesis.json, conway-genesis.json
+## If you have these in an existing ConfigMap, set `existingConfigMap` and leave
+## `configFiles` empty.
+existingConfigMap: ""
+configFiles: {}
+  # config.json: |-
+  #   { ... }
+  # byron-genesis.json: |-
+  #   { ... }
+
+## socat n2c bridge: exposes /node/node.socket over TCP on `socat.port`.
+## Consumers (Ogmios, Kupo-with-node-socket) connect to `<release>-cardano-node:<socat.port>`.
+socat:
+  enabled: true
+  image:
+    repository: alpine/socat
+    tag: "1.7.4.4-r0"
+    pullPolicy: IfNotPresent
+  port: 3002
+
+## node-to-node port (for yaci-store, which speaks n2n natively).
+n2nPort: 3001
+
+## Storage for the node immutable db.
+persistence:
+  size: 50Gi
+  storageClass: ""
+
+## Resource profile. Override per-component with `resources`.
+resources:
+  requests:
+    cpu: "2"
+    memory: 12Gi
+  limits:
+    cpu: "8"
+    memory: 24Gi
+
+## Init-container resources (socat wait-for-socket, etc.).
+initContainerResources:
+  requests:
+    cpu: "50m"
+    memory: "32Mi"
+  limits:
+    cpu: "200m"
+    memory: "128Mi"
+
+## Optional Mithril snapshot bootstrap (disabled by default; enable for fast cold-start).
+mithril:
+  enabled: false
+  # image, aggregatorEndpoint, genesisVerificationKey, snapshotDigest resolved per-network at runtime
+
+## node socket path inside the container.
+socketPath: /node/node.socket
+nodeDbPath: /node/db
+configContainerPath: /config
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+
+## Tolerations / affinity / nodeSelector for pod placement.
+nodeSelector: {}
+affinity: {}
+tolerations: []
+
+imagePullSecrets: []

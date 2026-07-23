@@ -1,0 +1,89 @@
+image:
+  repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-hermes
+  tag: ""
+  pullPolicy: IfNotPresent
+
+## Telemetry / REST ports (optional).
+telemetry:
+  enabled: true
+  port: 3002
+rest:
+  enabled: false
+  port: 3030
+
+## Hermes chain configuration, rendered into config.toml.
+## Values mirror caribic's testnet_chain_profile() (caribic/src/chains/injective/hermes.rs)
+## and the Cardano block in caribic/config/hermes-config.example.toml.
+config:
+  logLevel: info
+  cardano:
+    chainId: cardano-preprod
+    gatewayUrl: http://gateway:5001
+    networkId: 0
+    keyName: cardano-relayer
+    account: 0
+    keyStoreType: Test
+    maxBlockTime: 20000ms
+    clockDrift: 5s
+    mithrilCertificationTimeout: 30m
+    mithrilPollInterval: 5s
+    mithrilWaitLogInterval: 30s
+    trustThreshold:
+      numerator: "2"
+      denominator: "3"
+    packetFilter:
+      policy: allow
+      list:
+        - - transfer
+          - "*"
+  injective:
+    chainId: injective-888
+    rpcAddr: ""
+    grpcAddr: ""
+    eventSourceUrl: ""
+    accountPrefix: inj
+    keyName: injective-888-relayer
+    addressType: ethermint
+    defaultGas: "5000000"
+    maxGas: "15000000"
+    gasPrice:
+      price: "500000000"
+      denom: inj
+    gasMultiplier: "1.8"
+    maxMsgNum: "20"
+    maxTxSize: "209715"
+    clockDrift: 20s
+    maxBlockTime: 10s
+    trustingPeriod: 10days
+    memoPrefix: Caribic
+    trustThreshold:
+      numerator: "1"
+      denominator: "3"
+    # compat_mode omitted for testnet (local profile sets '0.38'); leave empty to skip
+    compatMode: ""
+
+## Keys (mnemonics) consumed by Hermes — refer to a Secret, not created here.
+keys:
+  cardanoMnemonicRef:
+    name: hermes-keys
+    key: cardano-mnemonic
+  injectiveMnemonicRef:
+    name: hermes-keys
+    key: injective-mnemonic
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+affinity: {}
+tolerations: []
+imagePullSecrets: []

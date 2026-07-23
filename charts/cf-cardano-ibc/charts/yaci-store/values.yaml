@@ -1,0 +1,43 @@
+image:
+  repository: bloxbean/yaci-store
+  tag: "2.0.0"
+  pullPolicy: IfNotPresent
+
+## HTTP API port.
+port: 8080
+
+## cardano-node n2n endpoint (TCP chain-follow).
+cardanoNode:
+  host: ""     # resolved to <release>-cf-cardano-node by the helper
+  port: 3001
+  networkMagic: 1
+  network: preprod
+
+## Yaci sync checkpoint — must be resolved for public nets (epoch-boundary block 1-2 epochs before deployment).
+syncStartSlot: 0
+syncStartBlockHash: ""
+syncStartBlockNo: 0
+
+## History DB (Zalando PG) — credentials via parent global, or inline.
+historyDb:
+  host: ""             # resolved from global by helper
+  port: 5432
+  name: yaci_store
+  # Credentials come from .Values.global.historyDb (username/password or secretName).
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: 2Gi
+  limits:
+    cpu: "2"
+    memory: 8Gi
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+affinity: {}
+tolerations: []
+imagePullSecrets: []

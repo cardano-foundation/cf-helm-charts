@@ -1,0 +1,45 @@
+apiVersion: v2
+name: cf-cardano-ibc
+description: Cardano↔Injective IBC bridge — Cardano side (cardano-node + ogmios + kupo + yaci-store + gateway + hermes) paired with an external Injective RPC endpoint.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - cardano
+  - ibc
+  - bridge
+  - hermes
+  - injective
+home: https://github.com/cardano-foundation/cardano-ibc-incubator
+maintainers:
+  - name: Cardano Foundation
+    url: https://cardanofoundation.org
+dependencies:
+  - name: cf-cardano-node
+    version: "0.1.0"
+    repository: "file://../cf-cardano-node"
+    condition: cardano-node.enabled
+  - name: cf-ogmios
+    version: "0.1.0"
+    repository: "file://../cf-ogmios"
+    condition: ogmios.enabled
+  - name: cf-kupo
+    version: "0.1.0"
+    repository: "file://../cf-kupo"
+    condition: kupo.enabled
+  - name: yaci-store
+    version: "0.1.0"
+    repository: "file://charts/yaci-store"
+    condition: yaci-store.enabled
+  - name: gateway
+    version: "0.1.0"
+    repository: "file://charts/gateway"
+    condition: gateway.enabled
+  - name: hermes
+    version: "0.1.0"
+    repository: "file://charts/hermes"
+    condition: hermes.enabled
+  - name: dapps
+    version: "0.1.0"
+    repository: "file://charts/dapps"
+    condition: dapps.enabled

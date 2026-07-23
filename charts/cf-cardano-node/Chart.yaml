@@ -1,0 +1,15 @@
+apiVersion: v2
+name: cf-cardano-node
+description: Cardano node follower with a socat sidecar exposing the n2c socket over TCP for in-cluster consumers (Ogmios, Kupo).
+type: application
+version: 0.1.0
+appVersion: "10.1.4"
+keywords:
+  - cardano
+  - cardano-node
+  - indexer
+  - blockchain
+home: https://github.com/cardano-foundation/cardano-ibc-incubator
+maintainers:
+  - name: Cardano Foundation
+    url: https://cardanofoundation.org

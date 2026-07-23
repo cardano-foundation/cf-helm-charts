@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "yaci-store.fullname" . }}
+  labels:
+    {{- include "yaci-store.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "yaci-store.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "yaci-store.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}{{- toYaml . | nindent 8 }}{{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}nodeSelector: {{- toYaml . | nindent 8 }}{{- end }}
+      {{- with .Values.affinity }}affinity: {{- toYaml . | nindent 8 }}{{- end }}
+      {{- with .Values.tolerations }}tolerations: {{- toYaml . | nindent 8 }}{{- end }}
+
+      initContainers:
+        - name: wait-for-history-db
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+          args:
+            - |
+              echo "Waiting for history DB at {{ include "yaci-store.historyDbHost" . }}:{{ .Values.historyDb.port }} ..."
+              until nc -z {{ include "yaci-store.historyDbHost" . }} {{ .Values.historyDb.port }} 2>/dev/null; do
+                echo "history DB not ready, retrying in 5s..."; sleep 5
+              done
+              echo "history DB reachable"
+        - name: wait-for-cardano-node
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+          args:
+            - |
+              echo "Waiting for cardano-node n2n at {{ include "yaci-store.cardanoNodeHost" . }}:{{ .Values.cardanoNode.port }} ..."
+              until nc -z {{ include "yaci-store.cardanoNodeHost" . }} {{ .Values.cardanoNode.port }} 2>/dev/null; do
+                echo "cardano-node not ready, retrying in 5s..."; sleep 5
+              done
+              echo "cardano-node reachable"
+
+      containers:
+        - name: yaci-store
+          image: {{ include "yaci-store.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: CARDANO_CHAIN_HOST
+              value: {{ include "yaci-store.cardanoNodeHost" . | quote }}
+            - name: CARDANO_CHAIN_PORT
+              value: {{ .Values.cardanoNode.port | toString | quote }}
+            - name: CARDANO_CHAIN_NETWORK_MAGIC
+              value: {{ .Values.cardanoNode.networkMagic | toString | quote }}
+            - name: YACI_SYNC_START_SLOT
+              value: {{ .Values.syncStartSlot | toString | quote }}
+            - name: YACI_SYNC_START_BLOCKHASH
+              value: {{ .Values.syncStartBlockHash | quote }}
+            - name: YACI_SYNC_START_BLOCK_NO
+              value: {{ .Values.syncStartBlockNo | toString | quote }}
+            - name: HISTORY_DB_HOST
+              value: {{ include "yaci-store.historyDbHost" . | quote }}
+            - name: HISTORY_DB_PORT
+              value: {{ .Values.historyDb.port | toString | quote }}
+            - name: HISTORY_DB_NAME
+              value: {{ .Values.historyDb.name | quote }}
+            - name: HISTORY_DB_USERNAME
+              value: {{ include "yaci-store.historyDbUsername" . | quote }}
+            - name: HISTORY_DB_PASSWORD
+              value: {{ include "yaci-store.historyDbPassword" . | quote }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 60
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5

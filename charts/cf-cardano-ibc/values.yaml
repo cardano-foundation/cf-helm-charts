@@ -1,0 +1,73 @@
+## cf-cardano-ibc — Cardano↔Injective IBC bridge
+##
+## Peers a self-hosted Cardano follower node + indexers with the IBC Gateway and
+## Hermes relayer. Postgres is provisioned out-of-chart by the Zalando Postgres
+## Operator; the chart only consumes the operator's Service DNS + credential
+## Secrets. Injective is an external RPC endpoint.
+
+global:
+  ## Registry prefix for images built from the cardano-ibc-incubator repo
+  ## (gateway, hermes, swap-client, explorer). Third-party images (cardano-node,
+  ## ogmios, kupo, yaci-store, socat) use their own upstream registries.
+  imageRegistry: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry
+  ## imagePullSecrets for the private GitLab registry above (if required).
+  imagePullSecrets: []
+  storageClass: ""
+
+  ## Cardano network
+  cardanoNetwork: preprod
+  protocolMagic: 1
+
+  ## Internal helpers consumed by subcharts.
+  ## cardanoNodeSocatHost is the in-cluster cardano-node socat Service name;
+  ## when cf-cardano-node is a dependency, it resolves to <release>-cf-cardano-node.
+  cardanoNodeSocatHost: ""
+
+  ## Injective (external) counterparty RPC endpoints for Hermes.
+  injective:
+    chainId: injective-888
+    rpcAddr: https://testnet.sentry.tm.injective.network:443
+    grpcAddr: https://testnet.sentry.chain.grpc.injective.network:443
+    eventSourceUrl: wss://testnet.sentry.tm.injective.network:443/websocket
+
+  ## Postgres (Zalando Postgres Operator) — Service DNS + credential Secret per DB.
+  ## The chart does NOT provision Postgres; these must point at operator-managed clusters.
+  gatewayDb:
+    host: gateway-pg.db.svc.cluster.local
+    name: gateway_app
+    secretName: gateway-pg-credentials
+    secretUsernameKey: username
+    secretPasswordKey: password
+    synchronize: "true"
+  historyDb:
+    host: yaci-store-pg.db.svc.cluster.local
+    name: yaci_store
+    username: yaci
+    password: dbpass
+    secretName: ""
+    # If secretName is empty, username/password come from historyDb.username/.password.
+
+## Hardware profiles (entry / mid / advanced) — see subchart values for per-component detail.
+profile: mid
+
+## Subchart toggles.
+cardano-node:
+  enabled: true
+
+ogmios:
+  enabled: true
+
+kupo:
+  enabled: true
+
+yaci-store:
+  enabled: true
+
+gateway:
+  enabled: true
+
+hermes:
+  enabled: true
+
+dapps:
+  enabled: false

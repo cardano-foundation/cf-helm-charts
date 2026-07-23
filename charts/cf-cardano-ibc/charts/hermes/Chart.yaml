@@ -1,0 +1,11 @@
+apiVersion: v2
+name: hermes
+description: "Hermes relayer (Cardano fork) — IBC relayer connecting the Cardano Gateway to an external Injective RPC endpoint. Config + keys via ConfigMap/Secret; image contains only the hermes binary."
+type: application
+version: 0.1.0
+appVersion: "1.13.2"
+keywords:
+  - cardano
+  - ibc
+  - hermes
+  - relayer
