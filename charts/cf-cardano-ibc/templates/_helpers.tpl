@@ -36,10 +36,7 @@ app.kubernetes.io/part-of: cardano-ibc
 {{- printf "%s.%s.svc.cluster.local" .Values.global.postgres.clusterName (.Values.global.postgres.namespace | default .Release.Namespace) -}}
 {{- end }}
 
-{{/* Credential Secret name for a given PG user.
-     Matches the operator's default secret_name_template '{cluster}-{user}'.
-     If your operator uses a different template, override via
-     global.gatewayDb.secretName / global.yaciDb.secretName. */}}
-{{- define "cf-cardano-ibc.pgSecret" -}}
-{{- printf "%s-%s" .Values.global.postgres.clusterName . | trunc 63 | trimSuffix "-" }}
-{{- end }}
+{{/* Credential Secret names for prepared-database owner users are resolved in
+     the gateway / yaci-store subcharts from global.gatewayDb.secretName and
+     global.yaciDb.secretName, falling back to Zalando's preparedDatabases
+     default: <db>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do. */}}

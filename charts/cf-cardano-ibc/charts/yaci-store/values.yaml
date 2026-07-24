@@ -27,12 +27,12 @@ global:
     secretUsernameKey: username
     secretPasswordKey: password
 
-## Yaci DB (Zalando PG) — credentials via parent global, or inline.
+## Yaci DB (Zalando PG) — parent global.yaciDb is the source of truth when set.
 yaciDb:
   # host: ""             # resolved from global by helper
   port: 5432
-  name: yaci
-  # Credentials come from .Values.global.yaciDb (username/password or secretName).
+  name: yaci             # overridden by global.yaciDb.name in the umbrella chart
+  # Credentials come from .Values.global.yaciDb (secretName/usernameKey/passwordKey).
 
 resources: {}
 

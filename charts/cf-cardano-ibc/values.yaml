@@ -32,12 +32,12 @@ global:
 
   ## Postgres — single Zalando Postgres Operator cluster, shared by all
   ## services. Single source of truth: when enabled=true (default), the chart
-  ## renders a `postgresql` CRD that creates one cluster with a database +
-  ## dedicated user per service, and the gateway / yaci-store subcharts derive
-  ## the host (<cluster>.<ns>.svc.cluster.local) and credential Secret names
-  ## (<cluster>-<user>) from these same values. Set enabled=false to use
-  ## externally-managed Postgres instead (then set global.gatewayDb /
-  ## global.yaciDb hosts + secretNames explicitly).
+  ## renders a `postgresql` CRD that creates one cluster with a prepared
+  ## database per service. The gateway / yaci-store subcharts derive the host
+  ## (<cluster>.<ns>.svc.cluster.local) and prepared-database owner Secret names
+  ## (<db>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do) from these
+  ## same values. Set enabled=false to use externally-managed Postgres instead
+  ## (then set global.gatewayDb / global.yaciDb hosts + secretNames explicitly).
   postgres:
     enabled: true
     ## Controller annotation (operator pod identifier). Set to the operator
@@ -65,8 +65,8 @@ global:
     users:
       gateway: []
       yaci: []
-    ## Databases — map of database name → owner user.
-    ## The owner must be declared in spec.users above.
+    ## Prepared databases. Each gets Zalando default owner/reader/writer users;
+    ## the charts use the owner-user credentials by default.
     databases:
       - gateway
       - yaci
@@ -74,22 +74,22 @@ global:
     parameters: {}
     ## Optional sidecars (e.g. logical replication, exporters).
     sidecars: []
-  ## Per-service connection details for the cluster above. The values below
-  ## tell the gateway / yaci-store subcharts where to connect and which
-  ## credential Secrets to mount. They default to the operator's standard
-  ## Service DNS and Secret naming; override if your operator uses a different
-  ## secret_name_template.
+  ## Per-service connection details for the cluster above. These are the single
+  ## global source of truth consumed by both the gateway and yaci-store charts.
+  ## They default to the operator's Service DNS and prepared-database owner
+  ## Secret naming; override secretName if your operator uses a different
+  ## secret_name_template or if Postgres is externally managed.
   gatewayDb:
     host: ""                         # if empty, derived from global.postgres.clusterName
     name: gateway
-    secretName: ""                   # if empty, derived to <cluster>-gateway
+    secretName: ""                   # if empty, derived to <name>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
     secretUsernameKey: username
     secretPasswordKey: password
     synchronize: "true"
   yaciDb:
     host: ""                         # if empty, derived from global.postgres.clusterName
     name: yaci
-    secretName: ""                   # if empty, derived to <cluster>-yaci
+    secretName: ""                   # if empty, derived to <name>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
     secretUsernameKey: username
     secretPasswordKey: password
 

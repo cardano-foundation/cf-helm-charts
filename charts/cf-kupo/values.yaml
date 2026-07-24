@@ -21,9 +21,10 @@ port: 1442
 ## Connection source.
 source: ogmios   # ogmios | node-socket
 
-## Used when source: ogmios
+## Used when source: ogmios. Empty host resolves to <release>-cf-ogmios;
+## override to point at an externally managed Ogmios instance.
 ogmios:
-  host: ogmios
+  host: ""
   port: 1337
 
 ## Used when source: node-socket
@@ -38,10 +39,10 @@ match: "*"
 deferDbIndexes: false
 pruneUtxo: false
 
-## Kupo workdir / index db.
+## Kupo workdir / SQLite index DB. Mounted from the StatefulSet volumeClaimTemplate.
 workdir: /db
 
-## Storage for the index db.
+## Storage for the SQLite index DB.
 persistence:
   size: 20Gi
   storageClass: ""

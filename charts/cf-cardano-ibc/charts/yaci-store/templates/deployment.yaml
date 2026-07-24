@@ -89,7 +89,7 @@ spec:
             - name: SPRING_DATASOURCE_PORT
               value: {{ .Values.yaciDb.port | toString | quote }}
             - name: DB_NAME
-              value: {{ .Values.yaciDb.name | quote }}
+              value: {{ include "yaci-store.yaciDbName" . | quote }}
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://$(SPRING_DATASOURCE_HOST):$(SPRING_DATASOURCE_PORT)/$(DB_NAME)"
             - name: SPRING_DATASOURCE_USERNAME

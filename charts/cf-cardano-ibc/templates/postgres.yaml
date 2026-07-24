@@ -4,9 +4,10 @@
 
      The operator creates:
        - a master Service <clusterName> (port 5432) in the cluster's namespace
-       - one credential Secret per user, named per the operator's
-         secret_name_template (default: {cluster}-{user}), with keys
-         'username' and 'password'
+       - one credential Secret per prepared-database owner user, named by
+         Zalando's preparedDatabases default:
+         <db>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
+         with keys 'username' and 'password'
 
      global.postgres is the single source of truth: the gateway / yaci-store
      subcharts derive the cluster host and credential Secret names from the

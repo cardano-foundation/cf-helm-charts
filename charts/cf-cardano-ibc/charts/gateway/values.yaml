@@ -28,20 +28,17 @@ env:
 
   HANDLER_JSON_PATH: /usr/src/app/cardano/offchain/deployments/handler.json
 
-  # Endpoints — templated to in-cluster Services by the deployment.
-  KUPO_ENDPOINT: http://kupo:1442
-  OGMIOS_ENDPOINT: http://ogmios:1337
-  YACI_STORE_ENDPOINT: http://yaci-store:8080
+  # Endpoints — leave empty to resolve to this release's in-cluster Services
+  # (<release>-cf-kupo, <release>-cf-ogmios, <release>-yaci-store).
+  KUPO_ENDPOINT: ""
+  OGMIOS_ENDPOINT: ""
+  YACI_STORE_ENDPOINT: ""
   CARDANO_CHAIN_HOST: cardano-node
   CARDANO_CHAIN_PORT: "3001"
 
+  GATEWAY_DB_PORT: "5432"
+  HISTORY_DB_PORT: "5432"
   GATEWAY_DB_SYNCHRONIZE: "true"
-
-## Secrets consumed by the Gateway (referenced, not created).
-secrets:
-  deployerSkRef:
-    name: cardano-keys
-    key: deployer-sk
 
 resources: {}
 

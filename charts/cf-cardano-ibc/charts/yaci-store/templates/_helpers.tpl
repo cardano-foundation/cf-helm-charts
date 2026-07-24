@@ -40,9 +40,15 @@ app.kubernetes.io/component: yaci-store
 {{- end }}
 {{- end }}
 
+{{- define "yaci-store.yaciDbName" -}}
+{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "name") }}{{- (index .Values.global "yaciDb").name -}}
+{{- else }}{{- .Values.yaciDb.name | default "yaci" -}}
+{{- end }}
+{{- end }}
+
 {{- define "yaci-store.yaciDbSecretName" -}}
 {{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "secretName") }}{{- (index .Values.global "yaciDb").secretName -}}
-{{- else if and .Values.global (index .Values.global "postgres") }}{{- printf "%s-yaci" (index .Values.global "postgres").clusterName -}}
-{{- else }}{{- "" -}}
+{{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s-owner-user.%s.credentials.postgresql.acid.zalan.do" (include "yaci-store.yaciDbName" .) $pg.clusterName -}}
+{{- else }}{{- "yaci-pg-credentials" -}}
 {{- end }}
 {{- end }}

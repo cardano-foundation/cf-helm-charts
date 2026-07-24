@@ -26,16 +26,37 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s:%s" .Values.image.repository $tag }}
 {{- end }}
 
-{{- define "gateway.kupoEndpoint" -}}
-{{- if and .Values.global (index .Values.global "kupoEndpoint") }}{{- index .Values.global "kupoEndpoint" -}}
-{{- else }}{{- .Values.env.KUPO_ENDPOINT -}}
+{{- define "gateway.kupoHost" -}}
+{{- printf "%s-cf-kupo" .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- end }}
+
+{{- define "gateway.ogmiosHost" -}}
+{{- printf "%s-cf-ogmios" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{- define "gateway.yaciStoreHost" -}}
+{{- printf "%s-yaci-store" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{- define "gateway.kupoEndpoint" -}}
+{{- if and .Values.global (index .Values.global "kupoEndpoint") -}}{{- index .Values.global "kupoEndpoint" -}}
+{{- else if .Values.env.KUPO_ENDPOINT -}}{{- .Values.env.KUPO_ENDPOINT -}}
+{{- else -}}{{- printf "http://%s:1442" (include "gateway.kupoHost" .) -}}
+{{- end -}}
 {{- end }}
 
 {{- define "gateway.ogmiosEndpoint" -}}
-{{- if and .Values.global (index .Values.global "ogmiosEndpoint") }}{{- index .Values.global "ogmiosEndpoint" -}}
-{{- else }}{{- .Values.env.OGMIOS_ENDPOINT -}}
+{{- if and .Values.global (index .Values.global "ogmiosEndpoint") -}}{{- index .Values.global "ogmiosEndpoint" -}}
+{{- else if .Values.env.OGMIOS_ENDPOINT -}}{{- .Values.env.OGMIOS_ENDPOINT -}}
+{{- else -}}{{- printf "http://%s:1337" (include "gateway.ogmiosHost" .) -}}
+{{- end -}}
 {{- end }}
+
+{{- define "gateway.yaciStoreEndpoint" -}}
+{{- if and .Values.global (index .Values.global "yaciStoreEndpoint") -}}{{- index .Values.global "yaciStoreEndpoint" -}}
+{{- else if .Values.env.YACI_STORE_ENDPOINT -}}{{- .Values.env.YACI_STORE_ENDPOINT -}}
+{{- else -}}{{- printf "http://%s:8080" (include "gateway.yaciStoreHost" .) -}}
+{{- end -}}
 {{- end }}
 
 {{- define "gateway.cardanoNodeHost" -}}
@@ -52,8 +73,14 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "gateway.gatewayDbName" -}}
-{{- if and .Values.global (index .Values.global "gatewayDb") }}{{- (index .Values.global "gatewayDb").name -}}
-{{- else }}{{- .Values.env.GATEWAY_DB_NAME | default "gateway_app" -}}
+{{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "name") }}{{- (index .Values.global "gatewayDb").name -}}
+{{- else }}{{- .Values.env.GATEWAY_DB_NAME | default "gateway" -}}
+{{- end }}
+{{- end }}
+
+{{- define "gateway.yaciDbName" -}}
+{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "name") }}{{- (index .Values.global "yaciDb").name -}}
+{{- else }}{{- .Values.env.HISTORY_DB_NAME | default "yaci" -}}
 {{- end }}
 {{- end }}
 
@@ -66,14 +93,38 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "gateway.gatewayDbSecretName" -}}
 {{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "secretName") }}{{- (index .Values.global "gatewayDb").secretName -}}
-{{- else if and .Values.global (index .Values.global "postgres") }}{{- printf "%s-gateway" (index .Values.global "postgres").clusterName -}}
+{{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s-owner-user.%s.credentials.postgresql.acid.zalan.do" (include "gateway.gatewayDbName" .) $pg.clusterName -}}
 {{- else }}{{- "gateway-pg-credentials" -}}
 {{- end }}
 {{- end }}
 
 {{- define "gateway.yaciDbSecretName" -}}
 {{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "secretName") }}{{- (index .Values.global "yaciDb").secretName -}}
-{{- else if and .Values.global (index .Values.global "postgres") }}{{- printf "%s-yaci" (index .Values.global "postgres").clusterName -}}
-{{- else }}{{- "" -}}
+{{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s-owner-user.%s.credentials.postgresql.acid.zalan.do" (include "gateway.yaciDbName" .) $pg.clusterName -}}
+{{- else }}{{- "yaci-pg-credentials" -}}
+{{- end }}
+{{- end }}
+
+{{- define "gateway.gatewayDbSecretUsernameKey" -}}
+{{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "secretUsernameKey") }}{{- (index .Values.global "gatewayDb").secretUsernameKey -}}
+{{- else }}{{- "username" -}}
+{{- end }}
+{{- end }}
+
+{{- define "gateway.gatewayDbSecretPasswordKey" -}}
+{{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "secretPasswordKey") }}{{- (index .Values.global "gatewayDb").secretPasswordKey -}}
+{{- else }}{{- "password" -}}
+{{- end }}
+{{- end }}
+
+{{- define "gateway.yaciDbSecretUsernameKey" -}}
+{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "secretUsernameKey") }}{{- (index .Values.global "yaciDb").secretUsernameKey -}}
+{{- else }}{{- "username" -}}
+{{- end }}
+{{- end }}
+
+{{- define "gateway.yaciDbSecretPasswordKey" -}}
+{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "secretPasswordKey") }}{{- (index .Values.global "yaciDb").secretPasswordKey -}}
+{{- else }}{{- "password" -}}
 {{- end }}
 {{- end }}

@@ -21,13 +21,15 @@ data:
 
   KUPO_ENDPOINT: {{ include "gateway.kupoEndpoint" . | quote }}
   OGMIOS_ENDPOINT: {{ include "gateway.ogmiosEndpoint" . | quote }}
-  YACI_STORE_ENDPOINT: {{ printf "http://%s-yaci-store:8080" .Release.Name | quote }}
+  YACI_STORE_ENDPOINT: {{ include "gateway.yaciStoreEndpoint" . | quote }}
   CARDANO_CHAIN_HOST: {{ include "gateway.cardanoNodeHost" . | quote }}
   CARDANO_CHAIN_PORT: {{ .Values.env.CARDANO_CHAIN_PORT | quote }}
 
   GATEWAY_DB_HOST: {{ include "gateway.gatewayDbHost" . | quote }}
+  GATEWAY_DB_PORT: {{ .Values.env.GATEWAY_DB_PORT | default "5432" | quote }}
   GATEWAY_DB_NAME: {{ include "gateway.gatewayDbName" . | quote }}
   GATEWAY_DB_SYNCHRONIZE: {{ .Values.env.GATEWAY_DB_SYNCHRONIZE | quote }}
 
   HISTORY_DB_HOST: {{ include "gateway.yaciDbHost" . | quote }}
-  HISTORY_DB_NAME: {{ .Values.env.HISTORY_DB_NAME | default "yaci_store" | quote }}
+  HISTORY_DB_PORT: {{ .Values.env.HISTORY_DB_PORT | default "5432" | quote }}
+  HISTORY_DB_NAME: {{ include "gateway.yaciDbName" . | quote }}
