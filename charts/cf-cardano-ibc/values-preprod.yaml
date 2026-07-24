@@ -58,6 +58,11 @@ gateway:
   enabled: true
   image:
     tag: 0.0.1-PR550-444a161
+  ## The Gateway image copies tracked manifests to /usr/src/app/manifests.
+  ## Use the compact public bridge manifest rather than handler.json at runtime.
+  deploymentConfig:
+    source: bridgeManifest
+    path: /usr/src/app/manifests/preprod/cardano-preprod-bridge-manifest.json
   env:
     CARDANO_CHAIN_ID: cardano-preprod
     CARDANO_NETWORK_MAGIC: "1"
@@ -67,7 +72,6 @@ gateway:
     CARDANO_STABILITY_THRESHOLD_DEPTH: "10"
     CARDANO_STABILITY_THRESHOLD_UNIQUE_POOLS: "2"
     CARDANO_STABILITY_THRESHOLD_UNIQUE_STAKE_BPS: "6000"
-    HANDLER_JSON_PATH: /usr/src/app/cardano/offchain/deployments/handler.json
     GATEWAY_DB_SYNCHRONIZE: "true"
     CARDANO_CHAIN_HOST: cardano-node
     CARDANO_CHAIN_PORT: "3001"
@@ -78,6 +82,8 @@ gateway:
 ## `testnet_chain_profile()` (caribic/src/chains/injective/hermes.rs).
 hermes:
   enabled: true
+  image:
+    tag: 0.0.1-PR550-444a161
   config:
     cardano:
       chainId: cardano-preprod

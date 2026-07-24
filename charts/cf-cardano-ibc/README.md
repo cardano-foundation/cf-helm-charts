@@ -24,6 +24,32 @@ endpoint.
   at the in-cluster Gateway gRPC and Injective at an external RPC endpoint.
 - **dapps** (subchart, optional) — swap-client + explorer frontends.
 
+## Hermes keys
+
+The Hermes image runs as user `hermes`; the chart mounts config and keys under
+`/home/hermes/.hermes`. Provide a Secret named `hermes-keys` by default with
+Hermes keyring JSON file contents, not raw mnemonic-only files:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hermes-keys
+type: Opaque
+stringData:
+  cardano-relayer.json: |
+    {"mnemonic":"<cardano mnemonic or ed25519_sk...>","account":0,"network_id":0}
+  injective-888-relayer.json: |
+    <contents of ~/.hermes/keys/injective-888/keyring-test/injective-888-relayer.json>
+```
+
+These are mounted as:
+
+```text
+/home/hermes/.hermes/keys/cardano-preprod/keyring-test/cardano-relayer.json
+/home/hermes/.hermes/keys/injective-888/keyring-test/injective-888-relayer.json
+```
+
 ## Out of chart scope
 
 - **Postgres** — provisioned by the Zalando Postgres Operator; this chart only
@@ -31,5 +57,20 @@ endpoint.
   `global.yaciDb`).
 - **Injective chain** — external RPC endpoints (`global.injective.*`); the chart
   does not run an `injectived` container.
-- **Smart-contract deployment** — `caribic deploy_preprod_bridge` /
-  `handler.json` are provided out-of-band and mounted into the Gateway.
+- **Smart-contract deployment** — `caribic deploy_preprod_bridge` produces
+  the bridge deployment config. The Gateway can start from either a compact
+  `bridge-manifest.json` (`BRIDGE_MANIFEST_PATH`) or legacy `handler.json`
+  (`HANDLER_JSON_PATH`). Configure this per deployment with
+  `gateway.deploymentConfig`; for custom deployments mount the file from an
+  operator-created ConfigMap (or inline chart-created ConfigMap).
+
+Example custom `handler.json` ConfigMap wiring:
+
+```yaml
+gateway:
+  deploymentConfig:
+    source: handlerJson
+    configMap:
+      name: cardano-ibc-handler
+      key: handler.json
+```

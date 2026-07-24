@@ -33,6 +33,10 @@ spec:
     {{- end }}
   numberOfInstances: {{ .Values.global.postgres.numberOfInstances }}
   enableConnectionPooler: {{ .Values.global.postgres.connectionPooler.enabled }}
+  {{- with .Values.global.postgres.patroni }}
+  patroni:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- with .Values.global.postgres.resources }}
   resources:
     {{- toYaml . | nindent 4 }}

@@ -32,6 +32,8 @@ yaciDb:
   # host: ""             # resolved from global by helper
   port: 5432
   name: yaci             # overridden by global.yaciDb.name in the umbrella chart
+  ## PostgreSQL JDBC sslmode. pgJDBC defaults to prefer; keep that explicit.
+  sslMode: prefer
   # Credentials come from .Values.global.yaciDb (secretName/usernameKey/passwordKey).
 
 resources: {}

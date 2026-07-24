@@ -26,6 +26,45 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s:%s" .Values.image.repository $tag }}
 {{- end }}
 
+{{- define "gateway.deploymentConfigSource" -}}
+{{- .Values.deploymentConfig.source | default "" -}}
+{{- end }}
+
+{{- define "gateway.deploymentConfigFileName" -}}
+{{- if .Values.deploymentConfig.fileName -}}{{- .Values.deploymentConfig.fileName -}}
+{{- else if eq (include "gateway.deploymentConfigSource" .) "bridgeManifest" -}}{{- "bridge-manifest.json" -}}
+{{- else -}}{{- "handler.json" -}}
+{{- end -}}
+{{- end }}
+
+{{- define "gateway.deploymentConfigPath" -}}
+{{- if or .Values.deploymentConfig.configMap.name .Values.deploymentConfig.configMap.content -}}
+{{- printf "%s/%s" (.Values.deploymentConfig.mountPath | default "/etc/cardano-ibc") (include "gateway.deploymentConfigFileName" .) -}}
+{{- else if .Values.deploymentConfig.path -}}{{- .Values.deploymentConfig.path -}}
+{{- else -}}{{- printf "%s/%s" (.Values.deploymentConfig.mountPath | default "/etc/cardano-ibc") (include "gateway.deploymentConfigFileName" .) -}}
+{{- end -}}
+{{- end }}
+
+{{- define "gateway.deploymentConfigKey" -}}
+{{- if .Values.deploymentConfig.configMap.key -}}{{- .Values.deploymentConfig.configMap.key -}}
+{{- else -}}{{- include "gateway.deploymentConfigFileName" . -}}
+{{- end -}}
+{{- end }}
+
+{{- define "gateway.deploymentConfigConfigMapName" -}}
+{{- if .Values.deploymentConfig.configMap.name -}}{{- .Values.deploymentConfig.configMap.name -}}
+{{- else -}}{{- printf "%s-deployment-config" (include "gateway.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end }}
+
+{{- define "gateway.deploymentConfigVolumeEnabled" -}}
+{{- if and (include "gateway.deploymentConfigSource" .) (or .Values.deploymentConfig.configMap.name .Values.deploymentConfig.configMap.content) -}}true{{- end -}}
+{{- end }}
+
+{{- define "gateway.deploymentConfigInlineConfigMapEnabled" -}}
+{{- if and (include "gateway.deploymentConfigSource" .) .Values.deploymentConfig.configMap.content -}}true{{- end -}}
+{{- end }}
+
 {{- define "gateway.kupoHost" -}}
 {{- printf "%s-cf-kupo" .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- end }}

@@ -62,14 +62,17 @@ config:
     # compat_mode omitted for testnet (local profile sets '0.38'); leave empty to skip
     compatMode: ""
 
-## Keys (mnemonics) consumed by Hermes — refer to a Secret, not created here.
+## Hermes keyring JSON files — refer to a Secret, not created here.
+## The referenced Secret values must contain the JSON files that Hermes reads from
+## $HOME/.hermes/keys/<chain-id>/keyring-test/<key-name>.json, not raw mnemonics.
+## The field names keep the older *MnemonicRef suffix for chart compatibility.
 keys:
   cardanoMnemonicRef:
     name: hermes-keys
-    key: cardano-mnemonic
+    key: cardano-relayer.json
   injectiveMnemonicRef:
     name: hermes-keys
-    key: injective-mnemonic
+    key: injective-888-relayer.json
 
 resources: {}
 

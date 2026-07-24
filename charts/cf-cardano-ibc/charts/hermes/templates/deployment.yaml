@@ -60,14 +60,14 @@ spec:
             - start
           env:
             - name: HERMES_HOME
-              value: /root/.hermes
+              value: /home/hermes/.hermes
           volumeMounts:
             - name: config
-              mountPath: /root/.hermes/config.toml
+              mountPath: /home/hermes/.hermes/config.toml
               subPath: config.toml
               readOnly: true
             - name: keys
-              mountPath: /root/.hermes/keys
+              mountPath: /home/hermes/.hermes/keys
               readOnly: true
           ports:
             {{- if .Values.telemetry.enabled }}
@@ -87,10 +87,15 @@ spec:
           configMap:
             name: {{ include "hermes.fullname" . }}-config
         - name: keys
-          secret:
-            secretName: {{ .Values.keys.cardanoMnemonicRef.name }}
-            items:
-              - key: {{ .Values.keys.cardanoMnemonicRef.key }}
-                path: cardano-relayer.mnemonic
-              - key: {{ .Values.keys.injectiveMnemonicRef.key }}
-                path: injective-888-relayer.mnemonic
+          projected:
+            sources:
+              - secret:
+                  name: {{ .Values.keys.cardanoMnemonicRef.name }}
+                  items:
+                    - key: {{ .Values.keys.cardanoMnemonicRef.key }}
+                      path: {{ printf "%s/keyring-test/%s.json" .Values.config.cardano.chainId .Values.config.cardano.keyName | quote }}
+              - secret:
+                  name: {{ .Values.keys.injectiveMnemonicRef.name }}
+                  items:
+                    - key: {{ .Values.keys.injectiveMnemonicRef.key }}
+                      path: {{ printf "%s/keyring-test/%s.json" (include "hermes.injectiveChainId" .) .Values.config.injective.keyName | quote }}

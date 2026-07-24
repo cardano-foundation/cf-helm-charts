@@ -49,6 +49,10 @@ global:
     teamId: cardano-ibc
     version: "15"
     numberOfInstances: 1
+    ## Optional Patroni config passed through to the Postgres CR.
+    ## Use patroni.pg_hba to allow non-SSL pod-network clients when the
+    ## operator default only admits hostssl connections.
+    patroni: {}
     volume:
       size: 10Gi
       storageClass: ""

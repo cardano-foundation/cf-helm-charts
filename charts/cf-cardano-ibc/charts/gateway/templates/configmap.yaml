@@ -1,3 +1,10 @@
+{{- $deploymentConfigSource := include "gateway.deploymentConfigSource" . -}}
+{{- if and $deploymentConfigSource (not (or (eq $deploymentConfigSource "handlerJson") (eq $deploymentConfigSource "bridgeManifest"))) -}}
+{{- fail "gateway.deploymentConfig.source must be one of: '', 'handlerJson', 'bridgeManifest'" -}}
+{{- end -}}
+{{- if and .Values.env.HANDLER_JSON_PATH .Values.env.BRIDGE_MANIFEST_PATH (not $deploymentConfigSource) -}}
+{{- fail "gateway env HANDLER_JSON_PATH and BRIDGE_MANIFEST_PATH are mutually exclusive; set only one, or use gateway.deploymentConfig.source" -}}
+{{- end -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -17,7 +24,18 @@ data:
   CARDANO_STABILITY_THRESHOLD_UNIQUE_POOLS: {{ .Values.env.CARDANO_STABILITY_THRESHOLD_UNIQUE_POOLS | quote }}
   CARDANO_STABILITY_THRESHOLD_UNIQUE_STAKE_BPS: {{ .Values.env.CARDANO_STABILITY_THRESHOLD_UNIQUE_STAKE_BPS | quote }}
 
-  HANDLER_JSON_PATH: {{ .Values.env.HANDLER_JSON_PATH | quote }}
+{{- if eq $deploymentConfigSource "handlerJson" }}
+  HANDLER_JSON_PATH: {{ include "gateway.deploymentConfigPath" . | quote }}
+{{- else if eq $deploymentConfigSource "bridgeManifest" }}
+  BRIDGE_MANIFEST_PATH: {{ include "gateway.deploymentConfigPath" . | quote }}
+{{- else }}
+{{- with .Values.env.HANDLER_JSON_PATH }}
+  HANDLER_JSON_PATH: {{ . | quote }}
+{{- end }}
+{{- with .Values.env.BRIDGE_MANIFEST_PATH }}
+  BRIDGE_MANIFEST_PATH: {{ . | quote }}
+{{- end }}
+{{- end }}
 
   KUPO_ENDPOINT: {{ include "gateway.kupoEndpoint" . | quote }}
   OGMIOS_ENDPOINT: {{ include "gateway.ogmiosEndpoint" . | quote }}
@@ -29,6 +47,9 @@ data:
   GATEWAY_DB_PORT: {{ .Values.env.GATEWAY_DB_PORT | default "5432" | quote }}
   GATEWAY_DB_NAME: {{ include "gateway.gatewayDbName" . | quote }}
   GATEWAY_DB_SYNCHRONIZE: {{ .Values.env.GATEWAY_DB_SYNCHRONIZE | quote }}
+{{- with .Values.env.PGSSLMODE }}
+  PGSSLMODE: {{ . | quote }}
+{{- end }}
 
   HISTORY_DB_HOST: {{ include "gateway.yaciDbHost" . | quote }}
   HISTORY_DB_PORT: {{ .Values.env.HISTORY_DB_PORT | default "5432" | quote }}

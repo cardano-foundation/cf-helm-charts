@@ -91,7 +91,7 @@ spec:
             - name: DB_NAME
               value: {{ include "yaci-store.yaciDbName" . | quote }}
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://$(SPRING_DATASOURCE_HOST):$(SPRING_DATASOURCE_PORT)/$(DB_NAME)"
+              value: "jdbc:postgresql://$(SPRING_DATASOURCE_HOST):$(SPRING_DATASOURCE_PORT)/$(DB_NAME){{ with .Values.yaciDb.sslMode }}?sslmode={{ . }}{{ end }}"
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
