@@ -10,19 +10,28 @@ port: 8080
 cardanoNode:
   host: ""     # resolved to <release>-cf-cardano-node by the helper
   port: 3001
+  ## Yaci Store selects bundled public-network genesis files from protocol magic
+  ## (1=preprod, 2=preview, 764824073=mainnet, 4=sanchonet).
   networkMagic: 1
-  network: preprod
 
 ## Yaci sync checkpoint — must be resolved for public nets (epoch-boundary block 1-2 epochs before deployment).
+## syncStartBlockNo maps to Yaci's store.cardano.sync-start-byron-block-number
+## property, which seeds the initial cursor block number when starting at a point.
 syncStartSlot: 0
 syncStartBlockHash: ""
 syncStartBlockNo: 0
+
+## Default global values for standalone rendering. Parent umbrella values override these.
+global:
+  yaciDb:
+    secretUsernameKey: username
+    secretPasswordKey: password
 
 ## Yaci DB (Zalando PG) — credentials via parent global, or inline.
 yaciDb:
   # host: ""             # resolved from global by helper
   port: 5432
-  name: yaci_store
+  name: yaci
   # Credentials come from .Values.global.yaciDb (username/password or secretName).
 
 resources: {}

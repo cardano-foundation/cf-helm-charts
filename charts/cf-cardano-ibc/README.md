@@ -15,8 +15,9 @@ endpoint.
   Unix socket from the cardano-node socat Service; `--node-socket` points at it.
 - **cf-kupo** (standalone chart) — defaults to `--ogmios-host` (WebSocket to
   Ogmios); can flip to its own socat sidecar via `source: node-socket`.
-- **yaci-store** (subchart) — chain-follows the in-cluster cardano-node over n2n
-  (TCP 3001); yaci DB is an external Zalando Postgres Operator cluster.
+- **yaci-store** (subchart) — chain-follows cardano-node over n2n (TCP 3001);
+  `networkMagic` is passed as `STORE_CARDANO_PROTOCOL_MAGIC` so the image picks
+  its bundled preprod/preview/mainnet genesis files; yaci DB is Postgres.
 - **gateway** (subchart) — two Deployments: `gateway-app` (REST 8000 / gRPC
   5001) and `gateway-bridge-history-sync`; `.env` rendered from values.
 - **hermes** (subchart) — config.toml + keys via ConfigMap/Secret; points Cardano

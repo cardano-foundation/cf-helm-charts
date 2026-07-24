@@ -69,26 +69,29 @@ spec:
           image: {{ include "yaci-store.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: CARDANO_CHAIN_HOST
+            # Yaci Store is a Spring Boot app. Its Cardano settings bind from
+            # store.cardano.*; embedded public-network genesis files are selected
+            # by store.cardano.protocol-magic (1 = preprod).
+            - name: STORE_CARDANO_HOST
               value: {{ include "yaci-store.cardanoNodeHost" . | quote }}
-            - name: CARDANO_CHAIN_PORT
+            - name: STORE_CARDANO_PORT
               value: {{ .Values.cardanoNode.port | toString | quote }}
-            - name: CARDANO_CHAIN_NETWORK_MAGIC
+            - name: STORE_CARDANO_PROTOCOL_MAGIC
               value: {{ .Values.cardanoNode.networkMagic | toString | quote }}
-            - name: YACI_SYNC_START_SLOT
+            - name: STORE_CARDANO_SYNC_START_SLOT
               value: {{ .Values.syncStartSlot | toString | quote }}
-            - name: YACI_SYNC_START_BLOCKHASH
+            - name: STORE_CARDANO_SYNC_START_BLOCKHASH
               value: {{ .Values.syncStartBlockHash | quote }}
-            - name: YACI_SYNC_START_BLOCK_NO
+            - name: STORE_CARDANO_SYNC_START_BYRON_BLOCK_NUMBER
               value: {{ .Values.syncStartBlockNo | toString | quote }}
-            - name: DB_URL
-              value: "jdbc:postgresql://$(SPRING_DATASOURCE_HOST):$(SPRING_DATASOURCE_PORT)/$(DB_NAME)"
-            - name: SPRING_DATASOURCE_HOS
+            - name: SPRING_DATASOURCE_HOST
               value: {{ include "yaci-store.yaciDbHost" . | quote }}
             - name: SPRING_DATASOURCE_PORT
               value: {{ .Values.yaciDb.port | toString | quote }}
             - name: DB_NAME
               value: {{ .Values.yaciDb.name | quote }}
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://$(SPRING_DATASOURCE_HOST):$(SPRING_DATASOURCE_PORT)/$(DB_NAME)"
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:

@@ -36,15 +36,18 @@ cf-kupo:
   match: "*"
 
 ## ----- Yaci Store -------------------------------------------------------------
-## yaci-store chain-follows the in-cluster cardano-node over n2n (3001). The
-## preprod sync checkpoint below MUST be a recent epoch-boundary block (1-2
+## yaci-store chain-follows cardano-node over n2n (3001). The yaci-store image
+## already bundles preprod genesis; the chart passes networkMagic=1 as
+## STORE_CARDANO_PROTOCOL_MAGIC so yaci-store selects those embedded files.
+## The preprod sync checkpoint below MUST be a recent epoch-boundary block (1-2
 ## epochs before bridge deployment). Caribic normally resolves this via
 ## `caribic yaci-checkpoint --network preprod --epochs-back 2`; for Helm, fill
 ## these at install time — leaving them at 0 is only valid for devnet.
 yaci-store:
   enabled: true
   cardanoNode:
-    network: preprod
+    # host: preprod-node.play.dev.cardano.org
+    # port: 3001
     networkMagic: 1
   syncStartSlot: 0
   syncStartBlockHash: ""
@@ -103,8 +106,14 @@ dapps:
 ## databases (gateway_app, yaci_store) and two users (gateway, yaci). The
 ## operator generates credential Secrets named <cluster>-<user>.
 ## Leave hosts/secrets empty to derive them from global.postgres.clusterName.
+## NOTE: the operator creates the credential Secrets in the cluster's own
+## namespace, and pods can only mount Secrets from their own namespace — so
+## the cluster must live in the release namespace (ibc) alongside the
+## services.
 global:
   postgres:
     enabled: true
     namespace: "zpg-system"
     teamId: cardano-ibc
+  yaciDb:
+    secretName: yaci-owner-user.cardano-ibc-pg.credentials.postgresql.acid.zalan.do

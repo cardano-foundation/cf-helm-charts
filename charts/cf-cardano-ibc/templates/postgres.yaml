@@ -38,16 +38,18 @@ spec:
   {{- end }}
 
   ## One login user per service. Empty flags = normal LOGIN role (no superuser).
-  users:
-    {{- range $user, $flags := .Values.global.postgres.users }}
-    {{ $user }}:{{- if $flags }}{{ toYaml $flags | nindent 6 }}{{- else }} []{{- end }}
-    {{- end }}
+  # users:
+  #   {{- range $user, $flags := .Values.global.postgres.users }}
+  #   {{ $user }}:{{- if $flags }}{{ toYaml $flags | nindent 6 }}{{- else }} []{{- end }}
+  #   {{- end }}
 
   ## One database per service, owned by that service's user.
   ## The owner must be declared in spec.users above.
-  databases:
-    {{- range $db, $owner := .Values.global.postgres.databases }}
-    {{ $db }}: {{ $owner | quote }}
+  preparedDatabases:
+    {{- range $db := .Values.global.postgres.databases }}
+    {{ $db }}:
+      defaultUsers: true
+      secretNamespace: {{ $.Values.global.postgres.secretNamespace | default $.Release.Namespace }}
     {{- end }}
 
   postgresql:

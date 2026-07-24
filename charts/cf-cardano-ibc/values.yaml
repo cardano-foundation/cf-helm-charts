@@ -45,6 +45,7 @@ global:
     controller: ""
     clusterName: cardano-ibc-pg
     namespace: ""               # defaults to the release namespace
+    secretNamespace: ""
     teamId: cardano-ibc
     version: "15"
     numberOfInstances: 1
@@ -67,8 +68,8 @@ global:
     ## Databases — map of database name → owner user.
     ## The owner must be declared in spec.users above.
     databases:
-      gateway: gateway
-      yaci: yaci
+      - gateway
+      - yaci
     ## Optional PostgreSQL.conf parameters.
     parameters: {}
     ## Optional sidecars (e.g. logical replication, exporters).
