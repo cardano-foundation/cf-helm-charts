@@ -103,7 +103,8 @@ dapps:
 ## databases (gateway_app, yaci_store) and two users (gateway, yaci). The
 ## operator generates credential Secrets named <cluster>-<user>.
 ## Leave hosts/secrets empty to derive them from global.postgres.clusterName.
-postgres:
-  enabled: true
-  namespace: "zpg-system"
-  teamId: cardano-ibc
+global:
+  postgres:
+    enabled: true
+    namespace: "zpg-system"
+    teamId: cardano-ibc

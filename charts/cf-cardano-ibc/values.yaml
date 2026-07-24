@@ -2,7 +2,7 @@
 ##
 ## Peers a self-hosted Cardano follower node + indexers with the IBC Gateway and
 ## Hermes relayer. Postgres is provisioned by the Zalando Postgres Operator from
-## a single `postgresql` CRD rendered by this chart (postgres.enabled=true).
+## a single `postgresql` CRD rendered by this chart (global.postgres.enabled=true).
 ## Injective is an external RPC endpoint.
 
 global:
@@ -30,17 +30,54 @@ global:
     grpcAddr: https://testnet.sentry.chain.grpc.injective.network:443
     eventSourceUrl: wss://testnet.sentry.tm.injective.network:443/websocket
 
-  ## Postgres — single Zalando Postgres Operator cluster.
-  ## When postgres.enabled=true (default), the chart renders a `postgresql` CRD
-  ## that creates one cluster with a database + user per service. The values
-  ## below tell the gateway / yaci-store subcharts where to connect and which
-  ## credential Secrets to mount. They default to the operator's standard
-  ## Service DNS (<cluster>.<ns>.svc.cluster.local) and Secret naming
-  ## (<cluster>-<user>); override if your operator uses a different
-  ## secret_name_template.
+  ## Postgres — single Zalando Postgres Operator cluster, shared by all
+  ## services. Single source of truth: when enabled=true (default), the chart
+  ## renders a `postgresql` CRD that creates one cluster with a database +
+  ## dedicated user per service, and the gateway / yaci-store subcharts derive
+  ## the host (<cluster>.<ns>.svc.cluster.local) and credential Secret names
+  ## (<cluster>-<user>) from these same values. Set enabled=false to use
+  ## externally-managed Postgres instead (then set global.gatewayDb /
+  ## global.yaciDb hosts + secretNames explicitly).
   postgres:
+    enabled: true
+    ## Controller annotation (operator pod identifier). Set to the operator
+    ## instance name if you run multiple operators.
+    controller: ""
     clusterName: cardano-ibc-pg
     namespace: ""               # defaults to the release namespace
+    teamId: cardano-ibc
+    version: "15"
+    numberOfInstances: 1
+    volume:
+      size: 10Gi
+      storageClass: ""
+    connectionPooler:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    ## Login users — one per service. Empty list = normal LOGIN role.
+    users:
+      gateway: []
+      yaci: []
+    ## Databases — map of database name → owner user.
+    ## The owner must be declared in spec.users above.
+    databases:
+      gateway: gateway
+      yaci: yaci
+    ## Optional PostgreSQL.conf parameters.
+    parameters: {}
+    ## Optional sidecars (e.g. logical replication, exporters).
+    sidecars: []
+  ## Per-service connection details for the cluster above. The values below
+  ## tell the gateway / yaci-store subcharts where to connect and which
+  ## credential Secrets to mount. They default to the operator's standard
+  ## Service DNS and Secret naming; override if your operator uses a different
+  ## secret_name_template.
   gatewayDb:
     host: ""                         # if empty, derived from global.postgres.clusterName
     name: gateway
@@ -55,46 +92,10 @@ global:
     secretUsernameKey: username
     secretPasswordKey: password
 
-## Zalando Postgres Operator cluster — a single PG cluster shared by all
-## services. The operator creates one database per service with a dedicated
-## owner user, plus a credential Secret per user.
-postgres:
-  enabled: true
-  ## Controller annotation (operator pod identifier). Set to the operator
-  ## instance name if you run multiple operators.
-  controller: ""
-  clusterName: cardano-ibc-pg
-  namespace: ""                # defaults to the release namespace
-  teamId: cardano-ibc
-  version: "15"
-  numberOfInstances: 1
-  volume:
-    size: 10Gi
-    storageClass: ""
-  connectionPooler:
-    enabled: false
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 500m
-      memory: 512Mi
-  ## Login users — one per service. Empty list = normal LOGIN role.
-  users:
-    gateway: []
-    yaci: []
-  ## Databases — map of database name → owner user.
-  ## The owner must be declared in spec.users above.
-  databases:
-    gateway: gateway
-    yaci: yaci
-  ## Optional PostgreSQL.conf parameters.
-  parameters: {}
-  ## Optional sidecars (e.g. logical replication, exporters).
-  sidecars: []
-
 ## Subchart toggles.
+## No chart ships default cpu/memory requests/limits — only the Postgres
+## cluster (global.postgres.resources) is sized by default. Size services
+## explicitly per environment when needed (e.g. cf-kupo.resources).
 cf-cardano-node:
   enabled: true
 

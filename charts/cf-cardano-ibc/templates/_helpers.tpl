@@ -33,7 +33,7 @@ app.kubernetes.io/part-of: cardano-ibc
 {{/* Postgres master Service DNS for the Zalando cluster.
      <clusterName>.<namespace>.svc.cluster.local */}}
 {{- define "cf-cardano-ibc.pgHost" -}}
-{{- printf "%s.%s.svc.cluster.local" .Values.postgres.clusterName .Values.postgres.namespace -}}
+{{- printf "%s.%s.svc.cluster.local" .Values.global.postgres.clusterName (.Values.global.postgres.namespace | default .Release.Namespace) -}}
 {{- end }}
 
 {{/* Credential Secret name for a given PG user.
@@ -41,5 +41,5 @@ app.kubernetes.io/part-of: cardano-ibc
      If your operator uses a different template, override via
      global.gatewayDb.secretName / global.yaciDb.secretName. */}}
 {{- define "cf-cardano-ibc.pgSecret" -}}
-{{- printf "%s-%s" .Values.postgres.clusterName . | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s" .Values.global.postgres.clusterName . | trunc 63 | trimSuffix "-" }}
 {{- end }}

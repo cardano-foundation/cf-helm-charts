@@ -6,13 +6,7 @@ swapClient:
     pullPolicy: IfNotPresent
   port: 3000
   gatewayEndpoint: http://gateway:8000
-  resources:
-    requests:
-      cpu: "100m"
-      memory: 256Mi
-    limits:
-      cpu: "500m"
-      memory: 1Gi
+  resources: {}
 
 explorer:
   enabled: true
@@ -21,13 +15,7 @@ explorer:
     tag: ""
     pullPolicy: IfNotPresent
   port: 8080
-  resources:
-    requests:
-      cpu: "100m"
-      memory: 256Mi
-    limits:
-      cpu: "500m"
-      memory: 1Gi
+  resources: {}
 
 nameOverride: ""
 fullnameOverride: ""

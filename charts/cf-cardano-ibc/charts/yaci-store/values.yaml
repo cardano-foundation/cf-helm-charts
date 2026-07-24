@@ -25,13 +25,7 @@ yaciDb:
   name: yaci_store
   # Credentials come from .Values.global.yaciDb (username/password or secretName).
 
-resources:
-  requests:
-    cpu: "500m"
-    memory: 2Gi
-  limits:
-    cpu: "2"
-    memory: 8Gi
+resources: {}
 
 nameOverride: ""
 fullnameOverride: ""

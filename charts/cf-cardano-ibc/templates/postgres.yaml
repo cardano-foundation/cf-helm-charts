@@ -1,6 +1,6 @@
 {{/* Single Zalando Postgres Operator cluster for the Cardano IBC bridge.
      Creates one PG cluster with a database + dedicated user for every service
-     that needs Postgres (gateway, yaci-store/history).
+     that needs Postgres (gateway, yaci-store).
 
      The operator creates:
        - a master Service <clusterName> (port 5432) in the cluster's namespace
@@ -8,53 +8,56 @@
          secret_name_template (default: {cluster}-{user}), with keys
          'username' and 'password'
 
-     Set postgres.enabled=false to use externally-managed Postgres instead. */}}
-{{- if .Values.postgres.enabled }}
+     global.postgres is the single source of truth: the gateway / yaci-store
+     subcharts derive the cluster host and credential Secret names from the
+     same values. Set global.postgres.enabled=false to use externally-managed
+     Postgres instead. */}}
+{{- if .Values.global.postgres.enabled }}
 apiVersion: acid.zalan.do/v1
 kind: postgresql
 metadata:
-  name: {{ .Values.postgres.clusterName | quote }}
-  namespace: {{ .Values.postgres.namespace | quote }}
+  name: {{ .Values.global.postgres.clusterName | quote }}
+  namespace: {{ .Values.global.postgres.namespace | default .Release.Namespace | quote }}
   labels:
     {{- include "cf-cardano-ibc.labels" . | nindent 4 }}
     app.kubernetes.io/component: postgres
   annotations:
-    "acid.zalan.do/controller": {{ .Values.postgres.controller | quote }}
+    "acid.zalan.do/controller": {{ .Values.global.postgres.controller | quote }}
 spec:
-  teamId: {{ .Values.postgres.teamId | quote }}
+  teamId: {{ .Values.global.postgres.teamId | quote }}
   volume:
-    size: {{ .Values.postgres.volume.size | quote }}
-    {{- with .Values.postgres.volume.storageClass }}
+    size: {{ .Values.global.postgres.volume.size | quote }}
+    {{- with .Values.global.postgres.volume.storageClass }}
     storageClass: {{ . | quote }}
     {{- end }}
-  numberOfInstances: {{ .Values.postgres.numberOfInstances }}
-  enableConnectionPooler: {{ .Values.postgres.connectionPooler.enabled }}
-  {{- with .Values.postgres.resources }}
+  numberOfInstances: {{ .Values.global.postgres.numberOfInstances }}
+  enableConnectionPooler: {{ .Values.global.postgres.connectionPooler.enabled }}
+  {{- with .Values.global.postgres.resources }}
   resources:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 
   ## One login user per service. Empty flags = normal LOGIN role (no superuser).
   users:
-    {{- range $user, $flags := .Values.postgres.users }}
+    {{- range $user, $flags := .Values.global.postgres.users }}
     {{ $user }}:{{- if $flags }}{{ toYaml $flags | nindent 6 }}{{- else }} []{{- end }}
     {{- end }}
 
   ## One database per service, owned by that service's user.
   ## The owner must be declared in spec.users above.
   databases:
-    {{- range $db, $owner := .Values.postgres.databases }}
+    {{- range $db, $owner := .Values.global.postgres.databases }}
     {{ $db }}: {{ $owner | quote }}
     {{- end }}
 
   postgresql:
-    version: {{ .Values.postgres.version | quote }}
-    {{- with .Values.postgres.parameters }}
+    version: {{ .Values.global.postgres.version | quote }}
+    {{- with .Values.global.postgres.parameters }}
     parameters:
       {{- toYaml . | nindent 6 }}
     {{- end }}
 
-  {{- with .Values.postgres.sidecars }}
+  {{- with .Values.global.postgres.sidecars }}
   sidecars:
     {{- toYaml . | nindent 4 }}
   {{- end }}

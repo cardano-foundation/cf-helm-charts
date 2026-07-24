@@ -73,13 +73,7 @@ resources: {}
   #   memory: 24Gi
 
 ## Init-container resources (socat wait-for-socket, etc.).
-initContainerResources:
-  requests:
-    cpu: "50m"
-    memory: "32Mi"
-  limits:
-    cpu: "200m"
-    memory: "128Mi"
+initContainerResources: {}
 
 ## Optional Mithril snapshot bootstrap (disabled by default; enable for fast cold-start).
 mithril:
