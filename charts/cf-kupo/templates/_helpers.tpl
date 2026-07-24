@@ -15,6 +15,10 @@
 {{- end }}
 {{- end }}
 
+{{- define "cf-kupo.headlessName" -}}
+{{- printf "%s-headless" (include "cf-kupo.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
 {{- define "cf-kupo.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
@@ -43,17 +47,19 @@ app.kubernetes.io/component: kupo
 {{- printf "%s:%s" .Values.socat.image.repository .Values.socat.image.tag }}
 {{- end }}
 
-{{/* Ogmios host, overridable via parent global. */}}
+{{/*
+Resolve the Ogmios host. Defaults to the cf-ogmios Service created in the same
+Helm release; override via global.ogmiosHost or ogmios.host when connecting to
+an externally managed Ogmios instance.
+*/}}
 {{- define "cf-kupo.ogmiosHost" -}}
-{{- if .Values.global }}
-  {{- if (index .Values.global "ogmiosHost") }}
-    {{- index .Values.global "ogmiosHost" }}
-  {{- else }}
-    {{- .Values.ogmios.host }}
-  {{- end }}
-{{- else }}
-{{- .Values.ogmios.host }}
-{{- end }}
+{{- if and .Values.global (index .Values.global "ogmiosHost") -}}
+{{- index .Values.global "ogmiosHost" -}}
+{{- else if .Values.ogmios.host -}}
+{{- .Values.ogmios.host -}}
+{{- else -}}
+{{- printf "%s-cf-ogmios" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 {{- end }}
 
 {{/* cardano-node socat host, overridable via parent global. */}}

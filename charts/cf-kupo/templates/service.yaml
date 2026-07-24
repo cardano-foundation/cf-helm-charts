@@ -1,3 +1,21 @@
+{{/* Headless service for StatefulSet stable identity. */}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cf-kupo.headlessName" . }}
+  labels:
+    {{- include "cf-kupo.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "cf-kupo.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: kupo
+      port: {{ .Values.port }}
+      targetPort: kupo
+      protocol: TCP
+---
+{{/* ClusterIP service for in-cluster Kupo API clients. */}}
 apiVersion: v1
 kind: Service
 metadata:
