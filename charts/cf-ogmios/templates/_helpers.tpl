@@ -44,17 +44,16 @@ app.kubernetes.io/component: ogmios
 {{- end }}
 
 {{/*
-Resolve the cardano-node socat host. When deployed as a subchart of
-cf-cardano-ibc, allow the parent to override via global.cardanoNode.socatHost.
+Resolve the cardano-node socat host. Defaults to the cf-cardano-node Service
+created in the same Helm release; override via global.cardanoNodeSocatHost or
+cardanoNode.socatHost when connecting to an externally managed node.
 */}}
 {{- define "cf-ogmios.cardanoNodeSocatHost" -}}
-{{- if .Values.global }}
-  {{- if (index .Values.global "cardanoNodeSocatHost") }}
-    {{- index .Values.global "cardanoNodeSocatHost" }}
-  {{- else }}
-    {{- .Values.cardanoNode.socatHost }}
-  {{- end }}
-{{- else }}
-{{- .Values.cardanoNode.socatHost }}
-{{- end }}
+{{- if and .Values.global (index .Values.global "cardanoNodeSocatHost") -}}
+{{- index .Values.global "cardanoNodeSocatHost" -}}
+{{- else if .Values.cardanoNode.socatHost -}}
+{{- .Values.cardanoNode.socatHost -}}
+{{- else -}}
+{{- printf "%s-cf-cardano-node" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 {{- end }}

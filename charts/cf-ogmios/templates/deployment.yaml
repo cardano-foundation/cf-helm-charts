@@ -89,7 +89,7 @@ spec:
             - --node-socket
             - {{ .Values.socketPath | quote }}
             - --node-config
-            - {{ printf "%s/%s/cardano-node.json" .Values.configPath .Values.network | quote }}
+            - {{ printf "%s/%s/cardano-node/config.json" .Values.configPath .Values.network | quote }}
             - --host
             - "0.0.0.0"
           ports:

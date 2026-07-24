@@ -17,14 +17,14 @@ image:
 port: 1337
 
 ## cardano-node socat-n2c endpoint (the cf-cardano-node ClusterIP Service).
-## Override host/port to point at a different cardano-node if not using the
-## cf-cardano-node chart as a dependency.
+## Empty socatHost resolves to <release>-cf-cardano-node; override to point at
+## a different cardano-node if not using the cf-cardano-node chart as a dependency.
 cardanoNode:
-  socatHost: cardano-node
+  socatHost: ""
   socatPort: 3002
 
-## Cardano network — used to locate the node config inside the ogmios image
-## (ogmios bundles configs under /config/<network>/) and to pass --node-config.
+## Cardano network — used to locate the bundled node config inside the ogmios
+## image at /config/<network>/cardano-node/config.json for --node-config.
 network: preprod
 
 ## Paths inside the pod.
