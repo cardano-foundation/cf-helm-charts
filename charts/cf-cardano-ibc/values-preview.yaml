@@ -1,54 +1,42 @@
-## cf-cardano-ibc — preprod profile
+## cf-cardano-ibc — preview profile
 ##
-## Cardano side cardano-node / ogmios / kupo / yaci-store follow public preprod
+## Cardano side cardano-node / ogmios / kupo / yaci-store follow public preview
 ## and serve a local follower. Hermes relays to Injective public testnet.
 ## Postgres (Zalando) + Injective RPC are external.
-##
-## The `files/preprod/` directory in this chart carries the canonical preprod
-## cardano-node config + genesis + topology JSON downloaded from
-## https://book.world.dev.cardano.org/environments/preprod and embedded here.
-## `cardano-node.configFiles` below seeds the cardano-node ConfigMap so the
-## node boots against the real preprod network out of the box.
 
 ## ----- Cardano node -----------------------------------------------------------
-## Network identifiers + preprod config files. Setting `configFiles` (the
-## inline map below) makes the cardano-node chart render a ConfigMap with
-## these files under /config/<network>/  and mount it at configContainerPath,
-## so `CARDANO_CONFIG` / `CARDANO_TOPOLOGY` resolve to real content.
+## Network identifiers + preview protocol magic.
 cf-cardano-node:
-  network: preprod
-  protocolMagic: 1
+  network: preview
+  protocolMagic: 2
 
 ## ----- Ogmios / Kupo ----------------------------------------------------------
-## ogmios and kupo read cardano-node.json + genesis from a config volume.
-## NOTE: their templates do not yet mount a config volume — that wiring is a
-## follow-up. Once added, point them at the cardano-node ConfigMap so they
-## boot against preprod without duplicating the files.
+## ogmios and kupo point at preview-compatible bundled node configs.
 cf-ogmios:
-  network: preprod
+  network: preview
 
 cf-kupo:
   source: ogmios
   cardanoNode:
-    network: preprod
-    networkMagic: 1
+    network: preview
+    networkMagic: 2
   since: origin
   match: "*"
 
 ## ----- Yaci Store -------------------------------------------------------------
 ## yaci-store chain-follows cardano-node over n2n (3001). The yaci-store image
-## already bundles preprod genesis; the chart passes networkMagic=1 as
+## bundles preview genesis; the chart passes networkMagic=2 as
 ## STORE_CARDANO_PROTOCOL_MAGIC so yaci-store selects those embedded files.
-## The preprod sync checkpoint below MUST be a recent epoch-boundary block (1-2
+## The preview sync checkpoint below MUST be a recent epoch-boundary block (1-2
 ## epochs before bridge deployment). Caribic normally resolves this via
-## `caribic yaci-checkpoint --network preprod --epochs-back 2`; for Helm, fill
+## `caribic yaci-checkpoint --network preview --epochs-back 2`; for Helm, fill
 ## these at install time — leaving them at 0 is only valid for devnet.
 yaci-store:
   enabled: true
   cardanoNode:
-    # host: preprod-node.play.dev.cardano.org
+    # host: preview-node.play.dev.cardano.org
     # port: 3001
-    networkMagic: 1
+    networkMagic: 2
   syncStartSlot: 0
   syncStartBlockHash: ""
   syncStartBlockNo: 0
@@ -62,11 +50,11 @@ gateway:
   ## Use the compact public bridge manifest rather than handler.json at runtime.
   deploymentConfig:
     source: bridgeManifest
-    path: /usr/src/app/manifests/preprod/cardano-preprod-bridge-manifest.json
+    path: /usr/src/app/manifests/preview/cardano-preview-bridge-manifest.json
   env:
-    CARDANO_CHAIN_ID: cardano-preprod
-    CARDANO_NETWORK_MAGIC: "1"
-    CARDANO_CHAIN_NETWORK_MAGIC: "1"
+    CARDANO_CHAIN_ID: cardano-preview
+    CARDANO_NETWORK_MAGIC: "2"
+    CARDANO_CHAIN_NETWORK_MAGIC: "2"
     CARDANO_LIGHT_CLIENT_MODE: stake-weighted-stability
     CARDANO_EPOCH_NONCE_GENESIS: ""
     CARDANO_STABILITY_THRESHOLD_DEPTH: "10"
@@ -75,6 +63,13 @@ gateway:
     GATEWAY_DB_SYNCHRONIZE: "true"
     CARDANO_CHAIN_HOST: cardano-node
     CARDANO_CHAIN_PORT: "3001"
+  ingress:
+    enabled: true
+    hosts:
+      - host: gateway.ibc.dev.ecosyseng.cf-deployments.org
+        paths:
+          - path: /
+            pathType: Prefix
 
 ## ----- Hermes ----------------------------------------------------------------
 ## Cardano block points at the in-cluster gateway gRPC. Injective points at the
@@ -86,7 +81,7 @@ hermes:
     tag: 0.0.1-PR550-444a161
   config:
     cardano:
-      chainId: cardano-preprod
+      chainId: cardano-preview
       gatewayUrl: http://gateway:5001
       networkId: 0
       keyName: cardano-relayer
@@ -98,7 +93,27 @@ hermes:
 
 ## ----- dApps ------------------------------------------------------------------
 dapps:
-  enabled: false
+  enabled: true
+  swapClient:
+    image:
+      tag: 0.0.1-PR550-444a161
+    ingress:
+      enabled: true
+      hosts:
+        - host: swap.ibc.dev.ecosyseng.cf-deployments.org
+          paths:
+            - path: /
+              pathType: Prefix
+  explorer:
+    image:
+      tag: 0.0.1-PR550-444a161
+    ingress:
+      enabled: true
+      hosts:
+        - host: explorer.ibc.dev.ecosyseng.cf-deployments.org
+          paths:
+            - path: /
+              pathType: Prefix
 
 ## ----- Postgres (Zalando operator, single cluster) --------------------------
 ## The chart renders a `postgresql` CRD with prepared databases `gateway` and
@@ -108,6 +123,9 @@ dapps:
 ## The cluster CR may live in the operator namespace; prepared database Secrets
 ## are emitted into the release namespace via spec.preparedDatabases.*.secretNamespace.
 global:
+  cardanoNetwork: preview
+  protocolMagic: 2
+  publicGatewayEndpoint: https://gateway.ibc.dev.ecosyseng.cf-deployments.org
   postgres:
     enabled: true
     namespace: "zpg-system"

@@ -47,6 +47,10 @@ spec:
   #   {{- range $user, $flags := .Values.global.postgres.users }}
   #   {{ $user }}:{{- if $flags }}{{ toYaml $flags | nindent 6 }}{{- else }} []{{- end }}
   #   {{- end }}
+{{- with .Values.global.postgres.additionalEnv }}
+  env:
+{{- toYaml . | nindent 4 }}
+  {{- end }}
 
   ## One database per service, owned by that service's user.
   ## The owner must be declared in spec.users above.

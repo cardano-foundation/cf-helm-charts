@@ -1,6 +1,6 @@
 image:
   repository: bloxbean/yaci-store
-  tag: "2.0.0"
+  tag: "2.0.2"
   pullPolicy: IfNotPresent
 
 ## HTTP API port.

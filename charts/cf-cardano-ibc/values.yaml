@@ -18,6 +18,11 @@ global:
   cardanoNetwork: preprod
   protocolMagic: 1
 
+  ## Browser-facing Gateway REST endpoint, typically the Gateway ingress URL.
+  ## The swap-client subchart uses this for NEXT_PUBLIC_GATEWAY_TX_BUILDER_ENDPOINT
+  ## when dapps.swapClient.publicGatewayEndpoint is unset.
+  publicGatewayEndpoint: ""
+
   ## Internal helpers consumed by subcharts.
   ## cardanoNodeSocatHost is the in-cluster cardano-node socat Service name;
   ## when cf-cardano-node is a dependency, it resolves to <release>-cf-cardano-node.

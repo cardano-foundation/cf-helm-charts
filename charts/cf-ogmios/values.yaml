@@ -10,7 +10,7 @@
 
 image:
   repository: cardanosolutions/ogmios
-  tag: "v6.10.0"
+  tag: "v7.0.0"
   pullPolicy: IfNotPresent
 
 ## Service port for Ogmios's WebSocket/HTTP API.

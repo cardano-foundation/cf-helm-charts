@@ -66,6 +66,19 @@ env:
 
 resources: {}
 
+## Optional public HTTP ingress for the Gateway REST API only. Hermes gRPC
+## traffic stays in-cluster on the Service's grpc port.
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: gateway.example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
 historySyncResources: {}
 
 nameOverride: ""

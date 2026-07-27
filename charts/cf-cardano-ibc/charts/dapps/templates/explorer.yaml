@@ -31,6 +31,23 @@ spec:
               value: {{ .Values.explorer.port | toString | quote }}
             - name: HOST
               value: "0.0.0.0"
+            - name: REACT_APP_CARDANO_CHAIN_ID
+              value: {{ include "dapps.explorerCardanoChainId" . | toString | quote }}
+            {{- with .Values.explorer.apiDomain }}
+            - name: REACT_APP_API_DOMAIN
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.explorer.localOsmosisRpcEndpoint }}
+            - name: REACT_APP_LOCALOSMOIS_RPC_ENDPOINT
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.explorer.localOsmosisRestEndpoint }}
+            - name: REACT_APP_LOCALOSMOIS_REST_ENDPOINT
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.explorer.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.explorer.port }}

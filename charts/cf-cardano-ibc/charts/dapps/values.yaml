@@ -5,17 +5,73 @@ swapClient:
     tag: ""
     pullPolicy: IfNotPresent
   port: 3000
-  gatewayEndpoint: http://gateway:8000
+
+  ## Runtime wiring. Empty endpoint values are resolved to this release's
+  ## in-cluster Services where possible.
+  basePath: ""
+  mode: ""                         # defaults to testnet unless global.cardanoNetwork=mainnet
+  gatewayEndpoint: ""              # internal Gateway REST endpoint; defaults to http://<release>-gateway:8000
+  publicGatewayEndpoint: ""        # browser-facing Gateway REST URL when Gateway ingress is enabled
+  cardanoBridgeManifestUrl: ""     # internal manifest URL; defaults to <gatewayEndpoint>/api/bridge-manifest
+  publicCardanoBridgeManifestUrl: ""
+  kupoEndpoint: ""                 # internal Kupo URL; defaults to global.kupoEndpoint or in-cluster Service
+  ogmiosEndpoint: ""               # internal Ogmios URL; defaults to global.ogmiosEndpoint or in-cluster Service
+  kupmiosUrl: ""                   # internal Kupo,Ogmios URL pair; overrides kupoEndpoint/ogmiosEndpoint
+  publicKupmiosUrl: ""
+  cardanoChainId: ""               # defaults to global.protocolMagic
+  cardanoIbcChainId: ""            # defaults to cardano-<global.cardanoNetwork>
+  injectiveRpcEndpoint: ""
+  injectiveRestEndpoint: ""
+  crosschainSwapAddress: ""
+  forwardTimeout: 60m
+  enableMainnet: "false"
+  allowedOrigins: ""
+
+  ## Optional Secret holding hosted Kupo/Ogmios API keys for the Next.js API
+  ## routes. These are server-side env vars, not NEXT_PUBLIC values.
+  kupmiosApiKeys:
+    existingSecret: ""
+    kupoKey: kupo-api-key
+    ogmiosKey: ogmios-api-key
+
+  extraEnv: []
   resources: {}
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: swap.example.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
 
 explorer:
   enabled: true
   image:
     repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-explorer
-    tag: ""
+    tag: 
     pullPolicy: IfNotPresent
   port: 8080
+  apiDomain: ""                    # external GraphQL/SubQL endpoint; required for useful explorer data
+  cardanoChainId: ""               # defaults to global.protocolMagic
+  localOsmosisRpcEndpoint: ""
+  localOsmosisRestEndpoint: ""
+  extraEnv: []
   resources: {}
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: explorer.example.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
 
 nameOverride: ""
 fullnameOverride: ""
