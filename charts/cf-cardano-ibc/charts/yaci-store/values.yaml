@@ -1,6 +1,8 @@
 image:
   repository: bloxbean/yaci-store
-  tag: "2.0.2"
+  ## 2.0.2.1 matches the local Caribic runtime and fixes CBOR parsing of
+  ## post-protocol-11 public-testnet blocks.
+  tag: "2.0.2.1"
   pullPolicy: IfNotPresent
 
 ## HTTP API port.
@@ -20,6 +22,38 @@ cardanoNode:
 syncStartSlot: 0
 syncStartBlockHash: ""
 syncStartBlockNo: 0
+
+## Gateway's bridge-history projection needs tx/block CBOR from Yaci Store.
+## These values map to Spring Boot properties:
+## - store.transaction.save-cbor
+## - store.blocks.save-cbor
+## - store.cardano.return-tx-body-cbor
+## - store.cardano.return-block-cbor
+cbor:
+  transactionSave: true
+  blocksSave: true
+  returnTxBody: true
+  returnBlock: true
+
+## Store module toggles. These mirror the local Caribic Yaci configuration so
+## Gateway has the indexed block/tx/UTxO/script/staking data it expects while
+## avoiding unused high-volume modules.
+store:
+  assetsEnabled: false
+  metadataEnabled: false
+  mirEnabled: false
+  governanceEnabled: false
+  epochEnabled: true
+  blocksEnabled: true
+  scriptEnabled: true
+  stakingEnabled: true
+  transactionEnabled: true
+  utxoEnabled: true
+
+executor:
+  enableParallelProcessing: true
+  blocksBatchSize: 50
+  blocksPartitionSize: 10
 
 ## Default global values for standalone rendering. Parent umbrella values override these.
 global:

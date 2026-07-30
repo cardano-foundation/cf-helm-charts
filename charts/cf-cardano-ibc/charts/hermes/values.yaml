@@ -6,14 +6,28 @@ image:
 ## Telemetry / REST ports (optional).
 telemetry:
   enabled: true
+  # Bind to all interfaces inside Kubernetes; the local ~/.hermes/config.toml uses 127.0.0.1.
+  host: 0.0.0.0
   port: 3002
+  buckets:
+    latencySubmitted:
+      start: 500
+      end: 20000
+      buckets: 10
+    latencyConfirmed:
+      start: 1000
+      end: 30000
+      buckets: 10
 rest:
   enabled: false
+  # Bind to all interfaces inside Kubernetes; the local ~/.hermes/config.toml uses 127.0.0.1.
+  host: 0.0.0.0
   port: 3030
 
 ## Hermes chain configuration, rendered into config.toml.
-## Values mirror caribic's testnet_chain_profile() (caribic/src/chains/injective/hermes.rs)
-## and the Cardano block in caribic/config/hermes-config.example.toml.
+## Values mirror the local ~/.hermes/config.toml knobs. The parent
+## values-preview.yaml selects Cardano preview -> Injective testnet; bind hosts
+## and Gateway discovery remain Kubernetes-specific.
 config:
   logLevel: info
   cardano:
@@ -24,7 +38,11 @@ config:
     account: 0
     keyStoreType: Test
     maxBlockTime: 20000ms
-    clockDrift: 5s
+    clockDrift: 15m
+    # Optional Cardano event-source overrides. Leave unset to match the local
+    # ~/.hermes/config.toml gold-standard config and Hermes defaults.
+    eventPollInterval: ""
+    eventReplayWindow: ""
     mithrilCertificationTimeout: 30m
     mithrilPollInterval: 5s
     mithrilWaitLogInterval: 30s
@@ -45,13 +63,13 @@ config:
     keyName: injective-888-relayer
     addressType: ethermint
     defaultGas: "5000000"
-    maxGas: "15000000"
+    maxGas: "60000000"
     gasPrice:
       price: "500000000"
       denom: inj
     gasMultiplier: "1.8"
     maxMsgNum: "20"
-    maxTxSize: "209715"
+    maxTxSize: "1000000"
     clockDrift: 20s
     maxBlockTime: 10s
     trustingPeriod: 10days

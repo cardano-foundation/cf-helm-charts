@@ -10,18 +10,22 @@ swapClient:
   ## in-cluster Services where possible.
   basePath: ""
   mode: ""                         # defaults to testnet unless global.cardanoNetwork=mainnet
+  cardanoNetwork: ""               # defaults to global.cardanoNetwork; preprod, preview, mainnet, or devnet
   gatewayEndpoint: ""              # internal Gateway REST endpoint; defaults to http://<release>-gateway:8000
   publicGatewayEndpoint: ""        # browser-facing Gateway REST URL when Gateway ingress is enabled
   cardanoBridgeManifestUrl: ""     # internal manifest URL; defaults to <gatewayEndpoint>/api/bridge-manifest
   publicCardanoBridgeManifestUrl: ""
+  localOsmosisRpcEndpoint: ""
+  localOsmosisRestEndpoint: ""
+  blockfrostProjectId: ""
   kupoEndpoint: ""                 # internal Kupo URL; defaults to global.kupoEndpoint or in-cluster Service
   ogmiosEndpoint: ""               # internal Ogmios URL; defaults to global.ogmiosEndpoint or in-cluster Service
   kupmiosUrl: ""                   # internal Kupo,Ogmios URL pair; overrides kupoEndpoint/ogmiosEndpoint
   publicKupmiosUrl: ""
   cardanoChainId: ""               # defaults to global.protocolMagic
   cardanoIbcChainId: ""            # defaults to cardano-<global.cardanoNetwork>
-  injectiveRpcEndpoint: ""
-  injectiveRestEndpoint: ""
+  injectiveRpcEndpoint: ""         # defaults to global.injective.rpcAddr when set
+  injectiveRestEndpoint: ""        # defaults to global.injective.restAddr when set
   crosschainSwapAddress: ""
   forwardTimeout: 60m
   enableMainnet: "false"

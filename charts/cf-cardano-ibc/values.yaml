@@ -32,6 +32,7 @@ global:
   injective:
     chainId: injective-888
     rpcAddr: https://testnet.sentry.tm.injective.network:443
+    restAddr: https://testnet.sentry.lcd.injective.network:443
     grpcAddr: https://testnet.sentry.chain.grpc.injective.network:443
     eventSourceUrl: wss://testnet.sentry.tm.injective.network:443/websocket
 

@@ -3,7 +3,7 @@
 {{- define "dapps.explorerFullname" -}}{{- printf "%s-explorer" .Release.Name | trunc 63 | trimSuffix "-" -}}{{- end }}
 
 {{- define "dapps.cardanoNetwork" -}}
-{{- if and .Values.global .Values.global.cardanoNetwork -}}{{- .Values.global.cardanoNetwork -}}{{- else -}}preprod{{- end -}}
+{{- if and .Values.swapClient .Values.swapClient.cardanoNetwork -}}{{- .Values.swapClient.cardanoNetwork -}}{{- else if and .Values.global .Values.global.cardanoNetwork -}}{{- .Values.global.cardanoNetwork -}}{{- else -}}preprod{{- end -}}
 {{- end }}
 
 {{- define "dapps.protocolMagic" -}}
@@ -52,6 +52,18 @@
 
 {{- define "dapps.kupmiosUrl" -}}
 {{- if .Values.swapClient.kupmiosUrl -}}{{- .Values.swapClient.kupmiosUrl -}}{{- else -}}{{ include "dapps.kupoEndpoint" . }},{{ include "dapps.ogmiosEndpoint" . }}{{- end -}}
+{{- end }}
+
+{{- define "dapps.injectiveRpcEndpoint" -}}
+{{- if .Values.swapClient.injectiveRpcEndpoint -}}{{- .Values.swapClient.injectiveRpcEndpoint -}}
+{{- else if and .Values.global .Values.global.injective (index .Values.global.injective "rpcAddr") -}}{{- index .Values.global.injective "rpcAddr" -}}
+{{- end -}}
+{{- end }}
+
+{{- define "dapps.injectiveRestEndpoint" -}}
+{{- if .Values.swapClient.injectiveRestEndpoint -}}{{- .Values.swapClient.injectiveRestEndpoint -}}
+{{- else if and .Values.global .Values.global.injective (index .Values.global.injective "restAddr") -}}{{- index .Values.global.injective "restAddr" -}}
+{{- end -}}
 {{- end }}
 
 {{- define "dapps.explorerCardanoChainId" -}}

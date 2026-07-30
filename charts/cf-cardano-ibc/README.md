@@ -43,12 +43,25 @@ stringData:
     <contents of ~/.hermes/keys/injective-888/keyring-test/injective-888-relayer.json>
 ```
 
-These are mounted as:
+The chart mounts each Secret entry directly at that chain's `keyring-test`
+directory and maps it to Hermes' expected filename:
 
 ```text
-/home/hermes/.hermes/keys/cardano-preprod/keyring-test/cardano-relayer.json
+/home/hermes/.hermes/keys/<cardano-chain-id>/keyring-test/<cardano-key-name>.json
+/home/hermes/.hermes/keys/<injective-chain-id>/keyring-test/<injective-key-name>.json
+```
+
+For `values-preview.yaml`, that resolves to:
+
+```text
+/home/hermes/.hermes/keys/cardano-preview/keyring-test/cardano-relayer.json
 /home/hermes/.hermes/keys/injective-888/keyring-test/injective-888-relayer.json
 ```
+
+Kubernetes Secret volumes still expose implementation-detail `..data` symlinks
+inside each mounted `keyring-test` directory, but the chain directories
+(`cardano-preview`, `injective-888`) are normal parent directories rather than
+top-level projected-volume symlinks.
 
 ## Out of chart scope
 

@@ -1,6 +1,7 @@
 {{/* Hermes config.toml rendered from values.
-   Cardano block mirrors caribic/config/hermes-config.example.toml.
-   Injective block mirrors caribic/src/chains/injective/hermes.rs::testnet_chain_profile(). */}}
+   Follows the local ~/.hermes/config.toml shape; values-preview.yaml selects
+   Cardano preview -> Injective testnet, while bind hosts and Gateway discovery
+   remain Kubernetes-specific. */}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -14,13 +15,25 @@ data:
 
     [telemetry]
     enabled = {{ .Values.telemetry.enabled }}
-    host = '0.0.0.0'
+    host = '{{ .Values.telemetry.host }}'
     port = {{ .Values.telemetry.port }}
+
+    [telemetry.buckets.latency_submitted]
+    start = {{ .Values.telemetry.buckets.latencySubmitted.start }}
+    end = {{ .Values.telemetry.buckets.latencySubmitted.end }}
+    buckets = {{ .Values.telemetry.buckets.latencySubmitted.buckets }}
+
+    [telemetry.buckets.latency_confirmed]
+    start = {{ .Values.telemetry.buckets.latencyConfirmed.start }}
+    end = {{ .Values.telemetry.buckets.latencyConfirmed.end }}
+    buckets = {{ .Values.telemetry.buckets.latencyConfirmed.buckets }}
 
     [rest]
     enabled = {{ .Values.rest.enabled }}
-    host = '0.0.0.0'
+    host = '{{ .Values.rest.host }}'
     port = {{ .Values.rest.port }}
+
+    [mode]
 
     [mode.clients]
     enabled = true
@@ -51,6 +64,12 @@ data:
     account = {{ .Values.config.cardano.account }}
     max_block_time = '{{ .Values.config.cardano.maxBlockTime }}'
     clock_drift = '{{ .Values.config.cardano.clockDrift }}'
+    {{- with .Values.config.cardano.eventPollInterval }}
+    event_poll_interval = '{{ . }}'
+    {{- end }}
+    {{- with .Values.config.cardano.eventReplayWindow }}
+    event_replay_window = {{ . }}
+    {{- end }}
     mithril_certification_timeout = '{{ .Values.config.cardano.mithrilCertificationTimeout }}'
     mithril_poll_interval = '{{ .Values.config.cardano.mithrilPollInterval }}'
     mithril_wait_log_interval = '{{ .Values.config.cardano.mithrilWaitLogInterval }}'

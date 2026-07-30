@@ -31,6 +31,8 @@ spec:
               value: {{ .Values.swapClient.basePath | default "" | quote }}
             - name: NEXT_PUBLIC_IBC_SWAP_MODE
               value: {{ include "dapps.swapMode" . | quote }}
+            - name: NEXT_PUBLIC_CARDANO_NETWORK
+              value: {{ include "dapps.cardanoNetwork" . | quote }}
             - name: NEXT_PUBLIC_CARDANO_CHAIN_ID
               value: {{ include "dapps.cardanoChainId" . | toString | quote }}
             - name: NEXT_PUBLIC_CARDANO_IBC_CHAIN_ID
@@ -45,17 +47,29 @@ spec:
             - name: NEXT_PUBLIC_CARDANO_BRIDGE_MANIFEST_URL
               value: {{ . | quote }}
             {{- end }}
+            {{- with .Values.swapClient.localOsmosisRpcEndpoint }}
+            - name: NEXT_PUBLIC_LOCALOSMOIS_RPC_ENDPOINT
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.swapClient.localOsmosisRestEndpoint }}
+            - name: NEXT_PUBLIC_LOCALOSMOIS_REST_ENDPOINT
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.swapClient.blockfrostProjectId }}
+            - name: NEXT_PUBLIC_BLOCKFROST_PROJECT_ID
+              value: {{ . | quote }}
+            {{- end }}
             - name: IBC_SWAP_KUPMIOS_URL
               value: {{ include "dapps.kupmiosUrl" . | quote }}
             {{- with .Values.swapClient.publicKupmiosUrl }}
             - name: NEXT_PUBLIC_KUPMIOS_URL
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.swapClient.injectiveRpcEndpoint }}
+            {{- with (include "dapps.injectiveRpcEndpoint" .) }}
             - name: NEXT_PUBLIC_INJECTIVE_RPC_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.swapClient.injectiveRestEndpoint }}
+            {{- with (include "dapps.injectiveRestEndpoint" .) }}
             - name: NEXT_PUBLIC_INJECTIVE_REST_ENDPOINT
               value: {{ . | quote }}
             {{- end }}

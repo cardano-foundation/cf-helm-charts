@@ -84,6 +84,40 @@ spec:
               value: {{ .Values.syncStartBlockHash | quote }}
             - name: STORE_CARDANO_SYNC_START_BYRON_BLOCK_NUMBER
               value: {{ .Values.syncStartBlockNo | toString | quote }}
+            - name: STORE_TRANSACTION_SAVE_CBOR
+              value: {{ .Values.cbor.transactionSave | toString | quote }}
+            - name: STORE_BLOCKS_SAVE_CBOR
+              value: {{ .Values.cbor.blocksSave | toString | quote }}
+            - name: STORE_CARDANO_RETURN_TX_BODY_CBOR
+              value: {{ .Values.cbor.returnTxBody | toString | quote }}
+            - name: STORE_CARDANO_RETURN_BLOCK_CBOR
+              value: {{ .Values.cbor.returnBlock | toString | quote }}
+            - name: STORE_ASSETS_ENABLED
+              value: {{ .Values.store.assetsEnabled | toString | quote }}
+            - name: STORE_METADATA_ENABLED
+              value: {{ .Values.store.metadataEnabled | toString | quote }}
+            - name: STORE_MIR_ENABLED
+              value: {{ .Values.store.mirEnabled | toString | quote }}
+            - name: STORE_GOVERNANCE_ENABLED
+              value: {{ .Values.store.governanceEnabled | toString | quote }}
+            - name: STORE_EPOCH_ENABLED
+              value: {{ .Values.store.epochEnabled | toString | quote }}
+            - name: STORE_BLOCKS_ENABLED
+              value: {{ .Values.store.blocksEnabled | toString | quote }}
+            - name: STORE_SCRIPT_ENABLED
+              value: {{ .Values.store.scriptEnabled | toString | quote }}
+            - name: STORE_STAKING_ENABLED
+              value: {{ .Values.store.stakingEnabled | toString | quote }}
+            - name: STORE_TRANSACTION_ENABLED
+              value: {{ .Values.store.transactionEnabled | toString | quote }}
+            - name: STORE_UTXO_ENABLED
+              value: {{ .Values.store.utxoEnabled | toString | quote }}
+            - name: STORE_EXECUTOR_ENABLE_PARALLEL_PROCESSING
+              value: {{ .Values.executor.enableParallelProcessing | toString | quote }}
+            - name: STORE_EXECUTOR_BLOCKS_BATCH_SIZE
+              value: {{ .Values.executor.blocksBatchSize | toString | quote }}
+            - name: STORE_EXECUTOR_BLOCKS_PARTITION_SIZE
+              value: {{ .Values.executor.blocksPartitionSize | toString | quote }}
             - name: SPRING_DATASOURCE_HOST
               value: {{ include "yaci-store.yaciDbHost" . | quote }}
             - name: SPRING_DATASOURCE_PORT

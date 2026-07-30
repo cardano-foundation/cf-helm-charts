@@ -66,8 +66,11 @@ spec:
               mountPath: /home/hermes/.hermes/config.toml
               subPath: config.toml
               readOnly: true
-            - name: keys
-              mountPath: /home/hermes/.hermes/keys
+            - name: cardano-keyring-test
+              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" .Values.config.cardano.chainId | quote }}
+              readOnly: true
+            - name: injective-keyring-test
+              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" (include "hermes.injectiveChainId" .) | quote }}
               readOnly: true
           ports:
             {{- if .Values.telemetry.enabled }}
@@ -86,16 +89,15 @@ spec:
         - name: config
           configMap:
             name: {{ include "hermes.fullname" . }}-config
-        - name: keys
-          projected:
-            sources:
-              - secret:
-                  name: {{ .Values.keys.cardanoMnemonicRef.name }}
-                  items:
-                    - key: {{ .Values.keys.cardanoMnemonicRef.key }}
-                      path: {{ printf "%s/keyring-test/%s.json" .Values.config.cardano.chainId .Values.config.cardano.keyName | quote }}
-              - secret:
-                  name: {{ .Values.keys.injectiveMnemonicRef.name }}
-                  items:
-                    - key: {{ .Values.keys.injectiveMnemonicRef.key }}
-                      path: {{ printf "%s/keyring-test/%s.json" (include "hermes.injectiveChainId" .) .Values.config.injective.keyName | quote }}
+        - name: cardano-keyring-test
+          secret:
+            secretName: {{ .Values.keys.cardanoMnemonicRef.name }}
+            items:
+              - key: {{ .Values.keys.cardanoMnemonicRef.key | quote }}
+                path: {{ printf "%s.json" .Values.config.cardano.keyName | quote }}
+        - name: injective-keyring-test
+          secret:
+            secretName: {{ .Values.keys.injectiveMnemonicRef.name }}
+            items:
+              - key: {{ .Values.keys.injectiveMnemonicRef.key | quote }}
+                path: {{ printf "%s.json" .Values.config.injective.keyName | quote }}

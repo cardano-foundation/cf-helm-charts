@@ -37,29 +37,258 @@ yaci-store:
     # host: preview-node.play.dev.cardano.org
     # port: 3001
     networkMagic: 2
-  syncStartSlot: 0
-  syncStartBlockHash: ""
-  syncStartBlockNo: 0
+  syncStartSlot: "118575666"
+  syncStartBlockHash: "88ac7f547bfa9dd418bdd5afecaa9c71397676b8d16f34cd638cfc154554a305"
+  # syncStartSlot: "112406368"
+  # syncStartBlockHash: "4df1ffe17f1dbec0969e23710b015306387724bbb3d9260af647d839df26a0e6"
 
 ## ----- Gateway ----------------------------------------------------------------
 gateway:
   enabled: true
   image:
-    tag: 0.0.1-PR550-444a161
+    tag: 0.0.1-PR554-f7fdf33
   ## The Gateway image copies tracked manifests to /usr/src/app/manifests.
   ## Use the compact public bridge manifest rather than handler.json at runtime.
   deploymentConfig:
     source: bridgeManifest
     path: /usr/src/app/manifests/preview/cardano-preview-bridge-manifest.json
+    configMap:
+      content: |
+        {
+          "schema_version": 3,
+          "deployment_id": "cardano-preview:eaa8ce070c713f31f4dd3e6c321fbce118c3f05189733de780ad6566.6962635f686f73745f7374617465",
+          "deployed_at": "2026-07-28T10:23:16.077Z",
+          "cardano": {
+            "chain_id": "cardano-preview",
+            "network_magic": 2,
+            "network": "preview"
+          },
+          "host_state_nft": {
+            "policy_id": "eaa8ce070c713f31f4dd3e6c321fbce118c3f05189733de780ad6566",
+            "token_name": "6962635f686f73745f7374617465"
+          },
+          "validators": {
+            "host_state_stt": {
+              "script_hash": "0b7fb78d877c5f2e880ded660d2f2f24d430a58daeda339dbd476abe",
+              "address": "addr_test1wq9hldudsa797t5gphkkvrf09ujdgv993khd5vuah4rk40sez9rf7",
+              "ref_utxo": {
+                "tx_hash": "69fbba751d0774fc248965182f1e3aa969c451c337404616f4959b2df21f850d",
+                "output_index": 0
+              }
+            },
+            "spend_client": {
+              "script_hash": "cc3675f589eea80425222cb4c7d478b0d36c57056cd65d4bf9bc1794",
+              "address": "addr_test1wrxrva0438h2spp9ygktf3750zcdxmzhq4kdvh2tlx7p09q3nsdc3",
+              "ref_utxo": {
+                "tx_hash": "27c7c80244916324e0a717177c5593f99d77af382fbae66fce8a544c0712133f",
+                "output_index": 0
+              }
+            },
+            "spend_connection": {
+              "script_hash": "d3eccb6532af89a3ee4852d67d18067e03b43d8f2d68ba5ab8526c09",
+              "address": "addr_test1wrf7ejm9x2hcnglwfpfdvlgcqelq8dpa3ukk3wj6hpfxczg9jja9c",
+              "ref_utxo": {
+                "tx_hash": "0d6814e5290311ef9e589887fded7be77c84d9b2b2e87a7b4312f7a984a7d8c9",
+                "output_index": 0
+              }
+            },
+            "spend_channel": {
+              "script_hash": "74d1913826fcb2dc450ef170251cfc65ab24b757af5111c6059e1381",
+              "address": "addr_test1wp6dryfcym7t9hz9pmchqfgul3j6kf9h27h4zywxqk0p8qg6yf065",
+              "ref_utxo": {
+                "tx_hash": "78c9aa4b31d52eec096a887f132001507916271f001c03ea0f699759d0028937",
+                "output_index": 0
+              },
+              "ref_validator": {
+                "acknowledge_packet": {
+                  "script_hash": "ac7c1f9df4ad38ab49b920fe3a94c39e66768cff68d3eb83a2faf7d0",
+                  "ref_utxo": {
+                    "tx_hash": "795135fa8591901a8366cc4d3c0765ecebe9b9cf45c3b12e691eb7bf2a493055",
+                    "output_index": 0
+                  }
+                },
+                "chan_close_confirm": {
+                  "script_hash": "0200cd5d98c374477f69b4c5fd44cb4c553f37db719f7e97442e9532",
+                  "ref_utxo": {
+                    "tx_hash": "a61ef13c074886fd8f2c53454c55bf847120f6238353ed95ba295e7389c208ad",
+                    "output_index": 0
+                  }
+                },
+                "chan_close_init": {
+                  "script_hash": "4f718f26a19ef05b089bb80b0a0e5e00f06a8775f841927886abe8f6",
+                  "ref_utxo": {
+                    "tx_hash": "c4708e7f004fb73da43df2faa9ce2f7d7f19ec70878bfc2d62ef8e4236f3088a",
+                    "output_index": 0
+                  }
+                },
+                "chan_open_ack": {
+                  "script_hash": "14abc12ea36ac1c0680006dc011e89f3a7dc2b2f7ee9609963bfe5b8",
+                  "ref_utxo": {
+                    "tx_hash": "6cdff5ca65fba6001669ea9f3375da56c7319be8b7a729427b09b205fb854942",
+                    "output_index": 0
+                  }
+                },
+                "chan_open_confirm": {
+                  "script_hash": "ec507db929b7a660eea405d93d15a40a08768c412ae17a53830879b1",
+                  "ref_utxo": {
+                    "tx_hash": "70cf13b8a2bd35033e8703f2964b759eac8394f07dd0699f611a70bcd810aa68",
+                    "output_index": 0
+                  }
+                },
+                "recv_packet": {
+                  "script_hash": "1a94b8822def399fc4203ef9e09047dae2d6b41013ad7ac3607fd4e9",
+                  "ref_utxo": {
+                    "tx_hash": "4a6ae446e00fb4a263faf11f82c50ea43dd3fddcbdadc3732cd3bb8dc70640e8",
+                    "output_index": 0
+                  }
+                },
+                "send_packet": {
+                  "script_hash": "fe29e78619bc2ff4fdbfbf5358a17cfcd3e8f4a3cccaa34af877c411",
+                  "ref_utxo": {
+                    "tx_hash": "35c484f705d4fcc9485d4d6faf8634e939ce8d3681f00c318d9346e4843d00eb",
+                    "output_index": 0
+                  }
+                },
+                "timeout_packet": {
+                  "script_hash": "56464bb34a086f9dd3b03c06cdf4ad98e311186c400d3be43dbccdc9",
+                  "ref_utxo": {
+                    "tx_hash": "043ef5f59a5a26e381fb51fd9d7a46060741f2e8d9a27a1b9f5e1e357707f649",
+                    "output_index": 0
+                  }
+                }
+              }
+            },
+            "spend_mock_module": {
+              "script_hash": "bd3ae991b5aafccafe5ca70758bd36a9b2f872f57f6d3a1ffa0eb777",
+              "address": "addr_test1wz7n46v3kk40ejh7tjnswk9ax65m97rj74lk6wsllg8twac0ke9dm",
+              "ref_utxo": {
+                "tx_hash": "b250afdcafa4a8a34072ee8d7893dcf2c3bd0403bae155b3f03dd000e1f76e74",
+                "output_index": 2
+              }
+            },
+            "spend_trace_registry": {
+              "script_hash": "a523909b0e3cc3f837688619f52fa6ec2cc73e2064ff63610129aed5",
+              "address": "addr_test1wzjj8yympc7v87phdzrpnaf05mkze3e7ypj07cmpqy56a4gk0l6qa",
+              "ref_utxo": {
+                "tx_hash": "b250afdcafa4a8a34072ee8d7893dcf2c3bd0403bae155b3f03dd000e1f76e74",
+                "output_index": 0
+              }
+            },
+            "spend_transfer_module": {
+              "script_hash": "a1120ae1999c6331603789378130cc2f7186debc62ab2a60d42e7b9c",
+              "address": "addr_test1wzs3yzhpnxwxxvtqx7yn0qfseshhrpk7h332k2nq6sh8h8qpfyux9",
+              "ref_utxo": {
+                "tx_hash": "20233c63f4faa1c663732cec20d9a056756838e1f1abab3a232de364f4861b30",
+                "output_index": 0
+              }
+            },
+            "mint_identifier": {
+              "script_hash": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88",
+              "address": "",
+              "ref_utxo": {
+                "tx_hash": "62b454d1e8655b85945c00bc939a378f47a52a4ef67a24880bbefe4ad73af146",
+                "output_index": 1
+              }
+            },
+            "verify_proof": {
+              "script_hash": "d053f828a3e3473dfcbe41384470b61b5cccf12d68c614f8cc81e781",
+              "address": "",
+              "ref_utxo": {
+                "tx_hash": "1f171816e5e38d1adac0b2d779ef9c915cd4ad5e55dd9224eab6f0100be44aee",
+                "output_index": 0
+              }
+            },
+            "mint_client_stt": {
+              "script_hash": "944591cd9344284d99a343af649bc594c48b4c78cd8bd42b6908e1ab",
+              "address": "",
+              "ref_utxo": {
+                "tx_hash": "5a0941d811d7c519febcee21517c4d1792ba594078d28e588a5dc64ea3a33180",
+                "output_index": 0
+              }
+            },
+            "mint_connection_stt": {
+              "script_hash": "ac8911598bcc6997c9fec52294bd01a8d91d002105cf41a472404739",
+              "address": "",
+              "ref_utxo": {
+                "tx_hash": "060c3bfa36230c8d241174c1a2cb6ea5f9c3a883c6ecf51a527a8e1f9750f604",
+                "output_index": 0
+              }
+            },
+            "mint_channel_stt": {
+              "script_hash": "a53f4b82911e4a842ef96696b9c7fbb071c842181aaff4391b5817b0",
+              "address": "",
+              "ref_utxo": {
+                "tx_hash": "368bc36e8913be9a8a9ab5a6fc0f958a302596174a6c53cd131dcf57fa34378e",
+                "output_index": 0
+              }
+            },
+            "mint_voucher": {
+              "script_hash": "9fe3699282833550c000de7a211bb9c7576a4fe17c63a72e33a04ea8",
+              "address": "",
+              "ref_utxo": {
+                "tx_hash": "ce830b922a67cddfc3f2a5d4ac2b6e1cb435a79e9ae6fcbb76ed53a4d3267d4d",
+                "output_index": 0
+              }
+            },
+            "mint_transfer_escrow_shard": {
+              "script_hash": "a0b17766082720513ee97d96c474881f1e1b1758a5c8eeff3edbf6b5",
+              "address": "",
+              "ref_utxo": {
+                "tx_hash": "790c824296d0bfd3ec54f9fc74e242373db680f2f2b6d5dc26ed48fa35fbb396",
+                "output_index": 0
+              }
+            },
+            "mint_port": {
+              "script_hash": "92c6032d7a006429cad76efa9e664f394553111fa9daaf03ff2acdac",
+              "address": "",
+              "ref_utxo": {
+                "tx_hash": "62b454d1e8655b85945c00bc939a378f47a52a4ef67a24880bbefe4ad73af146",
+                "output_index": 0
+              }
+            },
+            "voucher_metadata": {
+              "address": "addr_test1wq3vnggra5ljl2tunqkhd4hz4agvt422cvrfswcedj8um2cwsu3l3"
+            }
+          },
+          "modules": {
+            "transfer": {
+              "identifier": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a888375e2a587a09aaf9543b265c42378e9ee0beb1a0b89148d8ad979b939904aa1",
+              "address": "addr_test1wzs3yzhpnxwxxvtqx7yn0qfseshhrpk7h332k2nq6sh8h8qpfyux9"
+            },
+            "mock": {
+              "identifier": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a8835244d965700d6010833f8e3f8ed69fdd55286907c0c47bb5ba5f1a00f4633ef",
+              "address": "addr_test1wz7n46v3kk40ejh7tjnswk9ax65m97rj74lk6wsllg8twac0ke9dm"
+            },
+            "icq": {
+              "identifier": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88f8e69484ee274108068d37fbcaee06c5f2da7ba8a7477ec9b5916df28ea6627f",
+              "address": "addr_test1wz7n46v3kk40ejh7tjnswk9ax65m97rj74lk6wsllg8twac0ke9dm"
+            }
+          },
+          "trace_registry": {
+            "address": "addr_test1wzjj8yympc7v87phdzrpnaf05mkze3e7ypj07cmpqy56a4gk0l6qa",
+            "shard_policy_id": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88",
+            "directory": {
+              "policy_id": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88",
+              "token_name": "40b567ba913947e25c69fc9270e37c29c36ad0ec6ab4486a17f7325a03175871"
+            }
+          }
+        }
+  koiosApiKeySecret:
+    name: gateway-secrets
+
   env:
     CARDANO_CHAIN_ID: cardano-preview
     CARDANO_NETWORK_MAGIC: "2"
     CARDANO_CHAIN_NETWORK_MAGIC: "2"
     CARDANO_LIGHT_CLIENT_MODE: stake-weighted-stability
     CARDANO_EPOCH_NONCE_GENESIS: ""
+    # Preview example: https://preview.koios.rest/api/v1
+    CARDANO_EPOCH_PARAMS_ENDPOINT: "https://preview.koios.rest/api/v1"
+    CARDANO_POOL_REGISTRATION_HISTORY_ENDPOINT: "https://preview.koios.rest/api/v1"
     CARDANO_STABILITY_THRESHOLD_DEPTH: "10"
     CARDANO_STABILITY_THRESHOLD_UNIQUE_POOLS: "2"
     CARDANO_STABILITY_THRESHOLD_UNIQUE_STAKE_BPS: "6000"
+    CARDANO_STABILITY_ASSUME_POOL_REGISTRATION_SLOT: "1"
     GATEWAY_DB_SYNCHRONIZE: "true"
     CARDANO_CHAIN_HOST: cardano-node
     CARDANO_CHAIN_PORT: "3001"
@@ -82,7 +311,7 @@ hermes:
   config:
     cardano:
       chainId: cardano-preview
-      gatewayUrl: http://gateway:5001
+      gatewayUrl: http://cf-cardano-ibc-gateway-app:5001
       networkId: 0
       keyName: cardano-relayer
     injective:
@@ -96,7 +325,7 @@ dapps:
   enabled: true
   swapClient:
     image:
-      tag: 0.0.1-PR550-444a161
+      tag: 0.0.1-PR554-f7fdf33
     ingress:
       enabled: true
       hosts:
@@ -133,6 +362,10 @@ global:
     additionalEnv:
       - name: WAL_S3_BUCKET
         value: ""
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
   gatewayDb:
     secretName: gateway-owner-user.cardano-ibc-pg.credentials.postgresql.acid.zalan.do
   yaciDb:
