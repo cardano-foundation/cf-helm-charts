@@ -37,16 +37,15 @@ yaci-store:
     # host: preview-node.play.dev.cardano.org
     # port: 3001
     networkMagic: 2
-  syncStartSlot: "118575666"
-  syncStartBlockHash: "88ac7f547bfa9dd418bdd5afecaa9c71397676b8d16f34cd638cfc154554a305"
-  # syncStartSlot: "112406368"
-  # syncStartBlockHash: "4df1ffe17f1dbec0969e23710b015306387724bbb3d9260af647d839df26a0e6"
+  syncStartSlot: "118540809"
+  syncStartBlockHash: "ac0565f1cbf63fb367e5328a5194752add5ddcd30a4553d963e0c5e318eb4efe"
+  syncStartBlockNo: "4515925"
 
 ## ----- Gateway ----------------------------------------------------------------
 gateway:
   enabled: true
   image:
-    tag: 0.0.1-PR554-f7fdf33
+    tag: 0.0.1-PR554-c0d3297
   ## The Gateway image copies tracked manifests to /usr/src/app/manifests.
   ## Use the compact public bridge manifest rather than handler.json at runtime.
   deploymentConfig:
@@ -56,103 +55,103 @@ gateway:
       content: |
         {
           "schema_version": 3,
-          "deployment_id": "cardano-preview:eaa8ce070c713f31f4dd3e6c321fbce118c3f05189733de780ad6566.6962635f686f73745f7374617465",
-          "deployed_at": "2026-07-28T10:23:16.077Z",
+          "deployment_id": "cardano-preview:899094592da5194543c091ff314c6aca5953891774077141b765adb5.6962635f686f73745f7374617465",
+          "deployed_at": "2026-07-30T13:45:33.678Z",
           "cardano": {
             "chain_id": "cardano-preview",
             "network_magic": 2,
             "network": "preview"
           },
           "host_state_nft": {
-            "policy_id": "eaa8ce070c713f31f4dd3e6c321fbce118c3f05189733de780ad6566",
+            "policy_id": "899094592da5194543c091ff314c6aca5953891774077141b765adb5",
             "token_name": "6962635f686f73745f7374617465"
           },
           "validators": {
             "host_state_stt": {
-              "script_hash": "0b7fb78d877c5f2e880ded660d2f2f24d430a58daeda339dbd476abe",
-              "address": "addr_test1wq9hldudsa797t5gphkkvrf09ujdgv993khd5vuah4rk40sez9rf7",
+              "script_hash": "92b090c9fbdb5c67973380107d627b2f5143ad50773f3583b48d7e07",
+              "address": "addr_test1wzftpyxfl0d4ceuhxwqpqltz0vh4zsad2pmn7dvrkjxhupcmfre74",
               "ref_utxo": {
-                "tx_hash": "69fbba751d0774fc248965182f1e3aa969c451c337404616f4959b2df21f850d",
+                "tx_hash": "5501ce53fddab661c9db99c3152952062dd05530bfeba93760b7128768a9ab83",
                 "output_index": 0
               }
             },
             "spend_client": {
-              "script_hash": "cc3675f589eea80425222cb4c7d478b0d36c57056cd65d4bf9bc1794",
-              "address": "addr_test1wrxrva0438h2spp9ygktf3750zcdxmzhq4kdvh2tlx7p09q3nsdc3",
+              "script_hash": "b27b38a70ff0205d13af1b59ba9a642fdf8f50c76f7ecee78ae6b1fc",
+              "address": "addr_test1wze8kw98plczqhgn4ud4nw56vshalr6scahhanh83tntrlqa40e7p",
               "ref_utxo": {
-                "tx_hash": "27c7c80244916324e0a717177c5593f99d77af382fbae66fce8a544c0712133f",
+                "tx_hash": "addcb3067659f6c560490fe11e71f75c83791024c1f0b9cf0ab709cbcc5e2b12",
                 "output_index": 0
               }
             },
             "spend_connection": {
-              "script_hash": "d3eccb6532af89a3ee4852d67d18067e03b43d8f2d68ba5ab8526c09",
-              "address": "addr_test1wrf7ejm9x2hcnglwfpfdvlgcqelq8dpa3ukk3wj6hpfxczg9jja9c",
+              "script_hash": "125ea82f6c88feab5ae6d4fa4cae54d1e0daf5865e8adac23826f172",
+              "address": "addr_test1wqf9a2p0djy0a266um205n9w2ng7pkh4se0g4kkz8qn0zus9u5phr",
               "ref_utxo": {
-                "tx_hash": "0d6814e5290311ef9e589887fded7be77c84d9b2b2e87a7b4312f7a984a7d8c9",
+                "tx_hash": "c819351d14d397443818e400a4d5f259882bc4041d2afe730c2a5f32722bf5fc",
                 "output_index": 0
               }
             },
             "spend_channel": {
-              "script_hash": "74d1913826fcb2dc450ef170251cfc65ab24b757af5111c6059e1381",
-              "address": "addr_test1wp6dryfcym7t9hz9pmchqfgul3j6kf9h27h4zywxqk0p8qg6yf065",
+              "script_hash": "33baf5430c4fd2e47e5f6dd1a677e6d545d593d8da6ec59d32971623",
+              "address": "addr_test1wqem4a2rp38a9er7takarfnhum25t4vnmrdxa3vax2t3vgcuv8dgy",
               "ref_utxo": {
-                "tx_hash": "78c9aa4b31d52eec096a887f132001507916271f001c03ea0f699759d0028937",
+                "tx_hash": "4937964096714db96018b3447948a0358b97239484e0d338ba006b5aaf19a4f3",
                 "output_index": 0
               },
               "ref_validator": {
                 "acknowledge_packet": {
-                  "script_hash": "ac7c1f9df4ad38ab49b920fe3a94c39e66768cff68d3eb83a2faf7d0",
+                  "script_hash": "126f5ae1ed4f4e81b001b005306218f3266120c0e333c76b791f8e74",
                   "ref_utxo": {
-                    "tx_hash": "795135fa8591901a8366cc4d3c0765ecebe9b9cf45c3b12e691eb7bf2a493055",
+                    "tx_hash": "5a427d965186c0db5799b5035cc52e3c91bd9550f0f412d5a12ebb9c61f18638",
                     "output_index": 0
                   }
                 },
                 "chan_close_confirm": {
-                  "script_hash": "0200cd5d98c374477f69b4c5fd44cb4c553f37db719f7e97442e9532",
+                  "script_hash": "d419005b9f31616a7f4c205c0f82db0cf82e49ce168f84d86ac66f3a",
                   "ref_utxo": {
-                    "tx_hash": "a61ef13c074886fd8f2c53454c55bf847120f6238353ed95ba295e7389c208ad",
+                    "tx_hash": "4206bfbf8a7756654cf6e547a5460a49879b8dd39facc864cfdf183f2a3134be",
                     "output_index": 0
                   }
                 },
                 "chan_close_init": {
-                  "script_hash": "4f718f26a19ef05b089bb80b0a0e5e00f06a8775f841927886abe8f6",
+                  "script_hash": "b4a652c7306a0cab22a55394366fa29db430417decc4d429b5d09f7a",
                   "ref_utxo": {
-                    "tx_hash": "c4708e7f004fb73da43df2faa9ce2f7d7f19ec70878bfc2d62ef8e4236f3088a",
+                    "tx_hash": "ebd651c83f64de0f9fada6399e0954473b7da47af61ff3c8993994e0d8a4a32b",
                     "output_index": 0
                   }
                 },
                 "chan_open_ack": {
-                  "script_hash": "14abc12ea36ac1c0680006dc011e89f3a7dc2b2f7ee9609963bfe5b8",
+                  "script_hash": "e27d354afdcc5adce4515e3e763445094801f1679f21d75e3d9e721e",
                   "ref_utxo": {
-                    "tx_hash": "6cdff5ca65fba6001669ea9f3375da56c7319be8b7a729427b09b205fb854942",
+                    "tx_hash": "064644a0e427f2a3d688990e75e37a1a3f5ecc68cba6ceee25d695f2066954cf",
                     "output_index": 0
                   }
                 },
                 "chan_open_confirm": {
-                  "script_hash": "ec507db929b7a660eea405d93d15a40a08768c412ae17a53830879b1",
+                  "script_hash": "6536a428aabfc6c0fed4d865d2f38e02586be88bdaf8d11e2e92be99",
                   "ref_utxo": {
-                    "tx_hash": "70cf13b8a2bd35033e8703f2964b759eac8394f07dd0699f611a70bcd810aa68",
+                    "tx_hash": "c6f54c6aa5aa50079e4f11c7fa0768fc0a372310ffba10d90250f40e1b4f0426",
                     "output_index": 0
                   }
                 },
                 "recv_packet": {
-                  "script_hash": "1a94b8822def399fc4203ef9e09047dae2d6b41013ad7ac3607fd4e9",
+                  "script_hash": "18f75380fe3e3161e746c3435dd3f3d7ee1ac8d4cbd0b7e74d02b326",
                   "ref_utxo": {
-                    "tx_hash": "4a6ae446e00fb4a263faf11f82c50ea43dd3fddcbdadc3732cd3bb8dc70640e8",
+                    "tx_hash": "60d2105786b527339c898f53b655859402edd64c5df232030cb906bd0b73e09b",
                     "output_index": 0
                   }
                 },
                 "send_packet": {
-                  "script_hash": "fe29e78619bc2ff4fdbfbf5358a17cfcd3e8f4a3cccaa34af877c411",
+                  "script_hash": "fa6ef1cabc610ba0bc863c2fd3c1867fd5abfbe7267b3efa42b0586b",
                   "ref_utxo": {
-                    "tx_hash": "35c484f705d4fcc9485d4d6faf8634e939ce8d3681f00c318d9346e4843d00eb",
+                    "tx_hash": "828defa06666ab8d23935a78ee56aedd483148eb5f2560aac45d5d47d5b5f943",
                     "output_index": 0
                   }
                 },
                 "timeout_packet": {
-                  "script_hash": "56464bb34a086f9dd3b03c06cdf4ad98e311186c400d3be43dbccdc9",
+                  "script_hash": "659dc55ef5168c6f66f1524ce8a85a513f980686e54890215c6d6c50",
                   "ref_utxo": {
-                    "tx_hash": "043ef5f59a5a26e381fb51fd9d7a46060741f2e8d9a27a1b9f5e1e357707f649",
+                    "tx_hash": "a6fbbe2cbe018e221aeac85343ab3f27ae6bc4bfb82dbcac5f1507a304db818b",
                     "output_index": 0
                   }
                 }
@@ -162,23 +161,23 @@ gateway:
               "script_hash": "bd3ae991b5aafccafe5ca70758bd36a9b2f872f57f6d3a1ffa0eb777",
               "address": "addr_test1wz7n46v3kk40ejh7tjnswk9ax65m97rj74lk6wsllg8twac0ke9dm",
               "ref_utxo": {
-                "tx_hash": "b250afdcafa4a8a34072ee8d7893dcf2c3bd0403bae155b3f03dd000e1f76e74",
+                "tx_hash": "fd7322ca1291fbc994ec51e5ece8ae932e02ebf2a42425b48ebd5adb3c50ad73",
                 "output_index": 2
               }
             },
             "spend_trace_registry": {
-              "script_hash": "a523909b0e3cc3f837688619f52fa6ec2cc73e2064ff63610129aed5",
-              "address": "addr_test1wzjj8yympc7v87phdzrpnaf05mkze3e7ypj07cmpqy56a4gk0l6qa",
+              "script_hash": "1a36db8b0b8ed9501ab8a2b40a51c2272d1294835ae8d96d8f695282",
+              "address": "addr_test1wqdrdkutpw8dj5q6hz3tgzj3cgnj6y55sddw3ktd3a549qsxdlgxn",
               "ref_utxo": {
-                "tx_hash": "b250afdcafa4a8a34072ee8d7893dcf2c3bd0403bae155b3f03dd000e1f76e74",
+                "tx_hash": "fd7322ca1291fbc994ec51e5ece8ae932e02ebf2a42425b48ebd5adb3c50ad73",
                 "output_index": 0
               }
             },
             "spend_transfer_module": {
-              "script_hash": "a1120ae1999c6331603789378130cc2f7186debc62ab2a60d42e7b9c",
-              "address": "addr_test1wzs3yzhpnxwxxvtqx7yn0qfseshhrpk7h332k2nq6sh8h8qpfyux9",
+              "script_hash": "ede9ca3760f1cba845ab6747e755b5667fcbcfa0856e798ea2deaf89",
+              "address": "addr_test1wrk7nj3hvrcuh2z94dn50e64k4n8lj705zzku7vw5t02lzgfp0tp4",
               "ref_utxo": {
-                "tx_hash": "20233c63f4faa1c663732cec20d9a056756838e1f1abab3a232de364f4861b30",
+                "tx_hash": "0e0d40ce78ec3a5e64d7b2620609e5ff49866d55ae343bb960252b89fc71791f",
                 "output_index": 0
               }
             },
@@ -186,7 +185,7 @@ gateway:
               "script_hash": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88",
               "address": "",
               "ref_utxo": {
-                "tx_hash": "62b454d1e8655b85945c00bc939a378f47a52a4ef67a24880bbefe4ad73af146",
+                "tx_hash": "289bc7587fe4a3acfefcb61ae7bb911141711c5d2bf828b570e770415622bde8",
                 "output_index": 1
               }
             },
@@ -194,55 +193,55 @@ gateway:
               "script_hash": "d053f828a3e3473dfcbe41384470b61b5cccf12d68c614f8cc81e781",
               "address": "",
               "ref_utxo": {
-                "tx_hash": "1f171816e5e38d1adac0b2d779ef9c915cd4ad5e55dd9224eab6f0100be44aee",
+                "tx_hash": "00e6060e3030b4160a7e52b5d44c1ef9e030d1411a5b0b0a6e0665cecc9eeb68",
                 "output_index": 0
               }
             },
             "mint_client_stt": {
-              "script_hash": "944591cd9344284d99a343af649bc594c48b4c78cd8bd42b6908e1ab",
+              "script_hash": "278f1947f72d260c257fafe5197d844701b7e423f4409a3f312db3b4",
               "address": "",
               "ref_utxo": {
-                "tx_hash": "5a0941d811d7c519febcee21517c4d1792ba594078d28e588a5dc64ea3a33180",
+                "tx_hash": "4b433ca52973b227b34d3030aa53400e6025030d923206ee352c016abe8bb945",
                 "output_index": 0
               }
             },
             "mint_connection_stt": {
-              "script_hash": "ac8911598bcc6997c9fec52294bd01a8d91d002105cf41a472404739",
+              "script_hash": "baacada26b4039e4c4debc2c246e01293fbf705be57240fe92bcb548",
               "address": "",
               "ref_utxo": {
-                "tx_hash": "060c3bfa36230c8d241174c1a2cb6ea5f9c3a883c6ecf51a527a8e1f9750f604",
+                "tx_hash": "e2a5d60059869f1b765b38d4483c17eae61467316851b8a45877d878bff89dd0",
                 "output_index": 0
               }
             },
             "mint_channel_stt": {
-              "script_hash": "a53f4b82911e4a842ef96696b9c7fbb071c842181aaff4391b5817b0",
+              "script_hash": "cf7c370e1ad490b80b9f4816c995a96e9f88f82065d05986c2dd0993",
               "address": "",
               "ref_utxo": {
-                "tx_hash": "368bc36e8913be9a8a9ab5a6fc0f958a302596174a6c53cd131dcf57fa34378e",
+                "tx_hash": "6b38029014b001c25c6878663353908ebae33f1f6fc964a35f5c114656285d81",
                 "output_index": 0
               }
             },
             "mint_voucher": {
-              "script_hash": "9fe3699282833550c000de7a211bb9c7576a4fe17c63a72e33a04ea8",
+              "script_hash": "c64e1ed238e851874ce42169137e375b3d053f471e0e07c6b3aae8f3",
               "address": "",
               "ref_utxo": {
-                "tx_hash": "ce830b922a67cddfc3f2a5d4ac2b6e1cb435a79e9ae6fcbb76ed53a4d3267d4d",
+                "tx_hash": "b840efae1da537c54b1e9d24ca8e0a0e120a3826eee419281d155145c2bf3a7f",
                 "output_index": 0
               }
             },
             "mint_transfer_escrow_shard": {
-              "script_hash": "a0b17766082720513ee97d96c474881f1e1b1758a5c8eeff3edbf6b5",
+              "script_hash": "44f5387df09c5da4b97644f5df786f6eb9e6cc926de99fdb96b37ba4",
               "address": "",
               "ref_utxo": {
-                "tx_hash": "790c824296d0bfd3ec54f9fc74e242373db680f2f2b6d5dc26ed48fa35fbb396",
+                "tx_hash": "b8053c32397233f213d9cd4e9bc91af2cfe888c8e04f48a7d67e2a122543614a",
                 "output_index": 0
               }
             },
             "mint_port": {
-              "script_hash": "92c6032d7a006429cad76efa9e664f394553111fa9daaf03ff2acdac",
+              "script_hash": "db141b8e231b4cc7f689531f50ff57c86b4fedd7ccc75fe1ffe5c05d",
               "address": "",
               "ref_utxo": {
-                "tx_hash": "62b454d1e8655b85945c00bc939a378f47a52a4ef67a24880bbefe4ad73af146",
+                "tx_hash": "289bc7587fe4a3acfefcb61ae7bb911141711c5d2bf828b570e770415622bde8",
                 "output_index": 0
               }
             },
@@ -252,27 +251,28 @@ gateway:
           },
           "modules": {
             "transfer": {
-              "identifier": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a888375e2a587a09aaf9543b265c42378e9ee0beb1a0b89148d8ad979b939904aa1",
-              "address": "addr_test1wzs3yzhpnxwxxvtqx7yn0qfseshhrpk7h332k2nq6sh8h8qpfyux9"
+              "identifier": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88f8e247b3f81089a1c0335f7df0cc578ca92e6dc2c12d30b2e17b17d5d5acfe78",
+              "address": "addr_test1wrk7nj3hvrcuh2z94dn50e64k4n8lj705zzku7vw5t02lzgfp0tp4"
             },
             "mock": {
-              "identifier": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a8835244d965700d6010833f8e3f8ed69fdd55286907c0c47bb5ba5f1a00f4633ef",
+              "identifier": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88236a1db90701ae050f4e4621a51022d78184894b73f952e500a8d5a96df0e728",
               "address": "addr_test1wz7n46v3kk40ejh7tjnswk9ax65m97rj74lk6wsllg8twac0ke9dm"
             },
             "icq": {
-              "identifier": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88f8e69484ee274108068d37fbcaee06c5f2da7ba8a7477ec9b5916df28ea6627f",
+              "identifier": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a880f54b2381b63d8bc0a419cf74a414f4b478191c1147336c1b44c6f1a79d34f5b",
               "address": "addr_test1wz7n46v3kk40ejh7tjnswk9ax65m97rj74lk6wsllg8twac0ke9dm"
             }
           },
           "trace_registry": {
-            "address": "addr_test1wzjj8yympc7v87phdzrpnaf05mkze3e7ypj07cmpqy56a4gk0l6qa",
+            "address": "addr_test1wqdrdkutpw8dj5q6hz3tgzj3cgnj6y55sddw3ktd3a549qsxdlgxn",
             "shard_policy_id": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88",
             "directory": {
               "policy_id": "2f2694b6e83ae30aa28966529b2fe0cfa2d2bf5028b0f75f1ac92a88",
-              "token_name": "40b567ba913947e25c69fc9270e37c29c36ad0ec6ab4486a17f7325a03175871"
+              "token_name": "3660197c07efc7a270715166956f4bfc4692d13e9d636130bba7859979a289b7"
             }
           }
         }
+
   koiosApiKeySecret:
     name: gateway-secrets
 
@@ -319,13 +319,24 @@ hermes:
       rpcAddr: https://testnet.sentry.tm.injective.network:443
       grpcAddr: https://testnet.sentry.chain.grpc.injective.network:443
       eventSourceUrl: wss://testnet.sentry.tm.injective.network:443/websocket
+  clientRefresh:
+    enabled: true
+    injectiveCardanoClientId: "08-cardano-probabilistic-488"
+    cardanoTendermintClientId: "07-tendermint-2"
+    idleHeartbeat:
+      enabled: true
+      idleThresholdSeconds: 1200
+      observationIntervalSeconds: 60
+      cardanoChannels:
+        - portId: transfer
+          channelId: channel-1
 
 ## ----- dApps ------------------------------------------------------------------
 dapps:
   enabled: true
   swapClient:
     image:
-      tag: 0.0.1-PR554-f7fdf33
+      tag: 0.0.1-PR554-2b1bba8
     ingress:
       enabled: true
       hosts:

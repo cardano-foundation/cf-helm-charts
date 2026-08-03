@@ -48,9 +48,9 @@ data:
 
     [mode.packets]
     enabled = true
-    clear_interval = 100
-    clear_on_start = true
-    tx_confirmation = true
+    clear_interval = {{ .Values.packetRelaying.clearInterval }}
+    clear_on_start = {{ .Values.packetRelaying.clearOnStart }}
+    tx_confirmation = {{ .Values.packetRelaying.txConfirmation }}
 
     [[chains]]
     type = 'Cardano'
