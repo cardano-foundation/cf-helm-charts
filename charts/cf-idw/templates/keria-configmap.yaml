@@ -28,6 +28,16 @@ data:
         KERIA_IURLS="$KERIA_IURLS $WITNESS_PUBLIC_URL"
       done
     fi
+
+    # If keria-extra-oobis exists in the configmap, append them to KERIA_IURLS
+    if [ -f /configmap/keria-extra-oobis.json ]; then
+      # Read extra oobis from file and append to existing KERIA_IURLS
+      EXTRA_OOBIS=$(cat /configmap/keria-extra-oobis.json)
+      # Parse the JSON array and append each URL to KERIA_IURLS
+      for url in $(echo "$EXTRA_OOBIS" | jq -r '.[]'); do
+        KERIA_IURLS="$KERIA_IURLS $url"
+      done
+    fi
     export KERIA_RENDERED_IURLS=$(for keria_iurl in ${KERIA_IURLS}; do echo $keria_iurl; done | jq -cRn '[inputs]')
     envsubst < /configmap/backer-oobis.json.tpl > /config/backer-oobis.json
 
