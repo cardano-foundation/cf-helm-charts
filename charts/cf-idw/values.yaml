@@ -75,6 +75,7 @@ keria:
   logLevel: "INFO"
   allowIntroductions: true
   remoteSigning: true
+  keriaESSR: true
   ports:
     - 3901
     - 3902
