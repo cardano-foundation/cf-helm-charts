@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "yaci-store.fullname" . }}
+  labels:
+    {{- include "yaci-store.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "yaci-store.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ (index .Values "yaci-store").port }}
+      targetPort: http
+      protocol: TCP

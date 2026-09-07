@@ -1,0 +1,75 @@
+## cf-kupo
+##
+## Kupo — fast, configurable Cardano chain index.
+##
+## Two connection modes:
+##   source: ogmios       (default) — connect to Ogmios over WebSocket (--ogmios-host).
+##                              No cardano-node socket, no socat. Kupo becomes a pure
+##                              network client of Ogmios.
+##   source: node-socket            — re-create a local n2c Unix socket via a socat sidecar
+##                              from cf-cardano-node's socat-n2c TCP Service, then
+##                              --node-socket at it.
+
+image:
+  repository: cardanosolutions/kupo
+  tag: "v2.12.0"
+  pullPolicy: IfNotPresent
+
+## Kupo HTTP API port.
+port: 1442
+
+## Connection source.
+source: ogmios   # ogmios | node-socket
+
+## Used when source: ogmios. Empty host resolves to <release>-cf-ogmios;
+## override to point at an externally managed Ogmios instance.
+ogmios:
+  host: ""
+  port: 1337
+
+## Used when source: node-socket
+cardanoNode:
+  socatHost: cardano-node
+  socatPort: 3002
+  network: preprod
+
+## Indexing options (see kupo --help).
+since: origin
+match: "*"
+deferDbIndexes: false
+pruneUtxo: false
+
+## Kupo workdir / SQLite index DB. Mounted from the StatefulSet volumeClaimTemplate.
+workdir: /db
+
+## Storage for the SQLite index DB.
+persistence:
+  size: 20Gi
+  storageClass: ""
+
+## Paths inside the pod (only used in node-socket mode).
+socketPath: /ipc/node.socket
+
+## socat sidecar image (only used when source: node-socket).
+socat:
+  image:
+    repository: alpine/socat
+    tag: "1.7.4.4-r0"
+    pullPolicy: IfNotPresent
+
+resources: {}
+
+initContainerResources: {}
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+
+nodeSelector: {}
+affinity: {}
+tolerations: []
+
+imagePullSecrets: []
+pdb:
+  enabled: false

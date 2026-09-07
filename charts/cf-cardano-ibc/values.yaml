@@ -1,0 +1,408 @@
+## cf-cardano-ibc — Cardano↔Injective IBC bridge
+##
+## Peers a self-hosted Cardano follower node + indexers with the IBC Gateway and
+## Hermes relayer. Postgres is provisioned by the Zalando Postgres Operator from
+## a single `postgresql` CRD rendered by this chart (global.postgres.enabled=true).
+## Injective is an external RPC endpoint.
+
+global:
+  ## Registry prefix for images built from the cardano-ibc-incubator repo
+  ## (gateway, hermes, swap-client, explorer). Third-party images (cardano-node,
+  ## ogmios, kupo, yaci-store, socat) use their own upstream registries.
+  imageRegistry: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry
+  ## imagePullSecrets for the private GitLab registry above (if required).
+  imagePullSecrets: []
+  storageClass: ""
+
+  ## Cardano network
+  cardanoNetwork: preprod
+  protocolMagic: 1
+
+  ## Browser-facing Gateway REST endpoint, typically the Gateway ingress URL.
+  ## The swap-client subchart uses this for NEXT_PUBLIC_GATEWAY_TX_BUILDER_ENDPOINT
+  ## when dapps.swapClient.publicGatewayEndpoint is unset.
+  publicGatewayEndpoint: ""
+
+  ## Internal helpers consumed by subcharts.
+  ## cardanoNodeSocatHost is the in-cluster cardano-node socat Service name;
+  ## when cf-cardano-node is a dependency, it resolves to <release>-cf-cardano-node.
+  cardanoNodeSocatHost: ""
+
+  ## Injective (external) counterparty RPC endpoints for Hermes.
+  injective:
+    chainId: injective-888
+    rpcAddr: https://testnet.sentry.tm.injective.network:443
+    restAddr: https://testnet.sentry.lcd.injective.network:443
+    grpcAddr: https://testnet.sentry.chain.grpc.injective.network:443
+    eventSourceUrl: wss://testnet.sentry.tm.injective.network:443/websocket
+
+  ## Postgres — single Zalando Postgres Operator cluster, shared by all
+  ## services. Single source of truth: when enabled=true (default), the chart
+  ## renders a `postgresql` CRD that creates one cluster with a prepared
+  ## database per service. The gateway / yaci-store subcharts derive the host
+  ## (<cluster>.<ns>.svc.cluster.local) and prepared-database owner Secret names
+  ## (<db>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do) from these
+  ## same values. Set enabled=false to use externally-managed Postgres instead
+  ## (then set global.gatewayDb / global.yaciDb hosts + secretNames explicitly).
+  postgres:
+    enabled: true
+    ## Controller annotation (operator pod identifier). Set to the operator
+    ## instance name if you run multiple operators.
+    controller: ""
+    clusterName: cardano-ibc-pg
+    namespace: ""               # defaults to the release namespace
+    secretNamespace: ""
+    teamId: cardano-ibc
+    version: "15"
+    numberOfInstances: 1
+    ## Optional Patroni config passed through to the Postgres CR.
+    ## Use patroni.pg_hba to allow non-SSL pod-network clients when the
+    ## operator default only admits hostssl connections.
+    patroni: {}
+    volume:
+      size: 10Gi
+      storageClass: ""
+    connectionPooler:
+      enabled: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    ## Login users — one per service. Empty list = normal LOGIN role.
+    users:
+      gateway: []
+      yaci: []
+    ## Prepared databases. Each gets Zalando default owner/reader/writer users;
+    ## the charts use the owner-user credentials by default.
+    databases:
+      - gateway
+      - yaci
+    ## Optional PostgreSQL.conf parameters.
+    parameters: {}
+    ## Optional sidecars (e.g. logical replication, exporters).
+    sidecars: []
+  ## Per-service connection details for the cluster above. These are the single
+  ## global source of truth consumed by both the gateway and yaci-store charts.
+  ## They default to the operator's Service DNS and prepared-database owner
+  ## Secret naming; override secretName if your operator uses a different
+  ## secret_name_template or if Postgres is externally managed.
+  gatewayDb:
+    host: ""                         # if empty, derived from global.postgres.clusterName
+    name: gateway
+    secretName: ""                   # if empty, derived to <name>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
+    secretUsernameKey: username
+    secretPasswordKey: password
+    synchronize: "true"
+  yaciDb:
+    host: ""                         # if empty, derived from global.postgres.clusterName
+    name: yaci
+    secretName: ""                   # if empty, derived to <name>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
+    secretUsernameKey: username
+    secretPasswordKey: password
+
+## Component sections (formerly separate subcharts under charts/, now merged
+## into this chart's templates/<component>/). No chart ships default cpu/memory
+## requests/limits — only the Postgres cluster (global.postgres.resources) is
+## sized by default. Size services explicitly per environment when needed
+## (e.g. cf-kupo.resources).
+cf-cardano-node:
+  enabled: true
+
+cf-ogmios:
+  enabled: true
+
+cf-kupo:
+  enabled: true
+
+yaci-store:
+  enabled: true
+  image:
+    repository: bloxbean/yaci-store
+    ## 2.0.2.1 matches the local Caribic runtime and fixes CBOR parsing of
+    ## post-protocol-11 public-testnet blocks.
+    tag: "2.0.2.1"
+    pullPolicy: IfNotPresent
+  port: 8080
+  cardanoNode:
+    host: ""
+    port: 3001
+    networkMagic: 1
+  syncStartSlot: 0
+  syncStartBlockHash: ""
+  syncStartBlockNo: 0
+  cbor:
+    transactionSave: true
+    blocksSave: true
+    returnTxBody: true
+    returnBlock: true
+  store:
+    assetsEnabled: false
+    metadataEnabled: false
+    mirEnabled: false
+    governanceEnabled: false
+    epochEnabled: true
+    blocksEnabled: true
+    scriptEnabled: true
+    stakingEnabled: true
+    transactionEnabled: true
+    utxoEnabled: true
+  executor:
+    enableParallelProcessing: true
+    blocksBatchSize: 50
+    blocksPartitionSize: 10
+  yaciDb:
+    host: ""     # resolved from global by the yaci-store.yaciDbHost helper
+    port: 5432
+    name: yaci
+    sslMode: prefer
+  resources: {}
+  nameOverride: ""
+  fullnameOverride: ""
+  podAnnotations: {}
+  podLabels: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  imagePullSecrets: []
+
+gateway:
+  enabled: true
+  image:
+    repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-gateway
+    tag: ""
+    pullPolicy: IfNotPresent
+  restPort: 8000
+  grpcPort: 5001
+  historySync:
+    enabled: true
+  deploymentConfig:
+    source: bridgeManifest
+    path: /usr/src/app/manifests/preprod/cardano-preprod-bridge-manifest.json
+    mountPath: /etc/cardano-ibc
+    fileName: ""
+    configMap:
+      name: ""
+      key: ""
+      content: ""
+  env:
+    PORT: "8000"
+    GRPC_HOST: "0.0.0.0"
+    GRPC_PORT: "5001"
+    CARDANO_CHAIN_ID: cardano-preprod
+    CARDANO_NETWORK_MAGIC: "1"
+    CARDANO_LIGHT_CLIENT_MODE: stake-weighted-stability
+    CARDANO_EPOCH_NONCE_GENESIS: ""
+    CARDANO_EPOCH_PARAMS_ENDPOINT: ""
+    CARDANO_POOL_REGISTRATION_HISTORY_ENDPOINT: ""
+    CARDANO_STABILITY_THRESHOLD_DEPTH: "10"
+    CARDANO_STABILITY_THRESHOLD_UNIQUE_POOLS: "2"
+    CARDANO_STABILITY_THRESHOLD_UNIQUE_STAKE_BPS: "6000"
+    CARDANO_STABILITY_ASSUME_POOL_REGISTRATION_SLOT: ""
+    CARDANO_PROBABILISTIC_EPOCH_NONCE_OVERRIDE: ""
+    KUPO_ENDPOINT: ""
+    OGMIOS_ENDPOINT: ""
+    YACI_STORE_ENDPOINT: ""
+    CARDANO_CHAIN_HOST: cardano-node
+    CARDANO_CHAIN_PORT: "3001"
+    GATEWAY_DB_PORT: "5432"
+    HISTORY_DB_PORT: "5432"
+    PGSSLMODE: no-verify
+    GATEWAY_DB_SYNCHRONIZE: "true"
+  resources: {}
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: gateway.example.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  historySyncResources: {}
+  koiosApiKeySecret:
+    name: ""
+    key: koiosApiKey
+  nameOverride: ""
+  fullnameOverride: ""
+  podAnnotations: {}
+  podLabels: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  imagePullSecrets: []
+
+hermes:
+  enabled: true
+  image:
+    repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-hermes
+    tag: ""
+    pullPolicy: IfNotPresent
+  telemetry:
+    enabled: true
+    host: 0.0.0.0
+    port: 3002
+    buckets:
+      latencySubmitted:
+        start: 500
+        end: 20000
+        buckets: 10
+      latencyConfirmed:
+        start: 1000
+        end: 30000
+        buckets: 10
+  rest:
+    enabled: false
+    host: 0.0.0.0
+    port: 3030
+  packetRelaying:
+    clearInterval: 100
+    clearOnStart: true
+    txConfirmation: true
+  config:
+    logLevel: info
+    cardano:
+      chainId: cardano-preprod
+      gatewayUrl: http://gateway:5001
+      hostStateHeartbeatInterval: "60s"
+      networkId: 0
+      keyName: cardano-relayer
+      account: 0
+      keyStoreType: Test
+      maxBlockTime: 20000ms
+      clockDrift: 15m
+      eventPollInterval: ""
+      eventReplayWindow: ""
+      mithrilCertificationTimeout: 30m
+      mithrilPollInterval: 5s
+      mithrilWaitLogInterval: 30s
+      trustThreshold:
+        numerator: "2"
+        denominator: "3"
+      packetFilter:
+        policy: allow
+        list:
+          - - transfer
+            - "*"
+    injective:
+      chainId: injective-888
+      rpcAddr: ""
+      grpcAddr: ""
+      eventSourceUrl: ""
+      accountPrefix: inj
+      keyName: injective-888-relayer
+      addressType: ethermint
+      defaultGas: "5000000"
+      maxGas: "60000000"
+      gasPrice:
+        price: "500000000"
+        denom: inj
+      gasMultiplier: "1.8"
+      maxMsgNum: "20"
+      maxTxSize: "1000000"
+      clockDrift: 20s
+      maxBlockTime: 10s
+      trustingPeriod: 10days
+      memoPrefix: Caribic
+      trustThreshold:
+        numerator: "1"
+        denominator: "3"
+      compatMode: ""
+  clientRefresh:
+    enabled: false
+    injectiveCardanoClientId: ""
+    intervalSeconds: 1200
+    resources: {}
+  keys:
+    cardanoMnemonicRef:
+      name: hermes-keys
+      key: cardano-relayer.json
+    injectiveMnemonicRef:
+      name: hermes-keys
+      key: injective-888-relayer.json
+  resources: {}
+  nameOverride: ""
+  fullnameOverride: ""
+  podAnnotations: {}
+  podLabels: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  imagePullSecrets: []
+
+dapps:
+  enabled: false
+  swapClient:
+    enabled: true
+    image:
+      repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-swap-client
+      tag: ""
+      pullPolicy: IfNotPresent
+    port: 3000
+    basePath: ""
+    mode: ""
+    cardanoNetwork: ""
+    gatewayEndpoint: ""
+    publicGatewayEndpoint: ""
+    cardanoBridgeManifestUrl: ""
+    publicCardanoBridgeManifestUrl: ""
+    localOsmosisRpcEndpoint: ""
+    localOsmosisRestEndpoint: ""
+    blockfrostProjectId: ""
+    kupoEndpoint: ""
+    ogmiosEndpoint: ""
+    kupmiosUrl: ""
+    publicKupmiosUrl: ""
+    cardanoChainId: ""
+    cardanoIbcChainId: ""
+    injectiveRpcEndpoint: ""
+    injectiveRestEndpoint: ""
+    crosschainSwapAddress: ""
+    forwardTimeout: 60m
+    enableMainnet: "false"
+    allowedOrigins: ""
+    kupmiosApiKeys:
+      existingSecret: ""
+      kupoKey: kupo-api-key
+      ogmiosKey: ogmios-api-key
+    extraEnv: []
+    resources: {}
+    ingress:
+      enabled: false
+      className: ""
+      annotations: {}
+      hosts:
+        - host: swap.example.local
+          paths:
+            - path: /
+              pathType: Prefix
+      tls: []
+  explorer:
+    enabled: true
+    image:
+      repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-explorer
+      tag:
+      pullPolicy: IfNotPresent
+    port: 8080
+    apiDomain: ""
+    cardanoChainId: ""
+    localOsmosisRpcEndpoint: ""
+    localOsmosisRestEndpoint: ""
+    extraEnv: []
+    resources: {}
+    ingress:
+      enabled: false
+      className: ""
+      annotations: {}
+      hosts:
+        - host: explorer.example.local
+          paths:
+            - path: /
+              pathType: Prefix
+      tls: []
+  nameOverride: ""
+  fullnameOverride: ""
+  imagePullSecrets: []

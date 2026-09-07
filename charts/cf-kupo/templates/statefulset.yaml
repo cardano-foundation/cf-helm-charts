@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "cf-kupo.fullname" . }}
+  labels:
+    {{- include "cf-kupo.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ include "cf-kupo.headlessName" . }}
+  selector:
+    matchLabels:
+      {{- include "cf-kupo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "cf-kupo.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{/* socat sidecar only in node-socket mode */}}
+      {{- if eq .Values.source "node-socket" }}
+      initContainers:
+        - name: socat
+          image: {{ include "cf-kupo.socatImage" . | quote }}
+          imagePullPolicy: {{ .Values.socat.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "Bridging UNIX:{{ .Values.socketPath }} -> TCP:{{ include "cf-kupo.cardanoNodeSocatHost" . }}:{{ .Values.cardanoNode.socatPort }}"
+              exec socat \
+                UNIX-LISTEN:{{ .Values.socketPath }},fork,reuseaddr,unlink-early \
+                TCP:{{ include "cf-kupo.cardanoNodeSocatHost" . }}:{{ .Values.cardanoNode.socatPort }},retry=10,interval=2
+          volumeMounts:
+            - name: ipc
+              mountPath: /ipc
+          resources:
+            {{- toYaml .Values.initContainerResources | nindent 12 }}
+      {{- end }}
+
+      containers:
+        - name: kupo
+          image: {{ include "cf-kupo.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            {{- if eq .Values.source "ogmios" }}
+            # ogmios mode — connect via WebSocket (--ogmios-host)
+            - --ogmios-host
+            - {{ include "cf-kupo.ogmiosHost" . | quote }}
+            - --ogmios-port
+            - {{ .Values.ogmios.port | toString | quote }}
+            {{- else }}
+            # node-socket mode — local n2c socket provided by socat sidecar
+            - --node-socket
+            - {{ .Values.socketPath | quote }}
+            - --node-config
+            - {{ printf "/config/%s/cardano-node.json" .Values.cardanoNode.network | quote }}
+            {{- end }}
+            - --since
+            - {{ .Values.since | quote }}
+            - --match
+            - {{ .Values.match | quote }}
+            - --workdir
+            - {{ .Values.workdir | quote }}
+            {{- if .Values.deferDbIndexes }}
+            - --defer-db-indexes
+            {{- end }}
+            {{- if .Values.pruneUtxo }}
+            - --prune-utxo
+            {{- end }}
+            - --host
+            - "0.0.0.0"
+            - --port
+            - {{ .Values.port | toString | quote }}
+          ports:
+            - name: kupo
+              containerPort: {{ .Values.port }}
+              protocol: TCP
+          volumeMounts:
+            {{- if eq .Values.source "node-socket" }}
+            - name: ipc
+              mountPath: /ipc
+            {{- end }}
+            - name: kupo-db
+              mountPath: {{ .Values.workdir }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 60
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            failureThreshold: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 5
+
+      {{- if eq .Values.source "node-socket" }}
+      volumes:
+        - name: ipc
+          emptyDir: {}
+      {{- end }}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: kupo-db
+        labels:
+          {{- include "cf-kupo.labels" . | nindent 10 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        {{- if .Values.persistence.storageClass }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}

@@ -1,0 +1,208 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "cf-cardano-node.fullname" . }}
+  labels:
+    {{- include "cf-cardano-node.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ include "cf-cardano-node.headlessName" . }}
+  selector:
+    matchLabels:
+      {{- include "cf-cardano-node.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "cf-cardano-node.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      terminationGracePeriodSeconds: 60
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      containers:
+        - name: cardano-node
+          image: {{ include "cf-cardano-node.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: CARDANO_NODE_SOCKET_PATH
+              value: {{ .Values.socketPath | quote }}
+            - name: CARDANO_NODE_SOCKET_HOST
+              value: "0.0.0.0"
+            - name: CARDANO_PORT
+              value: {{ .Values.n2nPort | toString | quote }}
+            # - name: CARDANO_DATABASE_PATH
+            #   value: {{ .Values.nodeDbPath | quote }}
+            # - name: CARDANO_CONFIG
+            #   value: {{ printf "%s/%s/config.json" .Values.configContainerPath .Values.network | quote }}
+            # - name: CARDANO_TOPOLOGY
+            #   value: {{ printf "%s/%s/topology.json" .Values.configContainerPath .Values.network | quote }}
+            - name: NETWORK
+              value: {{ .Values.network | quote }}
+            - name: PROTOCOL_MAGIC
+              value: {{ .Values.protocolMagic | toString | quote }}
+            - name: RESTORE_SNAPSHOT
+              value: "false"
+          ports:
+            - name: node-to-node
+              containerPort: {{ .Values.n2nPort }}
+              protocol: TCP
+            - name: metrics
+              containerPort: 12798
+              protocol: TCP
+          volumeMounts:
+            - name: node-data
+              mountPath: /data
+            - name: node-config
+              mountPath: {{ .Values.configContainerPath }}
+              readOnly: true
+            - mountPath: /ipc
+              name: cardano-node-ipc
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            exec:
+              command:
+                - test
+                - -S
+                - {{ .Values.socketPath | quote }}
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 1920
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  if [ "$NETWORK" = "mainnet" ]; then
+                    TIP=$(cardano-cli query tip --mainnet 2>/dev/null)
+                  else
+                    TIP=$(cardano-cli query tip --testnet-magic ${PROTOCOL_MAGIC} 2>/dev/null)
+                  fi
+                  PROGRESS=$(echo "$TIP" | grep -o '"syncProgress": *"[^"]*"' | grep -o '[0-9.]*')
+                  awk -v p="$PROGRESS" 'BEGIN { exit (p+0 >= 99.9) ? 0 : 1 }'
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 14400
+            timeoutSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  if [ "$NETWORK" = "mainnet" ]; then
+                    TIP=$(cardano-cli query tip --mainnet 2>/dev/null)
+                  else
+                    TIP=$(cardano-cli query tip --testnet-magic ${PROTOCOL_MAGIC} 2>/dev/null)
+                  fi
+                  PROGRESS=$(echo "$TIP" | grep -o '"syncProgress": *"[^"]*"' | grep -o '[0-9.]*')
+                  awk -v p="$PROGRESS" 'BEGIN { exit (p+0 >= 99.9) ? 0 : 1 }'
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 30
+            timeoutSeconds: 10
+
+        {{- if .Values.socat.enabled }}
+        - name: socat
+          image: {{ include "cf-cardano-node.socatImage" . | quote }}
+          imagePullPolicy: {{ .Values.socat.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for cardano-node socket at {{ .Values.socketPath }}..."
+              until [ -S {{ .Values.socketPath }} ]; do
+                echo "Socket not yet available, waiting 5s..."
+                sleep 5
+              done
+              echo "Socket found, starting socat bridge TCP:{{ .Values.socat.port }} -> UNIX:{{ .Values.socketPath }}"
+              exec socat \
+                TCP-LISTEN:{{ .Values.socat.port }},reuseaddr,fork \
+                UNIX-CONNECT:{{ .Values.socketPath }},retry=5,interval=1
+          ports:
+            - name: socat-n2c
+              containerPort: {{ .Values.socat.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: node-data
+              mountPath: /node
+            - mountPath: /ipc
+              name: cardano-node-ipc
+          startupProbe:
+            exec:
+              command:
+                - test
+                - -S
+                - {{ .Values.socketPath | quote }}
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 1920
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.socat.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.socat.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 10
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.initContainerResources | nindent 12 }}
+        {{- end }}
+
+      volumes:
+        - name: node-config
+          {{- if or .Values.existingConfigMap .Values.configFiles }}
+          configMap:
+            name: {{ include "cf-cardano-node.configConfigMapName" . }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: cardano-node-ipc
+          emptyDir:
+            sizeLimit: 1Mi
+
+
+  volumeClaimTemplates:
+    - metadata:
+        name: node-data
+        labels:
+          {{- include "cf-cardano-node.labels" . | nindent 10 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        {{- if .Values.persistence.storageClass }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}

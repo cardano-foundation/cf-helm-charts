@@ -1,0 +1,54 @@
+## cf-ogmios
+##
+## Ogmios — a lightweight WebSocket/JSON-RPC bridge for cardano-node.
+##
+## Ogmios has no native TCP-client mode; it only accepts `--node-socket <path>`.
+## This chart runs a long-lived socat sidecar that re-creates a local Unix socket
+## from a remote cardano-node n2c socket exposed over TCP (by cf-cardano-node's
+## socat sidecar). Ogmios then points `--node-socket` at the local socket.
+## No shared socket volume is required.
+
+image:
+  repository: cardanosolutions/ogmios
+  tag: "v7.0.0"
+  pullPolicy: IfNotPresent
+
+## Service port for Ogmios's WebSocket/HTTP API.
+port: 1337
+
+## cardano-node socat-n2c endpoint (the cf-cardano-node ClusterIP Service).
+## Empty socatHost resolves to <release>-cf-cardano-node; override to point at
+## a different cardano-node if not using the cf-cardano-node chart as a dependency.
+cardanoNode:
+  socatHost: ""
+  socatPort: 3002
+
+## Cardano network — used to locate the bundled node config inside the ogmios
+## image at /config/<network>/cardano-node/config.json for --node-config.
+network: preprod
+
+## Paths inside the pod.
+socketPath: /ipc/node.socket
+configPath: /config
+
+## socat sidecar image.
+socat:
+  image:
+    repository: alpine/socat
+    tag: "1.7.4.4-r0"
+    pullPolicy: IfNotPresent
+
+resources: {}
+
+initContainerResources: {}
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+
+nodeSelector: {}
+affinity: {}
+tolerations: []
+
+imagePullSecrets: []

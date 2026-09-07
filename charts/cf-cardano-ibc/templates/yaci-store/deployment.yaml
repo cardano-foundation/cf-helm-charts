@@ -1,0 +1,165 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "yaci-store.fullname" . }}
+  labels:
+    {{- include "yaci-store.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "yaci-store.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with (index .Values "yaci-store").podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "yaci-store.selectorLabels" . | nindent 8 }}
+        {{- with (index .Values "yaci-store").podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with (index .Values "yaci-store").imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "yaci-store").nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "yaci-store").affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (index .Values "yaci-store").tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      initContainers:
+        - name: wait-for-yaci-db
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+          args:
+            - |
+              echo "Waiting for yaci DB at {{ include "yaci-store.yaciDbHost" . }}:{{ include "yaci-store.yaciDbPort" . }} ..."
+              until nc -z {{ include "yaci-store.yaciDbHost" . }} {{ include "yaci-store.yaciDbPort" . }} 2>/dev/null; do
+                echo "yaci DB not ready, retrying in 5s..."; sleep 5
+              done
+              echo "yaci DB reachable"
+        - name: wait-for-cardano-node
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+          args:
+            - |
+              echo "Waiting for cardano-node n2n at {{ include "yaci-store.cardanoNodeHost" . }}:{{ include "yaci-store.cardanoNodePort" . }} ..."
+              until nc -z {{ include "yaci-store.cardanoNodeHost" . }} {{ include "yaci-store.cardanoNodePort" . }} 2>/dev/null; do
+                echo "cardano-node not ready, retrying in 5s..."; sleep 5
+              done
+              echo "cardano-node reachable"
+
+      containers:
+        - name: yaci-store
+          image: {{ include "yaci-store.image" . | quote }}
+          imagePullPolicy: {{ (index .Values "yaci-store").image.pullPolicy }}
+          env:
+            # Yaci Store is a Spring Boot app. Its Cardano settings bind from
+            # store.cardano.*; embedded public-network genesis files are selected
+            # by store.cardano.protocol-magic (1 = preprod).
+            - name: STORE_CARDANO_HOST
+              value: {{ include "yaci-store.cardanoNodeHost" . | quote }}
+            - name: STORE_CARDANO_PORT
+              value: {{ include "yaci-store.cardanoNodePort" . | toString | quote }}
+            - name: STORE_CARDANO_PROTOCOL_MAGIC
+              value: {{ include "yaci-store.cardanoNodeNetworkMagic" . | toString | quote }}
+            - name: STORE_CARDANO_SYNC_START_SLOT
+              value: {{ (index .Values "yaci-store").syncStartSlot | toString | quote }}
+            - name: STORE_CARDANO_SYNC_START_BLOCKHASH
+              value: {{ (index .Values "yaci-store").syncStartBlockHash | quote }}
+            - name: STORE_CARDANO_SYNC_START_BYRON_BLOCK_NUMBER
+              value: {{ (index .Values "yaci-store").syncStartBlockNo | toString | quote }}
+            - name: STORE_TRANSACTION_SAVE_CBOR
+              value: {{ (index .Values "yaci-store").cbor.transactionSave | toString | quote }}
+            - name: STORE_BLOCKS_SAVE_CBOR
+              value: {{ (index .Values "yaci-store").cbor.blocksSave | toString | quote }}
+            - name: STORE_CARDANO_RETURN_TX_BODY_CBOR
+              value: {{ (index .Values "yaci-store").cbor.returnTxBody | toString | quote }}
+            - name: STORE_CARDANO_RETURN_BLOCK_CBOR
+              value: {{ (index .Values "yaci-store").cbor.returnBlock | toString | quote }}
+            - name: STORE_ASSETS_ENABLED
+              value: {{ (index .Values "yaci-store").store.assetsEnabled | toString | quote }}
+            - name: STORE_METADATA_ENABLED
+              value: {{ (index .Values "yaci-store").store.metadataEnabled | toString | quote }}
+            - name: STORE_MIR_ENABLED
+              value: {{ (index .Values "yaci-store").store.mirEnabled | toString | quote }}
+            - name: STORE_GOVERNANCE_ENABLED
+              value: {{ (index .Values "yaci-store").store.governanceEnabled | toString | quote }}
+            - name: STORE_EPOCH_ENABLED
+              value: {{ (index .Values "yaci-store").store.epochEnabled | toString | quote }}
+            - name: STORE_BLOCKS_ENABLED
+              value: {{ (index .Values "yaci-store").store.blocksEnabled | toString | quote }}
+            - name: STORE_SCRIPT_ENABLED
+              value: {{ (index .Values "yaci-store").store.scriptEnabled | toString | quote }}
+            - name: STORE_STAKING_ENABLED
+              value: {{ (index .Values "yaci-store").store.stakingEnabled | toString | quote }}
+            - name: STORE_TRANSACTION_ENABLED
+              value: {{ (index .Values "yaci-store").store.transactionEnabled | toString | quote }}
+            - name: STORE_UTXO_ENABLED
+              value: {{ (index .Values "yaci-store").store.utxoEnabled | toString | quote }}
+            - name: STORE_EXECUTOR_ENABLE_PARALLEL_PROCESSING
+              value: {{ (index .Values "yaci-store").executor.enableParallelProcessing | toString | quote }}
+            - name: STORE_EXECUTOR_BLOCKS_BATCH_SIZE
+              value: {{ (index .Values "yaci-store").executor.blocksBatchSize | toString | quote }}
+            - name: STORE_EXECUTOR_BLOCKS_PARTITION_SIZE
+              value: {{ (index .Values "yaci-store").executor.blocksPartitionSize | toString | quote }}
+            - name: SPRING_DATASOURCE_HOST
+              value: {{ include "yaci-store.yaciDbHost" . | quote }}
+            - name: SPRING_DATASOURCE_PORT
+              value: {{ include "yaci-store.yaciDbPort" . | toString | quote }}
+            - name: DB_NAME
+              value: {{ include "yaci-store.yaciDbName" . | quote }}
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://$(SPRING_DATASOURCE_HOST):$(SPRING_DATASOURCE_PORT)/$(DB_NAME){{ with (index .Values "yaci-store").yaciDb }}{{ with .sslMode }}?sslmode={{ . }}{{ end }}{{ end }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "yaci-store.yaciDbSecretName" . }}
+                  key: {{ (index .Values.global "yaciDb").secretUsernameKey }}
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "yaci-store.yaciDbSecretName" . }}
+                  key: {{ (index .Values.global "yaciDb").secretPasswordKey }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources: {{- toYaml (index .Values "yaci-store").resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 60
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
