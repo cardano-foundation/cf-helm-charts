@@ -10,6 +10,6 @@ spec:
     {{- include "yaci-store.selectorLabels" . | nindent 4 }}
   ports:
     - name: http
-      port: {{ .Values.port }}
+      port: {{ (index .Values "yaci-store").port }}
       targetPort: http
       protocol: TCP

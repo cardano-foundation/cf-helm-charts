@@ -1,4 +1,4 @@
-{{- if .Values.explorer.enabled }}
+{{- if .Values.dapps.explorer.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,41 +18,41 @@ spec:
         app.kubernetes.io/name: ibc-explorer
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.dapps.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: explorer
-          image: {{ printf "%s:%s" .Values.explorer.image.repository (.Values.explorer.image.tag | default "latest") | quote }}
-          imagePullPolicy: {{ .Values.explorer.image.pullPolicy }}
+          image: {{ printf "%s:%s" .Values.dapps.explorer.image.repository (.Values.dapps.explorer.image.tag | default "latest") | quote }}
+          imagePullPolicy: {{ .Values.dapps.explorer.image.pullPolicy }}
           env:
             - name: PORT
-              value: {{ .Values.explorer.port | toString | quote }}
+              value: {{ .Values.dapps.explorer.port | toString | quote }}
             - name: HOST
               value: "0.0.0.0"
             - name: REACT_APP_CARDANO_CHAIN_ID
               value: {{ include "dapps.explorerCardanoChainId" . | toString | quote }}
-            {{- with .Values.explorer.apiDomain }}
+            {{- with .Values.dapps.explorer.apiDomain }}
             - name: REACT_APP_API_DOMAIN
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.explorer.localOsmosisRpcEndpoint }}
+            {{- with .Values.dapps.explorer.localOsmosisRpcEndpoint }}
             - name: REACT_APP_LOCALOSMOIS_RPC_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.explorer.localOsmosisRestEndpoint }}
+            {{- with .Values.dapps.explorer.localOsmosisRestEndpoint }}
             - name: REACT_APP_LOCALOSMOIS_REST_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.explorer.extraEnv }}
+            {{- with .Values.dapps.explorer.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.explorer.port }}
+              containerPort: {{ .Values.dapps.explorer.port }}
               protocol: TCP
-          resources: {{- toYaml .Values.explorer.resources | nindent 12 }}
+          resources: {{- toYaml .Values.dapps.explorer.resources | nindent 12 }}
 ---
 apiVersion: v1
 kind: Service
@@ -68,7 +68,7 @@ spec:
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
     - name: http
-      port: {{ .Values.explorer.port }}
+      port: {{ .Values.dapps.explorer.port }}
       targetPort: http
       protocol: TCP
 {{- end }}

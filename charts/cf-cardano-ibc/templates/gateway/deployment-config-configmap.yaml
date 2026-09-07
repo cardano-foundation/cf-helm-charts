@@ -8,5 +8,5 @@ metadata:
     app.kubernetes.io/component: gateway-deployment-config
 data:
   {{ include "gateway.deploymentConfigKey" . }}: |-
-{{ .Values.deploymentConfig.configMap.content | nindent 4 }}
+{{ .Values.gateway.deploymentConfig.configMap.content | nindent 4 }}
 {{- end }}

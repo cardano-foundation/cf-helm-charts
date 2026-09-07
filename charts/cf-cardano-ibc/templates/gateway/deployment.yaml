@@ -16,31 +16,31 @@ spec:
       labels:
         {{- include "gateway.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: gateway-app
-        {{- with .Values.podLabels }}
+        {{- with .Values.gateway.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/gateway/configmap.yaml") . | sha256sum }}
         {{- if include "gateway.deploymentConfigInlineConfigMapEnabled" . }}
-        checksum/deployment-config: {{ include (print $.Template.BasePath "/deployment-config-configmap.yaml") . | sha256sum }}
+        checksum/deployment-config: {{ include (print $.Template.BasePath "/gateway/deployment-config-configmap.yaml") . | sha256sum }}
         {{- end }}
-        {{- with .Values.podAnnotations }}
+        {{- with .Values.gateway.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.gateway.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.gateway.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.gateway.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.gateway.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -72,7 +72,7 @@ spec:
       containers:
         - name: gateway
           image: {{ include "gateway.image" . | quote }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.gateway.image.pullPolicy }}
           envFrom:
             - configMapRef:
                 name: {{ include "gateway.fullname" . }}-env
@@ -97,31 +97,31 @@ spec:
                 secretKeyRef:
                   name: {{ include "gateway.yaciDbSecretName" . }}
                   key: {{ include "gateway.yaciDbSecretPasswordKey" . }}
-{{ with .Values.koiosApiKeySecret.name }}
+{{ with .Values.gateway.koiosApiKeySecret.name }}
             - name: CARDANO_KOIOS_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ . | quote }}
-                  key: {{ $.Values.koiosApiKeySecret.key | quote }}
+                  key: {{ $.Values.gateway.koiosApiKeySecret.key | quote }}
 {{ end }}
           ports:
             - name: rest
-              containerPort: {{ .Values.restPort }}
+              containerPort: {{ .Values.gateway.restPort }}
               protocol: TCP
             - name: grpc
-              containerPort: {{ .Values.grpcPort }}
+              containerPort: {{ .Values.gateway.grpcPort }}
               protocol: TCP
           {{- if include "gateway.deploymentConfigVolumeEnabled" . }}
           volumeMounts:
             - name: deployment-config
-              mountPath: {{ .Values.deploymentConfig.mountPath | default "/etc/cardano-ibc" | quote }}
+              mountPath: {{ .Values.gateway.deploymentConfig.mountPath | default "/etc/cardano-ibc" | quote }}
               readOnly: true
           {{- end }}
-          resources: {{- toYaml .Values.resources | nindent 12 }}
+          resources: {{- toYaml .Values.gateway.resources | nindent 12 }}
           startupProbe:
             httpGet:
               path: /health
-              port: {{ .Values.restPort }}
+              port: {{ .Values.gateway.restPort }}
             initialDelaySeconds: 15
             periodSeconds: 10
             failureThreshold: 60
@@ -129,14 +129,14 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: {{ .Values.restPort }}
+              port: {{ .Values.gateway.restPort }}
             initialDelaySeconds: 10
             periodSeconds: 15
             timeoutSeconds: 5
           livenessProbe:
             httpGet:
               path: /health
-              port: {{ .Values.restPort }}
+              port: {{ .Values.gateway.restPort }}
             initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 5
@@ -150,7 +150,7 @@ spec:
                 path: {{ include "gateway.deploymentConfigFileName" . }}
       {{- end }}
 ---
-{{- if .Values.historySync.enabled }}
+{{- if .Values.gateway.historySync.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -170,15 +170,15 @@ spec:
         {{- include "gateway.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: gateway-history-sync
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/gateway/configmap.yaml") . | sha256sum }}
         {{- if include "gateway.deploymentConfigInlineConfigMapEnabled" . }}
-        checksum/deployment-config: {{ include (print $.Template.BasePath "/deployment-config-configmap.yaml") . | sha256sum }}
+        checksum/deployment-config: {{ include (print $.Template.BasePath "/gateway/deployment-config-configmap.yaml") . | sha256sum }}
         {{- end }}
-        {{- with .Values.podAnnotations }}
+        {{- with .Values.gateway.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.gateway.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -196,7 +196,7 @@ spec:
       containers:
         - name: history-sync
           image: {{ include "gateway.image" . | quote }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.gateway.image.pullPolicy }}
           command:
             - node
             - dist/scripts/yaci-bridge-history-sync.js
@@ -217,10 +217,10 @@ spec:
           {{- if include "gateway.deploymentConfigVolumeEnabled" . }}
           volumeMounts:
             - name: deployment-config
-              mountPath: {{ .Values.deploymentConfig.mountPath | default "/etc/cardano-ibc" | quote }}
+              mountPath: {{ .Values.gateway.deploymentConfig.mountPath | default "/etc/cardano-ibc" | quote }}
               readOnly: true
           {{- end }}
-          resources: {{- toYaml .Values.historySyncResources | nindent 12 }}
+          resources: {{- toYaml .Values.gateway.historySyncResources | nindent 12 }}
       {{- if include "gateway.deploymentConfigVolumeEnabled" . }}
       volumes:
         - name: deployment-config

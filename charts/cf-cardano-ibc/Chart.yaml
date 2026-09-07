@@ -27,19 +27,3 @@ dependencies:
     version: "0.1.0"
     repository: "file://../cf-kupo"
     condition: cf-kupo.enabled
-  - name: yaci-store
-    version: "0.1.0"
-    repository: "file://charts/yaci-store"
-    condition: yaci-store.enabled
-  - name: gateway
-    version: "0.1.0"
-    repository: "file://charts/gateway"
-    condition: gateway.enabled
-  - name: hermes
-    version: "0.1.0"
-    repository: "file://charts/hermes"
-    condition: hermes.enabled
-  - name: dapps
-    version: "0.1.0"
-    repository: "file://charts/dapps"
-    condition: dapps.enabled

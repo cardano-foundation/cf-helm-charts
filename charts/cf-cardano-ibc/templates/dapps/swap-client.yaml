@@ -1,4 +1,4 @@
-{{- if .Values.swapClient.enabled }}
+{{- if .Values.dapps.swapClient.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,17 +18,17 @@ spec:
         app.kubernetes.io/name: swap-client
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.dapps.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: swap-client
-          image: {{ printf "%s:%s" .Values.swapClient.image.repository (.Values.swapClient.image.tag | default "latest") | quote }}
-          imagePullPolicy: {{ .Values.swapClient.image.pullPolicy }}
+          image: {{ printf "%s:%s" .Values.dapps.swapClient.image.repository (.Values.dapps.swapClient.image.tag | default "latest") | quote }}
+          imagePullPolicy: {{ .Values.dapps.swapClient.image.pullPolicy }}
           env:
             - name: BASE_PATH
-              value: {{ .Values.swapClient.basePath | default "" | quote }}
+              value: {{ .Values.dapps.swapClient.basePath | default "" | quote }}
             - name: NEXT_PUBLIC_IBC_SWAP_MODE
               value: {{ include "dapps.swapMode" . | quote }}
             - name: NEXT_PUBLIC_CARDANO_NETWORK
@@ -43,25 +43,25 @@ spec:
               value: {{ include "dapps.gatewayEndpoint" . | quote }}
             - name: IBC_SWAP_CARDANO_BRIDGE_MANIFEST_URL
               value: {{ include "dapps.cardanoBridgeManifestUrl" . | quote }}
-            {{- with .Values.swapClient.publicCardanoBridgeManifestUrl }}
+            {{- with .Values.dapps.swapClient.publicCardanoBridgeManifestUrl }}
             - name: NEXT_PUBLIC_CARDANO_BRIDGE_MANIFEST_URL
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.swapClient.localOsmosisRpcEndpoint }}
+            {{- with .Values.dapps.swapClient.localOsmosisRpcEndpoint }}
             - name: NEXT_PUBLIC_LOCALOSMOIS_RPC_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.swapClient.localOsmosisRestEndpoint }}
+            {{- with .Values.dapps.swapClient.localOsmosisRestEndpoint }}
             - name: NEXT_PUBLIC_LOCALOSMOIS_REST_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.swapClient.blockfrostProjectId }}
+            {{- with .Values.dapps.swapClient.blockfrostProjectId }}
             - name: NEXT_PUBLIC_BLOCKFROST_PROJECT_ID
               value: {{ . | quote }}
             {{- end }}
             - name: IBC_SWAP_KUPMIOS_URL
               value: {{ include "dapps.kupmiosUrl" . | quote }}
-            {{- with .Values.swapClient.publicKupmiosUrl }}
+            {{- with .Values.dapps.swapClient.publicKupmiosUrl }}
             - name: NEXT_PUBLIC_KUPMIOS_URL
               value: {{ . | quote }}
             {{- end }}
@@ -73,38 +73,38 @@ spec:
             - name: NEXT_PUBLIC_INJECTIVE_REST_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.swapClient.crosschainSwapAddress }}
+            {{- with .Values.dapps.swapClient.crosschainSwapAddress }}
             - name: NEXT_PUBLIC_CROSSCHAIN_SWAP_ADDRESS
               value: {{ . | quote }}
             {{- end }}
             - name: NEXT_PUBLIC_FORWARD_TIMEOUT
-              value: {{ .Values.swapClient.forwardTimeout | default "60m" | quote }}
+              value: {{ .Values.dapps.swapClient.forwardTimeout | default "60m" | quote }}
             - name: NEXT_PUBLIC_ENABLE_MAINNET_IBC_SWAP
-              value: {{ .Values.swapClient.enableMainnet | default "false" | quote }}
-            {{- with .Values.swapClient.allowedOrigins }}
+              value: {{ .Values.dapps.swapClient.enableMainnet | default "false" | quote }}
+            {{- with .Values.dapps.swapClient.allowedOrigins }}
             - name: IBC_SWAP_ALLOWED_ORIGINS
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.swapClient.kupmiosApiKeys.existingSecret }}
+            {{- with .Values.dapps.swapClient.kupmiosApiKeys.existingSecret }}
             - name: IBC_SWAP_KUPO_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ . | quote }}
-                  key: {{ $.Values.swapClient.kupmiosApiKeys.kupoKey | quote }}
+                  key: {{ $.Values.dapps.swapClient.kupmiosApiKeys.kupoKey | quote }}
             - name: IBC_SWAP_OGMIOS_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ . | quote }}
-                  key: {{ $.Values.swapClient.kupmiosApiKeys.ogmiosKey | quote }}
+                  key: {{ $.Values.dapps.swapClient.kupmiosApiKeys.ogmiosKey | quote }}
             {{- end }}
-            {{- with .Values.swapClient.extraEnv }}
+            {{- with .Values.dapps.swapClient.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.swapClient.port }}
+              containerPort: {{ .Values.dapps.swapClient.port }}
               protocol: TCP
-          resources: {{- toYaml .Values.swapClient.resources | nindent 12 }}
+          resources: {{- toYaml .Values.dapps.swapClient.resources | nindent 12 }}
 ---
 apiVersion: v1
 kind: Service
@@ -120,7 +120,7 @@ spec:
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
     - name: http
-      port: {{ .Values.swapClient.port }}
+      port: {{ .Values.dapps.swapClient.port }}
       targetPort: http
       protocol: TCP
 {{- end }}

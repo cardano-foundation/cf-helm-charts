@@ -1,25 +1,25 @@
-{{- if and .Values.swapClient.enabled .Values.swapClient.ingress.enabled -}}
+{{- if and .Values.dapps.explorer.enabled .Values.dapps.explorer.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ printf "%s-ingress" (include "dapps.swapFullname" .) | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-ingress" (include "dapps.explorerFullname" .) | trunc 63 | trimSuffix "-" }}
   labels:
-    app.kubernetes.io/name: swap-client
+    app.kubernetes.io/name: ibc-explorer
     app.kubernetes.io/part-of: cardano-ibc
-  {{- with .Values.swapClient.ingress.annotations }}
+  {{- with .Values.dapps.explorer.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.swapClient.ingress.className }}
+  {{- with .Values.dapps.explorer.ingress.className }}
   ingressClassName: {{ . | quote }}
   {{- end }}
-  {{- with .Values.swapClient.ingress.tls }}
+  {{- with .Values.dapps.explorer.ingress.tls }}
   tls:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   rules:
-    {{- range .Values.swapClient.ingress.hosts }}
+    {{- range .Values.dapps.explorer.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -29,7 +29,7 @@ spec:
             pathType: {{ .pathType | default "Prefix" }}
             backend:
               service:
-                name: {{ include "dapps.swapFullname" $ }}
+                name: {{ include "dapps.explorerFullname" $ }}
                 port:
                   name: http
           {{- end }}

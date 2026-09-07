@@ -1,25 +1,25 @@
-{{- if .Values.ingress.enabled -}}
+{{- if and .Values.dapps.swapClient.enabled .Values.dapps.swapClient.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ printf "%s-ingress" (include "gateway.fullname" .) | trunc 63 | trimSuffix "-" }}
+  name: {{ printf "%s-ingress" (include "dapps.swapFullname" .) | trunc 63 | trimSuffix "-" }}
   labels:
-    {{- include "gateway.labels" . | nindent 4 }}
-    app.kubernetes.io/component: gateway-rest
-  {{- with .Values.ingress.annotations }}
+    app.kubernetes.io/name: swap-client
+    app.kubernetes.io/part-of: cardano-ibc
+  {{- with .Values.dapps.swapClient.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.ingress.className }}
+  {{- with .Values.dapps.swapClient.ingress.className }}
   ingressClassName: {{ . | quote }}
   {{- end }}
-  {{- with .Values.ingress.tls }}
+  {{- with .Values.dapps.swapClient.ingress.tls }}
   tls:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
+    {{- range .Values.dapps.swapClient.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -29,9 +29,9 @@ spec:
             pathType: {{ .pathType | default "Prefix" }}
             backend:
               service:
-                name: {{ include "gateway.fullname" $ }}
+                name: {{ include "dapps.swapFullname" $ }}
                 port:
-                  name: rest
+                  name: http
           {{- end }}
     {{- end }}
 {{- end }}

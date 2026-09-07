@@ -8,17 +8,5 @@ dependencies:
 - name: cf-kupo
   repository: file://../cf-kupo
   version: 0.1.0
-- name: yaci-store
-  repository: file://charts/yaci-store
-  version: 0.1.0
-- name: gateway
-  repository: file://charts/gateway
-  version: 0.1.0
-- name: hermes
-  repository: file://charts/hermes
-  version: 0.1.0
-- name: dapps
-  repository: file://charts/dapps
-  version: 0.1.0
-digest: sha256:bcea9364b185fbe916828c8d8040ad4baf31ba4415d6662c831bc1fdbe71ef3e
-generated: "2026-07-23T12:33:58.958958+02:00"
+digest: sha256:612ced127ce2325e9d79198c903197592895bde83f0d38c3232f418911adb26a
+generated: "2026-09-07T09:53:08.937687+02:00"

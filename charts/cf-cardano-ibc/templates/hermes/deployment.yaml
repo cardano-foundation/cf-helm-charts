@@ -13,28 +13,28 @@ spec:
     metadata:
       labels:
         {{- include "hermes.selectorLabels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
+        {{- with .Values.hermes.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        {{- with .Values.podAnnotations }}
+        checksum/config: {{ include (print $.Template.BasePath "/hermes/configmap.yaml") . | sha256sum }}
+        {{- with .Values.hermes.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.hermes.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.hermes.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.hermes.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.hermes.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -47,7 +47,7 @@ spec:
             - -c
           args:
             - |
-              until nc -z {{ .Release.Name }}-gateway 5001 2>/dev/null; do
+              until nc -z {{ include "gateway.fullname" . }} 5001 2>/dev/null; do
                 echo waiting gateway-gRPC; sleep 5
               done
               echo gateway-gRPC ready
@@ -55,7 +55,7 @@ spec:
       containers:
         - name: hermes
           image: {{ include "hermes.image" . | quote }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.hermes.image.pullPolicy }}
           {{/* The image's ENTRYPOINT is hermes; run as a daemon. */}}
           args:
             - start
@@ -68,28 +68,28 @@ spec:
               subPath: config.toml
               readOnly: true
             - name: cardano-keyring-test
-              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" .Values.config.cardano.chainId | quote }}
+              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" .Values.hermes.config.cardano.chainId | quote }}
               readOnly: true
             - name: injective-keyring-test
               mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" (include "hermes.injectiveChainId" .) | quote }}
               readOnly: true
           ports:
-            {{- if .Values.telemetry.enabled }}
+            {{- if .Values.hermes.telemetry.enabled }}
             - name: telemetry
-              containerPort: {{ .Values.telemetry.port }}
+              containerPort: {{ .Values.hermes.telemetry.port }}
               protocol: TCP
             {{- end }}
-            {{- if .Values.rest.enabled }}
+            {{- if .Values.hermes.rest.enabled }}
             - name: rest
-              containerPort: {{ .Values.rest.port }}
+              containerPort: {{ .Values.hermes.rest.port }}
               protocol: TCP
             {{- end }}
-          resources: {{- toYaml .Values.resources | nindent 12 }}
+          resources: {{- toYaml .Values.hermes.resources | nindent 12 }}
 
-        {{- if .Values.clientRefresh.enabled }}
+        {{- if .Values.hermes.clientRefresh.enabled }}
         - name: client-refresh
           image: {{ include "hermes.image" . | quote }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.hermes.image.pullPolicy }}
           {{/* Override the image entrypoint with caribic's Injective-only refresh loop. */}}
           command:
             - /bin/sh
@@ -113,21 +113,21 @@ spec:
             - name: INJECTIVE_CHAIN_ID
               value: {{ include "hermes.injectiveChainId" . | quote }}
             - name: INJECTIVE_CARDANO_CLIENT_ID
-              value: {{ required "hermes.clientRefresh.injectiveCardanoClientId is required when client refresh is enabled" .Values.clientRefresh.injectiveCardanoClientId | quote }}
+              value: {{ required "hermes.clientRefresh.injectiveCardanoClientId is required when client refresh is enabled" .Values.hermes.clientRefresh.injectiveCardanoClientId | quote }}
             - name: INTERVAL_SECONDS
-              value: {{ .Values.clientRefresh.intervalSeconds | quote }}
+              value: {{ .Values.hermes.clientRefresh.intervalSeconds | quote }}
           volumeMounts:
             - name: config
               mountPath: /home/hermes/.hermes/config.toml
               subPath: config.toml
               readOnly: true
             - name: cardano-keyring-test
-              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" .Values.config.cardano.chainId | quote }}
+              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" .Values.hermes.config.cardano.chainId | quote }}
               readOnly: true
             - name: injective-keyring-test
               mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" (include "hermes.injectiveChainId" .) | quote }}
               readOnly: true
-          resources: {{- toYaml .Values.clientRefresh.resources | nindent 12 }}
+          resources: {{- toYaml .Values.hermes.clientRefresh.resources | nindent 12 }}
         {{- end }}
 
       volumes:
@@ -136,13 +136,13 @@ spec:
             name: {{ include "hermes.fullname" . }}-config
         - name: cardano-keyring-test
           secret:
-            secretName: {{ .Values.keys.cardanoMnemonicRef.name }}
+            secretName: {{ .Values.hermes.keys.cardanoMnemonicRef.name }}
             items:
-              - key: {{ .Values.keys.cardanoMnemonicRef.key | quote }}
-                path: {{ printf "%s.json" .Values.config.cardano.keyName | quote }}
+              - key: {{ .Values.hermes.keys.cardanoMnemonicRef.key | quote }}
+                path: {{ printf "%s.json" .Values.hermes.config.cardano.keyName | quote }}
         - name: injective-keyring-test
           secret:
-            secretName: {{ .Values.keys.injectiveMnemonicRef.name }}
+            secretName: {{ .Values.hermes.keys.injectiveMnemonicRef.name }}
             items:
-              - key: {{ .Values.keys.injectiveMnemonicRef.key | quote }}
-                path: {{ printf "%s.json" .Values.config.injective.keyName | quote }}
+              - key: {{ .Values.hermes.keys.injectiveMnemonicRef.key | quote }}
+                path: {{ printf "%s.json" .Values.hermes.config.injective.keyName | quote }}

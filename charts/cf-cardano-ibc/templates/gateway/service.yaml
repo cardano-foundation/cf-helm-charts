@@ -12,10 +12,10 @@ spec:
     app.kubernetes.io/component: gateway-app
   ports:
     - name: rest
-      port: {{ .Values.restPort }}
+      port: {{ .Values.gateway.restPort }}
       targetPort: rest
       protocol: TCP
     - name: grpc
-      port: {{ .Values.grpcPort }}
+      port: {{ .Values.gateway.grpcPort }}
       targetPort: grpc
       protocol: TCP
