@@ -56,6 +56,10 @@ data:
     type = 'Cardano'
     id = '{{ .Values.config.cardano.chainId }}'
     gateway_url = '{{ include "hermes.gatewayUrl" . }}'
+    {{- with .Values.config.cardano.hostStateHeartbeatInterval }}
+    # Poll the Gateway for a per-epoch HostState anchor; see ae1382df.
+    host_state_heartbeat_interval = '{{ . }}'
+    {{- end }}
     network_id = {{ .Values.config.cardano.networkId }}
     key_name = '{{ .Values.config.cardano.keyName }}'
     {{- with .Values.config.cardano.keyStoreType }}

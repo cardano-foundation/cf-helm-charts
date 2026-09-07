@@ -66,80 +66,44 @@ top-level projected-volume symlinks.
 ## Periodic client refresh
 
 The standard Hermes refresh worker is trusting-period based and is not frequent
-enough for the Injective-hosted Cardano probabilistic client. Enable the Hermes
-sidecar after creating a healthy route and set the route's client IDs:
+enough for the Injective-hosted Cardano probabilistic client. After creating a
+healthy route, enable the optional sidecar with that client's ID:
 
 ```yaml
 hermes:
   clientRefresh:
     enabled: true
     injectiveCardanoClientId: 08-cardano-probabilistic-123
-    cardanoTendermintClientId: 07-tendermint-456
-    initialDelaySeconds: 60
     intervalSeconds: 1200
-    retryDelaySeconds: 300
-    commandTimeoutSeconds: 2400
-    idleHeartbeat:
-      enabled: true
-      idleThresholdSeconds: 1200
-      observationIntervalSeconds: 60
-      cardanoChannels:
-        - portId: transfer
-          channelId: channel-1
 ```
 
-The sidecar uses the same Hermes image, config, and keyring Secrets as the main
-relayer. Its normal path matches `caribic/README.md`: every `intervalSeconds` it
-updates only `injectiveCardanoClientId`. That operation reads Cardano but writes
-only to Injective, so it cannot create a pending Cardano HostState root.
+The sidecar mirrors the loop documented in `caribic/README.md`:
 
-The optional idle-heartbeat state machine works as follows:
+```bash
+while true; do
+  hermes update client \
+    --host-chain injective-888 \
+    --client 08-cardano-probabilistic-123
+  sleep 1200
+done
+```
 
-1. Every `observationIntervalSeconds`, it queries the probabilistic client on
-   Injective. Any change to its `latest_height`, including an update submitted
-   by the main relayer, resets the idle timer.
-2. Once the height has remained unchanged for `idleThresholdSeconds`, it queries
-   Gateway channel health for every configured `cardanoChannels` entry. A
-   failed/unparseable query, a non-open channel, or any pending Cardano packet
-   commitment defers the heartbeat by `retryDelaySeconds`.
-3. If all channels are quiet, it updates `cardanoTendermintClientId` once to
-   create a HostState anchor. It then retries only the Injective update until
-   Gateway accepts that anchor (normally after about 24 Cardano descendants).
-   The Cardano leg is not repeated even if its command fails, because a timeout
-   can leave its broadcast outcome uncertain and replacing a maturing anchor
-   would restart the stability wait.
-4. After the Injective leg succeeds or is already current, the idle timer resets
-   and normal Injective-only refreshes resume.
+It reads Cardano to construct the update but writes only to Injective. The main
+Hermes daemon independently provides HostState anchor points through
+`host_state_heartbeat_interval = '60s'`; the sidecar never updates a
+Cardano-hosted Tendermint client and never submits a Cardano transaction. A
+failed or already-current update simply waits until the next interval.
 
-The idle timer is intentionally in memory. A Pod restart starts a fresh full
-idle interval, delaying rather than prematurely creating an anchor.
-`injectiveCardanoClientId` is required whenever the sidecar is enabled.
-`cardanoTendermintClientId` and at least one `cardanoChannels` entry are required
-when `idleHeartbeat.enabled` is true. Leave idle heartbeat disabled for a pure
-Injective-only loop.
+The sidecar and main relayer share the Injective account, so transactions can
+occasionally race its account sequence. Keep the Hermes Deployment at one
+replica. Enabling the sidecar cannot recover a client whose existing update gap
+already exceeds Injective's transaction limit; such a client must be advanced
+through suitable historical HostState anchors or replaced with its connection
+and channel.
 
-Both containers use the same relayer accounts, so occasional account-sequence
-races with packet relaying may occur. Keep the Hermes Deployment at one replica.
-The channel-health check reduces unsafe heartbeat timing but cannot prevent a
-new user packet from racing immediately after the check.
-
-While a new live HostState waits for stability, Gateway proof queries can fail
-with `HEIGHT_NOT_ACCEPTED`. A live packet event rejected during that window is
-not replayed to its worker by Hermes. The chart therefore defaults
-`packetRelaying.clearInterval` to 10 Cardano blocks (rather than 100) so the
-packet worker reconstructs pending packets soon after proofs become available;
-`clearOnStart` remains enabled.
-
-The chart also sets the Cardano `event_replay_window` to 50 blocks. Gateway's
-Events RPC currently scans at most 101 heights per call, while Hermes applies
-its overlap before every call. With Hermes's default 100-block overlap a
-backlogged cursor advances only one height per poll; 50 preserves late-indexing
-replay while allowing it to catch up by roughly 51 heights per call.
-
-Enabling the sidecar cannot recover a client whose existing update gap already
-exceeds Injective's transaction limit. Such a client must first be advanced
-through suitably close historical HostState anchors or replaced together with
-its connection and channel.
+The rendered Hermes packet and Cardano event-source settings follow caribic:
+`clear_interval = 100`, `clear_on_start = true`, and no explicit
+`event_replay_window` (Hermes therefore uses its 100-block default).
 
 ## Out of chart scope
 

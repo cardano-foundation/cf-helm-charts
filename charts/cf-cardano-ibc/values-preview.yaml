@@ -45,7 +45,7 @@ yaci-store:
 gateway:
   enabled: true
   image:
-    tag: 0.0.1-PR554-c0d3297
+    tag: 2.0.2-PR666-ed3ad6f
   ## The Gateway image copies tracked manifests to /usr/src/app/manifests.
   ## Use the compact public bridge manifest rather than handler.json at runtime.
   deploymentConfig:
@@ -307,7 +307,7 @@ gateway:
 hermes:
   enabled: true
   image:
-    tag: 0.0.1-PR550-444a161
+    tag: 1.13.2-PR666-ed3ad6f
   config:
     cardano:
       chainId: cardano-preview
@@ -320,23 +320,15 @@ hermes:
       grpcAddr: https://testnet.sentry.chain.grpc.injective.network:443
       eventSourceUrl: wss://testnet.sentry.tm.injective.network:443/websocket
   clientRefresh:
-    enabled: true
+    enabled: false
     injectiveCardanoClientId: "08-cardano-probabilistic-488"
-    cardanoTendermintClientId: "07-tendermint-2"
-    idleHeartbeat:
-      enabled: true
-      idleThresholdSeconds: 1200
-      observationIntervalSeconds: 60
-      cardanoChannels:
-        - portId: transfer
-          channelId: channel-1
 
 ## ----- dApps ------------------------------------------------------------------
 dapps:
   enabled: true
   swapClient:
     image:
-      tag: 0.0.1-PR554-2b1bba8
+      tag: 0.1.0-PR666-ed3ad6f
     ingress:
       enabled: true
       hosts:

@@ -24,12 +24,9 @@ rest:
   host: 0.0.0.0
   port: 3030
 
-## Periodically reconstruct and clear packet commitments that were not relayed
-## from their live event. Cardano proof queries can be temporarily unavailable
-## while a new HostState waits for stability, so use a shorter recovery cadence
-## than upstream Hermes's usual 100 blocks.
+## Packet relaying defaults mirror caribic/config/hermes-config.example.toml.
 packetRelaying:
-  clearInterval: 10
+  clearInterval: 100
   clearOnStart: true
   txConfirmation: true
 
@@ -42,19 +39,17 @@ config:
   cardano:
     chainId: cardano-preprod
     gatewayUrl: http://gateway:5001
+    hostStateHeartbeatInterval: "60s"
     networkId: 0
     keyName: cardano-relayer
     account: 0
     keyStoreType: Test
     maxBlockTime: 20000ms
     clockDrift: 15m
-    # Optional Cardano event-source overrides. Polling defaults to five seconds.
+    # Leave optional event-source overrides empty to match caribic. Hermes
+    # defaults to a five-second poll interval and a 100-block replay window.
     eventPollInterval: ""
-    # Gateway serves at most 101 heights per Events call. Hermes applies this
-    # overlap both when initializing and polling, so its upstream default of 100
-    # can advance a backlog by only one height per request. Fifty retains ample
-    # late-indexing replay while allowing catch-up by roughly 51 heights/call.
-    eventReplayWindow: "50"
+    eventReplayWindow: ""
     mithrilCertificationTimeout: 30m
     mithrilPollInterval: 5s
     mithrilWaitLogInterval: 30s
@@ -92,42 +87,14 @@ config:
     # compat_mode omitted for testnet (local profile sets '0.38'); leave empty to skip
     compatMode: ""
 
-## Optional periodic client-update sidecar. The standard Hermes daemon refreshes
-## clients according to a fraction of their trusting period, which is too slow
-## for Cardano probabilistic headers whose size grows with the block-height gap.
+## Optional Injective-only client-update sidecar. Native Hermes heartbeats
+## provide Cardano HostState anchors; this loop only updates the Cardano client
+## hosted by Injective at the cadence documented in caribic/README.md.
 clientRefresh:
   enabled: false
   ## Required when enabled: the 08-cardano-probabilistic-* client hosted by Injective.
   injectiveCardanoClientId: ""
-  ## Optional 07-tendermint-* client hosted by Cardano. It is only updated by
-  ## the idle-heartbeat state machine below, never by the normal refresh loop.
-  cardanoTendermintClientId: ""
-  ## Wait briefly for the daemon's startup scan. No Cardano HostState is created
-  ## until the full idle threshold has elapsed.
-  initialDelaySeconds: 60
-  ## Normal Injective-only cadence from caribic/README.md.
   intervalSeconds: 1200
-  ## Retry infrastructure, stability-wait, or broadcast failures sooner than
-  ## the normal cadence. After an idle Cardano heartbeat is attempted, retries
-  ## only run the Injective leg so they cannot replace the maturing HostState.
-  retryDelaySeconds: 300
-  ## A Cardano-hosted update may wait for the Gateway's stability-accepted height.
-  commandTimeoutSeconds: 2400
-  idleHeartbeat:
-    ## When disabled, the sidecar is exactly the documented Injective-only loop.
-    enabled: false
-    ## Create one Cardano HostState anchor only after the Injective-hosted
-    ## Cardano client's latest height has not advanced for this long.
-    idleThresholdSeconds: 1200
-    ## How often to observe client height and re-check deferred idle heartbeats.
-    observationIntervalSeconds: 60
-    ## Timeout for each in-cluster Gateway channel-health request.
-    healthQueryTimeoutSeconds: 10
-    ## Every Cardano source channel sharing this client must be quiet before an
-    ## idle heartbeat. Configure at least one channel when enabled.
-    cardanoChannels: []
-    # - portId: transfer
-    #   channelId: channel-1
   resources: {}
 
 ## Hermes keyring JSON files — refer to a Secret, not created here.

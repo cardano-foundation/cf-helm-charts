@@ -31,10 +31,6 @@ app.kubernetes.io/component: hermes
 {{- printf "http://%s-gateway:5001" .Release.Name -}}
 {{- end }}
 
-{{- define "hermes.gatewayRestUrl" -}}
-{{- printf "http://%s-gateway:8000" .Release.Name -}}
-{{- end }}
-
 {{- define "hermes.injectiveRpcAddr" -}}
 {{- if and .Values.global (index .Values.global "injective") }}{{- (index .Values.global "injective").rpcAddr -}}
 {{- else }}{{- .Values.config.injective.rpcAddr -}}

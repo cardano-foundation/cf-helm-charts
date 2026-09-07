@@ -1,15 +1,3 @@
-{{- $idleChannels := list -}}
-{{- range .Values.clientRefresh.idleHeartbeat.cardanoChannels -}}
-{{- $portId := required "hermes.clientRefresh.idleHeartbeat.cardanoChannels[].portId is required" .portId -}}
-{{- $channelId := required "hermes.clientRefresh.idleHeartbeat.cardanoChannels[].channelId is required" .channelId -}}
-{{- $idleChannels = append $idleChannels (printf "%s:%s" $portId $channelId) -}}
-{{- end -}}
-{{- if and .Values.clientRefresh.enabled .Values.clientRefresh.idleHeartbeat.enabled (empty .Values.clientRefresh.cardanoTendermintClientId) -}}
-{{- fail "hermes.clientRefresh.cardanoTendermintClientId is required when idle heartbeat is enabled" -}}
-{{- end -}}
-{{- if and .Values.clientRefresh.enabled .Values.clientRefresh.idleHeartbeat.enabled (eq (len $idleChannels) 0) -}}
-{{- fail "hermes.clientRefresh.idleHeartbeat.cardanoChannels must contain at least one channel when idle heartbeat is enabled" -}}
-{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,9 +18,6 @@ spec:
         {{- end }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        {{- if .Values.clientRefresh.enabled }}
-        checksum/client-refresh-script: {{ include (print $.Template.BasePath "/client-refresh-script-configmap.yaml") . | sha256sum }}
-        {{- end }}
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -105,10 +90,21 @@ spec:
         - name: client-refresh
           image: {{ include "hermes.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{/* Override the image's Hermes entrypoint and run the mounted refresh supervisor. */}}
+          {{/* Override the image entrypoint with caribic's Injective-only refresh loop. */}}
           command:
-            - /bin/bash
-            - /opt/hermes-client-refresh/client-refresh.sh
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -u
+              trap 'exit 0' TERM INT
+
+              while true; do
+                /usr/bin/hermes --config "${HERMES_CONFIG}" update client \
+                  --host-chain "${INJECTIVE_CHAIN_ID}" \
+                  --client "${INJECTIVE_CARDANO_CLIENT_ID}"
+                sleep "${INTERVAL_SECONDS}"
+              done
           env:
             - name: HERMES_HOME
               value: /home/hermes/.hermes
@@ -118,30 +114,8 @@ spec:
               value: {{ include "hermes.injectiveChainId" . | quote }}
             - name: INJECTIVE_CARDANO_CLIENT_ID
               value: {{ required "hermes.clientRefresh.injectiveCardanoClientId is required when client refresh is enabled" .Values.clientRefresh.injectiveCardanoClientId | quote }}
-            - name: CARDANO_CHAIN_ID
-              value: {{ .Values.config.cardano.chainId | quote }}
-            - name: CARDANO_TENDERMINT_CLIENT_ID
-              value: {{ .Values.clientRefresh.cardanoTendermintClientId | quote }}
-            - name: INITIAL_DELAY_SECONDS
-              value: {{ .Values.clientRefresh.initialDelaySeconds | quote }}
             - name: INTERVAL_SECONDS
               value: {{ .Values.clientRefresh.intervalSeconds | quote }}
-            - name: RETRY_DELAY_SECONDS
-              value: {{ .Values.clientRefresh.retryDelaySeconds | quote }}
-            - name: COMMAND_TIMEOUT_SECONDS
-              value: {{ .Values.clientRefresh.commandTimeoutSeconds | quote }}
-            - name: IDLE_HEARTBEAT_ENABLED
-              value: {{ .Values.clientRefresh.idleHeartbeat.enabled | quote }}
-            - name: IDLE_THRESHOLD_SECONDS
-              value: {{ .Values.clientRefresh.idleHeartbeat.idleThresholdSeconds | quote }}
-            - name: OBSERVATION_INTERVAL_SECONDS
-              value: {{ .Values.clientRefresh.idleHeartbeat.observationIntervalSeconds | quote }}
-            - name: HEALTH_QUERY_TIMEOUT_SECONDS
-              value: {{ .Values.clientRefresh.idleHeartbeat.healthQueryTimeoutSeconds | quote }}
-            - name: CARDANO_CHANNELS
-              value: {{ join "," $idleChannels | quote }}
-            - name: GATEWAY_REST_URL
-              value: {{ include "hermes.gatewayRestUrl" . | quote }}
           volumeMounts:
             - name: config
               mountPath: /home/hermes/.hermes/config.toml
@@ -152,9 +126,6 @@ spec:
               readOnly: true
             - name: injective-keyring-test
               mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" (include "hermes.injectiveChainId" .) | quote }}
-              readOnly: true
-            - name: client-refresh-script
-              mountPath: /opt/hermes-client-refresh
               readOnly: true
           resources: {{- toYaml .Values.clientRefresh.resources | nindent 12 }}
         {{- end }}
@@ -175,9 +146,3 @@ spec:
             items:
               - key: {{ .Values.keys.injectiveMnemonicRef.key | quote }}
                 path: {{ printf "%s.json" .Values.config.injective.keyName | quote }}
-        {{- if .Values.clientRefresh.enabled }}
-        - name: client-refresh-script
-          configMap:
-            name: {{ include "hermes.fullname" . }}-client-refresh-script
-            defaultMode: 0555
-        {{- end }}
