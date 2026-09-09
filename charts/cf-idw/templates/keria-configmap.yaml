@@ -11,6 +11,18 @@ data:
     export KERIA_RENDERED_CURLS=$(for keria_curl in ${KERIA_CURLS}; do echo $keria_curl; done | jq -cRn '[inputs]')
     envsubst < /configmap/witness.json.tpl > /config/witness.json
 
+    append_extra_oobis() {
+      # $1: extra-oobis configmap file name, $2: space separated urls
+      local file="/configmap/$1"
+      local urls="$2"
+      if [ -f "$file" ]; then
+        for url in $(jq -r '.[]' "$file"); do
+          urls="$urls $url"
+        done
+      fi
+      echo "$urls"
+    }
+
     if [ "$KERIA_IURLS" == "autodetect" ]
     then
       KERIA_IURLS=""
@@ -28,17 +40,12 @@ data:
         KERIA_IURLS="$KERIA_IURLS $WITNESS_PUBLIC_URL"
       done
     fi
-
-    # If keria-extra-oobis exists in the configmap, append them to KERIA_IURLS
-    if [ -f /configmap/keria-extra-oobis.json ]; then
-      # Read extra oobis from file and append to existing KERIA_IURLS
-      EXTRA_OOBIS=$(cat /configmap/keria-extra-oobis.json)
-      # Parse the JSON array and append each URL to KERIA_IURLS
-      for url in $(echo "$EXTRA_OOBIS" | jq -r '.[]'); do
-        KERIA_IURLS="$KERIA_IURLS $url"
-      done
-    fi
+    KERIA_IURLS=$(append_extra_oobis keria-extra-iurls.json "$KERIA_IURLS")
     export KERIA_RENDERED_IURLS=$(for keria_iurl in ${KERIA_IURLS}; do echo $keria_iurl; done | jq -cRn '[inputs]')
+
+    KERIA_DURLS=$(append_extra_oobis keria-extra-durls.json "$KERIA_DURLS")
+    export KERIA_RENDERED_DURLS=$(for keria_durl in ${KERIA_DURLS}; do echo $keria_durl; done | jq -cRn '[inputs]')
+
     envsubst < /configmap/backer-oobis.json.tpl > /config/backer-oobis.json
 
   witness.json.tpl: |
@@ -62,7 +69,8 @@ data:
         "dt": "2022-01-20T12:57:59.823350+00:00",
         "curls": ${KERIA_RENDERED_CURLS}
       },
-      "iurls": ${KERIA_RENDERED_IURLS}
+      "iurls": ${KERIA_RENDERED_IURLS},
+      "durls": ${KERIA_RENDERED_DURLS}
     }
 
 {{ end }}
