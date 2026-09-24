@@ -103,11 +103,10 @@ global:
     secretUsernameKey: username
     secretPasswordKey: password
 
-## Component sections (formerly separate subcharts under charts/, now merged
-## into this chart's templates/<component>/). No chart ships default cpu/memory
-## requests/limits — only the Postgres cluster (global.postgres.resources) is
-## sized by default. Size services explicitly per environment when needed
-## (e.g. cf-kupo.resources).
+## Component configuration. Cardano node, Ogmios, Kupo, and Yaci Store are
+## standalone chart dependencies; Gateway, Hermes, and the dApps are rendered
+## by this chart. No component ships default cpu/memory requests or limits.
+## Size services explicitly per environment when needed (e.g. cf-kupo.resources).
 cf-cardano-node:
   enabled: true
 
@@ -119,54 +118,6 @@ cf-kupo:
 
 yaci-store:
   enabled: true
-  image:
-    repository: bloxbean/yaci-store
-    ## 2.0.2.1 matches the local Caribic runtime and fixes CBOR parsing of
-    ## post-protocol-11 public-testnet blocks.
-    tag: "2.0.2.1"
-    pullPolicy: IfNotPresent
-  port: 8080
-  cardanoNode:
-    host: ""
-    port: 3001
-    networkMagic: 1
-  syncStartSlot: 0
-  syncStartBlockHash: ""
-  syncStartBlockNo: 0
-  cbor:
-    transactionSave: true
-    blocksSave: true
-    returnTxBody: true
-    returnBlock: true
-  store:
-    assetsEnabled: false
-    metadataEnabled: false
-    mirEnabled: false
-    governanceEnabled: false
-    epochEnabled: true
-    blocksEnabled: true
-    scriptEnabled: true
-    stakingEnabled: true
-    transactionEnabled: true
-    utxoEnabled: true
-  executor:
-    enableParallelProcessing: true
-    blocksBatchSize: 50
-    blocksPartitionSize: 10
-  yaciDb:
-    host: ""     # resolved from global by the yaci-store.yaciDbHost helper
-    port: 5432
-    name: yaci
-    sslMode: prefer
-  resources: {}
-  nameOverride: ""
-  fullnameOverride: ""
-  podAnnotations: {}
-  podLabels: {}
-  nodeSelector: {}
-  affinity: {}
-  tolerations: []
-  imagePullSecrets: []
 
 gateway:
   enabled: true

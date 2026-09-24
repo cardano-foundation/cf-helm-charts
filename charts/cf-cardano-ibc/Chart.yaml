@@ -27,3 +27,8 @@ dependencies:
     version: "0.1.0"
     repository: "file://../cf-kupo"
     condition: cf-kupo.enabled
+  - name: cf-yaci-store
+    alias: yaci-store
+    version: "0.1.0"
+    repository: "file://../cf-yaci-store"
+    condition: yaci-store.enabled

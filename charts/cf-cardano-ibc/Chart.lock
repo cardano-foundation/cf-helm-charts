@@ -8,5 +8,8 @@ dependencies:
 - name: cf-kupo
   repository: file://../cf-kupo
   version: 0.1.0
-digest: sha256:612ced127ce2325e9d79198c903197592895bde83f0d38c3232f418911adb26a
-generated: "2026-09-07T09:53:08.937687+02:00"
+- name: cf-yaci-store
+  repository: file://../cf-yaci-store
+  version: 0.1.0
+digest: sha256:10c5eafc69bbf9ad7809495599d557a1c9a07d54dd359643f733976a3be75c7b
+generated: "2026-09-24T13:34:03.885137+02:00"
