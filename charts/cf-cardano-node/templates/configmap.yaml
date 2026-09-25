@@ -1,0 +1,19 @@
+{{- if not .Values.existingConfigMap }}
+{{- if .Values.configFiles }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "cf-cardano-node.configConfigMapName" . }}
+  labels:
+    {{- include "cf-cardano-node.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.configFiles }}
+  {{ $key }}: |-
+{{ $value | indent 4 }}
+  {{- end }}
+  {{- if not (hasKey .Values.configFiles "topology.json") }}
+  topology.json: |-
+{{ $.Values.topology | indent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

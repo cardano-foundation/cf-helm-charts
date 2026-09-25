@@ -1,0 +1,55 @@
+{{/* Zalando Postgres Operator cluster for the facilitator.
+     The prepared database creates an owner user and a credential Secret named:
+     <database>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do */}}
+{{- if .Values.postgres.enabled }}
+apiVersion: acid.zalan.do/v1
+kind: postgresql
+metadata:
+  name: {{ include "cf-cardano-x402-facilitator.postgresClusterName" . | quote }}
+  namespace: {{ include "cf-cardano-x402-facilitator.postgresNamespace" . | quote }}
+  labels:
+    {{- include "cf-cardano-x402-facilitator.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+  {{- with .Values.postgres.controller }}
+  annotations:
+    acid.zalan.do/controller: {{ . | quote }}
+  {{- end }}
+spec:
+  teamId: {{ .Values.postgres.teamId | quote }}
+  volume:
+    size: {{ .Values.postgres.volume.size | quote }}
+    {{- with .Values.postgres.volume.storageClass }}
+    storageClass: {{ . | quote }}
+    {{- end }}
+  numberOfInstances: {{ .Values.postgres.numberOfInstances }}
+  enableConnectionPooler: {{ .Values.postgres.connectionPooler.enabled }}
+  {{- with .Values.postgres.patroni }}
+  patroni:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.postgres.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.postgres.additionalEnv }}
+  env:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+  preparedDatabases:
+    {{ required "database.name is required" .Values.database.name | quote }}:
+      defaultUsers: true
+      secretNamespace: {{ include "cf-cardano-x402-facilitator.postgresSecretNamespace" . | quote }}
+
+  postgresql:
+    version: {{ .Values.postgres.version | quote }}
+    {{- with .Values.postgres.parameters }}
+    parameters:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+
+  {{- with .Values.postgres.sidecars }}
+  sidecars:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,15 @@
+apiVersion: v2
+name: cf-ogmios
+description: Ogmios — WebSocket/JSON-RPC bridge for cardano-node. Connects to a cardano-node n2c socket exposed over TCP by cf-cardano-node's socat sidecar.
+type: application
+version: 0.1.0
+appVersion: "v6.10.0"
+keywords:
+  - cardano
+  - ogmios
+  - indexer
+  - blockchain
+home: https://github.com/cardano-foundation/cardano-ibc-incubator
+maintainers:
+  - name: Cardano Foundation
+    url: https://cardanofoundation.org

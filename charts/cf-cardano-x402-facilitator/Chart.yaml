@@ -1,0 +1,17 @@
+apiVersion: v2
+name: cf-cardano-x402-facilitator
+description: Cardano x402 facilitator backed by a Zalando Postgres Operator cluster.
+type: application
+version: 0.1.0
+appVersion: "0.0.1-pre1"
+keywords:
+  - cardano
+  - x402
+  - facilitator
+  - payments
+home: https://github.com/cardano-foundation/cardano-x402-facilitator
+sources:
+  - https://github.com/cardano-foundation/cardano-x402-facilitator
+maintainers:
+  - name: Cardano Foundation
+    url: https://cardanofoundation.org
