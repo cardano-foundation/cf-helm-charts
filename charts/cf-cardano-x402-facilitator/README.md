@@ -75,4 +75,7 @@ database:
   secretPasswordKey: password
 ```
 
-The Secret must be in the Helm release namespace.
+The Secret must be in the Helm release namespace. Unless `database.url` is
+provided, the chart adds `currentSchema=<database.schema>` to the JDBC URL so
+both the Spring datasource and Flyway connections use the facilitator schema.
+A custom `database.url` must include that parameter itself.

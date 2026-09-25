@@ -73,7 +73,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Values.database.url -}}
 {{- .Values.database.url -}}
 {{- else -}}
-{{- printf "jdbc:postgresql://%s:%v/%s" (include "cf-cardano-x402-facilitator.databaseHost" .) .Values.database.port (required "database.name is required" .Values.database.name) -}}
+{{- printf "jdbc:postgresql://%s:%v/%s?currentSchema=%s" (include "cf-cardano-x402-facilitator.databaseHost" .) .Values.database.port (required "database.name is required" .Values.database.name) (required "database.schema is required" .Values.database.schema | urlquery) -}}
 {{- end -}}
 {{- end }}
 

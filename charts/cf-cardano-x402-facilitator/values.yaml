@@ -56,9 +56,12 @@ database:
   host: ""
   port: 5432
   name: facilitator
+  ## Used as the PostgreSQL connection's currentSchema. The facilitator
+  ## currently creates and queries the facilitator schema.
   schema: facilitator
   ## Optional complete JDBC URL. When empty, the chart builds one from
-  ## host/port/name.
+  ## host/port/name and appends currentSchema. Include currentSchema yourself
+  ## when supplying a complete URL.
   url: ""
   secretName: ""
   secretUsernameKey: username
