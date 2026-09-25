@@ -1,0 +1,153 @@
+## cf-cardano-x402-facilitator
+##
+## Deploys the facilitator in the "light" configuration from the upstream
+## docker-compose file. A Cardano node/indexer is not included; chain access is
+## through a Blockfrost-compatible endpoint.
+
+replicaCount: 1
+revisionHistoryLimit: 3
+
+image:
+  repository: cardanofoundation/cardano-x402-facilitator
+  tag: "0.0.1-pre1"
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+## The application image currently contains an amd64-only native library.
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+automountServiceAccountToken: false
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+  runAsUser: 10001
+
+port: 4022
+
+## One process can be configured for multiple networks with NETWORKS_FILE, but
+## this chart intentionally mirrors the compose light profile's single-network
+## environment configuration.
+networkId: cardano:preprod
+blockfrost:
+  baseUrl: https://cardano-preprod.blockfrost.io/api/v0
+  ## Prefer existingSecret for hosted Blockfrost credentials. A literal value is
+  ## supported for development, but is stored in Helm release data and rendered
+  ## into the Deployment.
+  projectId: ""
+  existingSecret:
+    name: ""
+    key: BLOCKFROST_PROJECT_ID
+
+## Leave empty to retain JAVA_OPTS baked into the image.
+javaOpts: ""
+
+## Database connection used by the facilitator. When postgres.enabled=true,
+## host and secretName are derived from the Zalando cluster unless overridden.
+## When using an external database, set host (or url), secretName, and disable
+## postgres below.
+database:
+  host: ""
+  port: 5432
+  name: facilitator
+  schema: facilitator
+  ## Optional complete JDBC URL. When empty, the chart builds one from
+  ## host/port/name.
+  url: ""
+  secretName: ""
+  secretUsernameKey: username
+  secretPasswordKey: password
+
+## Zalando Postgres Operator cluster. The operator creates a master Service
+## named after clusterName and a prepared database owner Secret named:
+## <database>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
+postgres:
+  enabled: true
+  ## Controller annotation (operator pod identifier). Set this when multiple
+  ## Postgres Operator instances watch the same Kubernetes cluster.
+  controller: ""
+  clusterName: cardano-x402-facilitator-pg
+  ## The PostgreSQL CR may live in the operator namespace. The generated
+  ## credential Secret is placed in secretNamespace (the release namespace by
+  ## default), where the facilitator Deployment can consume it.
+  namespace: ""
+  secretNamespace: ""
+  teamId: cardano-x402
+  version: "17"
+  numberOfInstances: 1
+  volume:
+    size: 10Gi
+    storageClass: ""
+  connectionPooler:
+    enabled: false
+  patroni: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ## Environment entries passed directly to the operator-managed Postgres pods.
+  additionalEnv: []
+  parameters: {}
+  sidecars: []
+
+service:
+  enabled: true
+  type: ClusterIP
+  port: 4022
+  annotations: {}
+
+## The Ingress deliberately exposes only the three public x402 API endpoints
+## with Exact matches. It does not route /actuator, /health, or a catch-all /.
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: facilitator.example.local
+  tls: []
+
+probes:
+  startup:
+    enabled: true
+    path: /actuator/health/liveness
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+  readiness:
+    enabled: true
+    path: /actuator/health/readiness
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  liveness:
+    enabled: true
+    path: /actuator/health/liveness
+    initialDelaySeconds: 15
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+resources: {}
+
+affinity: {}
+tolerations: []
+topologySpreadConstraints: []
+terminationGracePeriodSeconds: 30
+
+## Additional Kubernetes env entries, for example application-specific X402_*
+## overrides. Entries use the standard Container.env shape.
+extraEnv: []
+
+nameOverride: ""
+fullnameOverride: ""
