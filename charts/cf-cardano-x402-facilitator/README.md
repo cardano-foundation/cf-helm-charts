@@ -36,15 +36,9 @@ The Postgres Operator creates the database owner Secret as
 `facilitator-owner-user.cardano-x402-facilitator-pg.credentials.postgresql.acid.zalan.do`.
 The Deployment derives both that name and the Postgres Service DNS from the chart values.
 
-If the operator expects PostgreSQL custom resources in its own namespace, set
-`postgres.namespace`; prepared-database credentials still default to the Helm
-release namespace:
-
-```shell
-helm upgrade --install facilitator ./charts/cf-cardano-x402-facilitator \
-  --set postgres.namespace=zpg-system \
-  --set blockfrost.existingSecret.name=facilitator-blockfrost
-```
+The PostgreSQL custom resource is created in `zpg-system` by default, while
+prepared-database credentials are created in the Helm release namespace. Set
+`postgres.namespace` when the operator watches a different namespace.
 
 ## Ingress
 

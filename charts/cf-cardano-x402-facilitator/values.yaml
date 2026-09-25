@@ -73,10 +73,10 @@ postgres:
   ## Postgres Operator instances watch the same Kubernetes cluster.
   controller: ""
   clusterName: cardano-x402-facilitator-pg
-  ## The PostgreSQL CR may live in the operator namespace. The generated
-  ## credential Secret is placed in secretNamespace (the release namespace by
-  ## default), where the facilitator Deployment can consume it.
-  namespace: ""
+  ## Namespace for the PostgreSQL custom resource. The generated credential
+  ## Secret is placed in secretNamespace (the release namespace by default),
+  ## where the facilitator Deployment can consume it.
+  namespace: zpg-system
   secretNamespace: ""
   teamId: cardano-x402
   version: "17"

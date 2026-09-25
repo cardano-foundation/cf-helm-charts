@@ -51,7 +51,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "cf-cardano-x402-facilitator.postgresNamespace" -}}
-{{- default .Release.Namespace .Values.postgres.namespace -}}
+{{- required "postgres.namespace is required when postgres.enabled=true" .Values.postgres.namespace -}}
 {{- end }}
 
 {{- define "cf-cardano-x402-facilitator.postgresSecretNamespace" -}}
