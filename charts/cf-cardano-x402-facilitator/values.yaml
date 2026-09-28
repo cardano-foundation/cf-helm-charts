@@ -75,7 +75,8 @@ postgres:
   ## Controller annotation (operator pod identifier). Set this when multiple
   ## Postgres Operator instances watch the same Kubernetes cluster.
   controller: ""
-  clusterName: cardano-x402-facilitator-pg
+  ## Defaults to <Helm release name>-pg.
+  clusterName: ""
   ## Namespace for the PostgreSQL custom resource. The generated credential
   ## Secret is placed in secretNamespace (the release namespace by default),
   ## where the facilitator Deployment can consume it.

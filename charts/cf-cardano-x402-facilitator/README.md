@@ -33,8 +33,10 @@ helm upgrade --install facilitator ./charts/cf-cardano-x402-facilitator \
 ```
 
 The Postgres Operator creates the database owner Secret as
-`facilitator-owner-user.cardano-x402-facilitator-pg.credentials.postgresql.acid.zalan.do`.
-The Deployment derives both that name and the Postgres Service DNS from the chart values.
+`facilitator-owner-user.facilitator-pg.credentials.postgresql.acid.zalan.do`.
+By default, the cluster name is `<Helm release name>-pg`; set
+`postgres.clusterName` to override it. The Deployment derives both the Secret
+name and the Postgres Service DNS from the resolved cluster name.
 
 The PostgreSQL custom resource is created in `zpg-system` by default, while
 prepared-database credentials are created in the Helm release namespace. Set

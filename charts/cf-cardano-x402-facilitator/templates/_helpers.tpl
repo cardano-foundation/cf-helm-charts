@@ -47,7 +47,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{/* Zalando Postgres cluster name and namespace. */}}
 {{- define "cf-cardano-x402-facilitator.postgresClusterName" -}}
-{{- required "postgres.clusterName is required when postgres.enabled=true" .Values.postgres.clusterName -}}
+{{- $defaultName := printf "%s-pg" .Release.Name -}}
+{{- default $defaultName .Values.postgres.clusterName -}}
 {{- end }}
 
 {{- define "cf-cardano-x402-facilitator.postgresNamespace" -}}
