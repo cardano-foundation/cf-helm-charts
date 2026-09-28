@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cf-ogmios.fullname" . }}
+  labels:
+    {{- include "cf-ogmios.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "cf-ogmios.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "cf-ogmios.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{/*
+        Long-lived socat sidecar: re-creates a local Unix socket from the
+        cardano-node socat-n2c TCP Service. Ogmios points --node-socket at it.
+        A sidecar (not an initContainer) because the socket must exist for the
+        lifetime of the ogmios container.
+      */}}
+      containers:
+        - name: socat
+          image: {{ include "cf-ogmios.socatImage" . | quote }}
+          imagePullPolicy: {{ .Values.socat.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "Bridging UNIX:{{ .Values.socketPath }} -> TCP:{{ include "cf-ogmios.cardanoNodeSocatHost" . }}:{{ .Values.cardanoNode.socatPort }}"
+              exec socat \
+                UNIX-LISTEN:{{ .Values.socketPath }},fork,reuseaddr,unlink-early \
+                TCP:{{ include "cf-ogmios.cardanoNodeSocatHost" . }}:{{ .Values.cardanoNode.socatPort }},retry=10,interval=2
+          volumeMounts:
+            - name: ipc
+              mountPath: /ipc
+          startupProbe:
+            exec:
+              command:
+                - test
+                - -S
+                - {{ .Values.socketPath | quote }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 60
+            timeoutSeconds: 3
+          livenessProbe:
+            exec:
+              command:
+                - test
+                - -S
+                - {{ .Values.socketPath | quote }}
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 3
+          resources:
+            {{- toYaml .Values.initContainerResources | nindent 12 }}
+
+        - name: ogmios
+          image: {{ include "cf-ogmios.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --node-socket
+            - {{ .Values.socketPath | quote }}
+            - --node-config
+            - {{ printf "%s/%s/cardano-node/config.json" .Values.configPath .Values.network | quote }}
+            - --host
+            - "0.0.0.0"
+          ports:
+            - name: ogmios
+              containerPort: {{ .Values.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: ipc
+              mountPath: /ipc
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 60
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 5
+
+      volumes:
+        - name: ipc
+          emptyDir: {}

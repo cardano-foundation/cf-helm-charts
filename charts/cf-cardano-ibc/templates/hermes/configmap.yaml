@@ -1,0 +1,118 @@
+{{/* Hermes config.toml rendered from values.
+   Follows the local ~/.hermes/config.toml shape; values-preview.yaml selects
+   Cardano preview -> Injective testnet, while bind hosts and Gateway discovery
+   remain Kubernetes-specific. */}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "hermes.fullname" . }}-config
+  labels:
+    {{- include "hermes.labels" . | nindent 4 }}
+data:
+  config.toml: |
+    [global]
+    log_level = '{{ .Values.hermes.config.logLevel }}'
+
+    [telemetry]
+    enabled = {{ .Values.hermes.telemetry.enabled }}
+    host = '{{ .Values.hermes.telemetry.host }}'
+    port = {{ .Values.hermes.telemetry.port }}
+
+    [telemetry.buckets.latency_submitted]
+    start = {{ .Values.hermes.telemetry.buckets.latencySubmitted.start }}
+    end = {{ .Values.hermes.telemetry.buckets.latencySubmitted.end }}
+    buckets = {{ .Values.hermes.telemetry.buckets.latencySubmitted.buckets }}
+
+    [telemetry.buckets.latency_confirmed]
+    start = {{ .Values.hermes.telemetry.buckets.latencyConfirmed.start }}
+    end = {{ .Values.hermes.telemetry.buckets.latencyConfirmed.end }}
+    buckets = {{ .Values.hermes.telemetry.buckets.latencyConfirmed.buckets }}
+
+    [rest]
+    enabled = {{ .Values.hermes.rest.enabled }}
+    host = '{{ .Values.hermes.rest.host }}'
+    port = {{ .Values.hermes.rest.port }}
+
+    [mode]
+
+    [mode.clients]
+    enabled = true
+    refresh = true
+    misbehaviour = true
+
+    [mode.connections]
+    enabled = true
+
+    [mode.channels]
+    enabled = true
+
+    [mode.packets]
+    enabled = true
+    clear_interval = {{ .Values.hermes.packetRelaying.clearInterval }}
+    clear_on_start = {{ .Values.hermes.packetRelaying.clearOnStart }}
+    tx_confirmation = {{ .Values.hermes.packetRelaying.txConfirmation }}
+
+    [[chains]]
+    type = 'Cardano'
+    id = '{{ .Values.hermes.config.cardano.chainId }}'
+    gateway_url = '{{ include "hermes.gatewayUrl" . }}'
+    {{- with .Values.hermes.config.cardano.hostStateHeartbeatInterval }}
+    # Poll the Gateway for a per-epoch HostState anchor; see ae1382df.
+    host_state_heartbeat_interval = '{{ . }}'
+    {{- end }}
+    network_id = {{ .Values.hermes.config.cardano.networkId }}
+    key_name = '{{ .Values.hermes.config.cardano.keyName }}'
+    {{- with .Values.hermes.config.cardano.keyStoreType }}
+    key_store_type = '{{ . }}'
+    {{- end }}
+    account = {{ .Values.hermes.config.cardano.account }}
+    max_block_time = '{{ .Values.hermes.config.cardano.maxBlockTime }}'
+    clock_drift = '{{ .Values.hermes.config.cardano.clockDrift }}'
+    {{- with .Values.hermes.config.cardano.eventPollInterval }}
+    event_poll_interval = '{{ . }}'
+    {{- end }}
+    {{- with .Values.hermes.config.cardano.eventReplayWindow }}
+    event_replay_window = {{ . }}
+    {{- end }}
+    mithril_certification_timeout = '{{ .Values.hermes.config.cardano.mithrilCertificationTimeout }}'
+    mithril_poll_interval = '{{ .Values.hermes.config.cardano.mithrilPollInterval }}'
+    mithril_wait_log_interval = '{{ .Values.hermes.config.cardano.mithrilWaitLogInterval }}'
+    trust_threshold = { numerator = '{{ .Values.hermes.config.cardano.trustThreshold.numerator }}', denominator = '{{ .Values.hermes.config.cardano.trustThreshold.denominator }}' }
+
+    [chains.packet_filter]
+    policy = '{{ .Values.hermes.config.cardano.packetFilter.policy }}'
+    list = [
+      {{- range .Values.hermes.config.cardano.packetFilter.list }}
+      {{- if kindIs "slice" . }}
+      ['{{ index . 0 }}', '{{ index . 1 }}'],
+      {{- else }}
+      ['{{ . }}'],
+      {{- end }}
+      {{- end }}
+    ]
+
+    [[chains]]
+    type = 'CosmosSdk'
+    id = '{{ include "hermes.injectiveChainId" . }}'
+    rpc_addr = '{{ include "hermes.injectiveRpcAddr" . }}'
+    grpc_addr = '{{ include "hermes.injectiveGrpcAddr" . }}'
+    event_source = { mode = 'push', url = '{{ include "hermes.injectiveEventSourceUrl" . }}', batch_delay = '200ms' }
+    rpc_timeout = '10s'
+    account_prefix = '{{ .Values.hermes.config.injective.accountPrefix }}'
+    key_name = '{{ .Values.hermes.config.injective.keyName }}'
+    address_type = { derivation = '{{ .Values.hermes.config.injective.addressType }}', proto_type = { pk_type = '/injective.crypto.v1beta1.ethsecp256k1.PubKey' } }
+    store_prefix = 'ibc'
+    default_gas = {{ .Values.hermes.config.injective.defaultGas }}
+    max_gas = {{ .Values.hermes.config.injective.maxGas }}
+    gas_price = { price = {{ .Values.hermes.config.injective.gasPrice.price }}, denom = '{{ .Values.hermes.config.injective.gasPrice.denom }}' }
+    gas_multiplier = {{ .Values.hermes.config.injective.gasMultiplier }}
+    max_msg_num = {{ .Values.hermes.config.injective.maxMsgNum }}
+    max_tx_size = {{ .Values.hermes.config.injective.maxTxSize }}
+    clock_drift = '{{ .Values.hermes.config.injective.clockDrift }}'
+    max_block_time = '{{ .Values.hermes.config.injective.maxBlockTime }}'
+    trusting_period = '{{ .Values.hermes.config.injective.trustingPeriod }}'
+    memo_prefix = '{{ .Values.hermes.config.injective.memoPrefix }}'
+    trust_threshold = { numerator = '{{ .Values.hermes.config.injective.trustThreshold.numerator }}', denominator = '{{ .Values.hermes.config.injective.trustThreshold.denominator }}' }
+    {{- if .Values.hermes.config.injective.compatMode }}
+    compat_mode = '{{ .Values.hermes.config.injective.compatMode }}'
+    {{- end }}

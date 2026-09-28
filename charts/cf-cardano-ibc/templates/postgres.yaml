@@ -1,0 +1,75 @@
+{{/* Single Zalando Postgres Operator cluster for the Cardano IBC bridge.
+     Creates one PG cluster with a database + dedicated user for every service
+     that needs Postgres (gateway, yaci-store).
+
+     The operator creates:
+       - a master Service <clusterName> (port 5432) in the cluster's namespace
+       - one credential Secret per prepared-database owner user, named by
+         Zalando's preparedDatabases default:
+         <db>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
+         with keys 'username' and 'password'
+
+     global.postgres is the single source of truth: the gateway / yaci-store
+     subcharts derive the cluster host and credential Secret names from the
+     same values. Set global.postgres.enabled=false to use externally-managed
+     Postgres instead. */}}
+{{- if .Values.global.postgres.enabled }}
+apiVersion: acid.zalan.do/v1
+kind: postgresql
+metadata:
+  name: {{ .Values.global.postgres.clusterName | quote }}
+  namespace: {{ .Values.global.postgres.namespace | default .Release.Namespace | quote }}
+  labels:
+    {{- include "cf-cardano-ibc.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+  annotations:
+    "acid.zalan.do/controller": {{ .Values.global.postgres.controller | quote }}
+spec:
+  teamId: {{ .Values.global.postgres.teamId | quote }}
+  volume:
+    size: {{ .Values.global.postgres.volume.size | quote }}
+    {{- with .Values.global.postgres.volume.storageClass }}
+    storageClass: {{ . | quote }}
+    {{- end }}
+  numberOfInstances: {{ .Values.global.postgres.numberOfInstances }}
+  enableConnectionPooler: {{ .Values.global.postgres.connectionPooler.enabled }}
+  {{- with .Values.global.postgres.patroni }}
+  patroni:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.global.postgres.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+  ## One login user per service. Empty flags = normal LOGIN role (no superuser).
+  # users:
+  #   {{- range $user, $flags := .Values.global.postgres.users }}
+  #   {{ $user }}:{{- if $flags }}{{ toYaml $flags | nindent 6 }}{{- else }} []{{- end }}
+  #   {{- end }}
+{{- with .Values.global.postgres.additionalEnv }}
+  env:
+{{- toYaml . | nindent 4 }}
+  {{- end }}
+
+  ## One database per service, owned by that service's user.
+  ## The owner must be declared in spec.users above.
+  preparedDatabases:
+    {{- range $db := .Values.global.postgres.databases }}
+    {{ $db }}:
+      defaultUsers: true
+      secretNamespace: {{ $.Values.global.postgres.secretNamespace | default $.Release.Namespace }}
+    {{- end }}
+
+  postgresql:
+    version: {{ .Values.global.postgres.version | quote }}
+    {{- with .Values.global.postgres.parameters }}
+    parameters:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+
+  {{- with .Values.global.postgres.sidecars }}
+  sidecars:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
