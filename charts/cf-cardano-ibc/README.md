@@ -25,6 +25,26 @@ endpoint.
   at the in-cluster Gateway gRPC and Injective at an external RPC endpoint.
 - **dapps** (subchart, optional) — swap-client + explorer frontends.
 
+## Blockfrost
+
+Public-network Gateway history uses Blockfrost for epoch nonces, stake snapshots,
+and historical pool registrations. Set the API endpoint through
+`gateway.env.CARDANO_BLOCKFROST_ENDPOINT`; when omitted, Gateway selects the
+hosted endpoint from `CARDANO_NETWORK_MAGIC`. Supply the hosted API project ID
+from a Secret:
+
+```yaml
+gateway:
+  env:
+    CARDANO_BLOCKFROST_ENDPOINT: https://cardano-preview.blockfrost.io/api/v0
+  blockfrostProjectIdSecret:
+    name: gateway-secrets
+    key: blockfrostProjectId
+```
+
+The Secret value is exposed to Gateway as `CARDANO_BLOCKFROST_PROJECT_ID` and
+is sent to Blockfrost in the `project_id` header.
+
 ## Hermes keys
 
 The Hermes image runs as user `hermes`; the chart mounts config and keys under

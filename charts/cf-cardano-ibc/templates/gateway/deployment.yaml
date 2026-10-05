@@ -97,12 +97,12 @@ spec:
                 secretKeyRef:
                   name: {{ include "gateway.yaciDbSecretName" . }}
                   key: {{ include "gateway.yaciDbSecretPasswordKey" . }}
-{{ with .Values.gateway.koiosApiKeySecret.name }}
-            - name: CARDANO_KOIOS_API_KEY
+{{ with .Values.gateway.blockfrostProjectIdSecret.name }}
+            - name: CARDANO_BLOCKFROST_PROJECT_ID
               valueFrom:
                 secretKeyRef:
                   name: {{ . | quote }}
-                  key: {{ $.Values.gateway.koiosApiKeySecret.key | quote }}
+                  key: {{ $.Values.gateway.blockfrostProjectIdSecret.key | quote }}
 {{ end }}
           ports:
             - name: rest
