@@ -204,6 +204,16 @@ spec:
             - configMapRef:
                 name: {{ include "gateway.fullname" . }}-env
           env:
+            - name: GATEWAY_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "gateway.gatewayDbSecretName" . }}
+                  key: {{ include "gateway.gatewayDbSecretUsernameKey" . }}
+            - name: GATEWAY_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "gateway.gatewayDbSecretName" . }}
+                  key: {{ include "gateway.gatewayDbSecretPasswordKey" . }}
             - name: HISTORY_DB_USERNAME
               valueFrom:
                 secretKeyRef:
