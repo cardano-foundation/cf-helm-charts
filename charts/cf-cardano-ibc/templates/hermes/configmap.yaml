@@ -2,6 +2,7 @@
    Follows the local ~/.hermes/config.toml shape; values-preview.yaml selects
    Cardano preview -> Injective testnet, while bind hosts and Gateway discovery
    remain Kubernetes-specific. */}}
+{{- if .Values.hermes.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -56,6 +57,15 @@ data:
     type = 'Cardano'
     id = '{{ .Values.hermes.config.cardano.chainId }}'
     gateway_url = '{{ include "hermes.gatewayUrl" . }}'
+    {{- with .Values.hermes.config.cardano.bridgeManifestPath }}
+    bridge_manifest_path = '{{ . }}'
+    {{- end }}
+    {{- with .Values.hermes.config.cardano.signingKupoUrl }}
+    signing_utxo_kupo_url = '{{ . }}'
+    {{- end }}
+    {{- with .Values.hermes.config.cardano.signingOgmiosUrl }}
+    signing_ogmios_url = '{{ . }}'
+    {{- end }}
     {{- with .Values.hermes.config.cardano.hostStateHeartbeatInterval }}
     # Poll the Gateway for a per-epoch HostState anchor; see ae1382df.
     host_state_heartbeat_interval = '{{ . }}'
@@ -116,3 +126,4 @@ data:
     {{- if .Values.hermes.config.injective.compatMode }}
     compat_mode = '{{ .Values.hermes.config.injective.compatMode }}'
     {{- end }}
+{{- end }}

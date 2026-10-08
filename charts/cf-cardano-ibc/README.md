@@ -43,7 +43,52 @@ gateway:
 ```
 
 The Secret value is exposed to Gateway as `CARDANO_BLOCKFROST_PROJECT_ID` and
-is sent to Blockfrost in the `project_id` header.
+is sent to Blockfrost in the `project_id` header. Do not use a Koios API key as
+a Blockfrost project ID; omit `blockfrostProjectIdSecret.name` until the named
+Secret contains the correct key.
+
+## Preview bridge cutover
+
+The dev Argo CD application supplies `ibc:` from
+`ecosystem-engineering-deployment/argocd/charts/main-app/values-dev.yaml`, not
+`values-preview.yaml`. For the October 8 Preview bridge, the inline Gateway
+ConfigMap is an exact copy of the authenticated IBC repository manifest
+(`cardano-preview:df48c007…`). Gateway reads the chart-rendered ConfigMap;
+the image's bundled manifest is **not** selected while inline content is
+present. `IBC_DEPLOYMENT_MODE=legacy` must agree with the manifest. Newer Hermes
+builds can optionally mount this manifest; the dev-pinned PR857 Hermes does not
+support `bridge_manifest_path` or independent signing endpoint fields.
+
+Publish this chart's `feat/cf-ibc` changes **before** the dev Argo values change:
+older chart revisions ignore `hermes.replicas: 0` and would leave the relayer
+running with the old key. While replicas are zero, Argo syncs the Hermes scale
+down in wave -1 ahead of the new Gateway ConfigMap. Do not sync the new manifest
+with a running old signer. No Helm values change or local key export rotates the
+Kubernetes `hermes-keys` Secret.
+
+The existing Yaci intersection (block 4660299) is deliberately retained. It
+precedes the new manifest checkpoint (4735054); a newer Yaci start would risk
+losing history. Before resuming Hermes, check the **Gateway pod's actual**
+`HISTORY_DB` for checkpoint successor 4735055 linked to the manifest block hash,
+contiguous raw blocks/transaction CBOR through the new HostState mint, and
+matching `bridge_tx_evidence` for the creation and live HostState transactions.
+The history-sync cursor `complete-block-v2` persists independently of the
+manifest: if it has passed the new deployment with the old projection filter,
+a controlled projection replay may be required. Do not reset the DB or cursor
+without a backup and inspection. Require `/health/ready` to return 200 before
+resuming Hermes or routing transactions.
+
+The dev Hermes Deployment remains at **zero replicas** until its Cardano key
+is rotated externally and Gateway is proof-ready. The pinned PR857 Hermes
+image accepts the in-cluster HTTP Gateway Service, but does not independently
+authorize Gateway-built transactions with a pinned manifest. Newer Hermes
+builds (after `f8780b26`) require an operator-pinned manifest and reject
+non-loopback plaintext Gateway, signing Kupo, and signing Ogmios connections;
+the Gateway's REST ingress is **not** a TLS gRPC endpoint. This chart does not
+validate endpoint URL schemes. If upgrading the signer, provision suitable
+authenticated transport and configure its pinned manifest and independent
+signing sources first. Keep `clientRefresh` off until a new Injective-side
+client is healthy.
 
 ## Hermes keys
 

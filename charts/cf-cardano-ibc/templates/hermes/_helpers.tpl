@@ -34,7 +34,7 @@ app.kubernetes.io/component: hermes
 {{- end }}
 
 {{- define "hermes.gatewayUrl" -}}
-{{- printf "http://%s-gateway:5001" .Release.Name -}}
+{{- .Values.hermes.config.cardano.gatewayUrl | default (printf "http://%s:5001" (include "gateway.fullname" .)) -}}
 {{- end }}
 
 {{- define "hermes.injectiveRpcAddr" -}}

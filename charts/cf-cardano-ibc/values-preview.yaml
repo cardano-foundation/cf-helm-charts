@@ -1,4 +1,7 @@
-## cf-cardano-ibc — preview profile
+## cf-cardano-ibc — historical standalone preview profile (NOT dev Argo CD)
+## This file retains an older bridge. The current dev bridge is pinned by the
+## inline manifest in ecosystem-engineering-deployment's values-dev.yaml.
+## Do not apply this file to the dev release or mix its checkpoint/key with dev.
 ##
 ## Cardano side cardano-node / ogmios / kupo / yaci-store follow public preview
 ## and serve a local follower. Hermes relays to Injective public testnet.
@@ -308,7 +311,8 @@ hermes:
   config:
     cardano:
       chainId: cardano-preview
-      gatewayUrl: http://cf-cardano-ibc-gateway-app:5001
+      # Empty uses the Gateway Service; newer signer builds require authenticated transport.
+      gatewayUrl: ""
       networkId: 0
       keyName: cardano-relayer
     injective:

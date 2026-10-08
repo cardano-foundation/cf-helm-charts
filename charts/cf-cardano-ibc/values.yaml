@@ -144,6 +144,7 @@ gateway:
     GRPC_PORT: "5001"
     CARDANO_CHAIN_ID: cardano-preprod
     CARDANO_NETWORK_MAGIC: "1"
+    CARDANO_CHAIN_NETWORK_MAGIC: "1"
     CARDANO_LIGHT_CLIENT_MODE: stake-weighted-stability
     CARDANO_EPOCH_NONCE_GENESIS: ""
     # Leave empty to use the hosted Blockfrost endpoint selected by network magic.
@@ -188,6 +189,8 @@ gateway:
 
 hermes:
   enabled: true
+  # Keep the relayer stopped while changing bridge manifests or rotating its key.
+  replicas: 1
   image:
     repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-hermes
     tag: ""
@@ -217,7 +220,13 @@ hermes:
     logLevel: info
     cardano:
       chainId: cardano-preprod
-      gatewayUrl: http://gateway:5001
+      gatewayUrl: ""
+      # Optional for newer Hermes (after f8780b26): PR857 cannot parse these
+      # fields. The pinned manifest must be operator-controlled, not Gateway RPC.
+      bridgeManifestPath: ""
+      # Newer Hermes enforces authenticated transport to non-loopback sources.
+      signingKupoUrl: ""
+      signingOgmiosUrl: ""
       hostStateHeartbeatInterval: "60s"
       networkId: 0
       keyName: cardano-relayer

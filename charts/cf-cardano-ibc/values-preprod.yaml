@@ -88,7 +88,8 @@ hermes:
   config:
     cardano:
       chainId: cardano-preprod
-      gatewayUrl: http://gateway:5001
+      # Empty uses the Gateway Service; newer signer builds require authenticated transport.
+      gatewayUrl: ""
       networkId: 0
       keyName: cardano-relayer
     injective:

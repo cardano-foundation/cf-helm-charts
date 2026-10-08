@@ -18,6 +18,10 @@ data:
 
   CARDANO_CHAIN_ID: {{ .Values.gateway.env.CARDANO_CHAIN_ID | quote }}
   CARDANO_NETWORK_MAGIC: {{ .Values.gateway.env.CARDANO_NETWORK_MAGIC | quote }}
+  CARDANO_CHAIN_NETWORK_MAGIC: {{ required "gateway.env.CARDANO_CHAIN_NETWORK_MAGIC must match the selected Cardano network" .Values.gateway.env.CARDANO_CHAIN_NETWORK_MAGIC | quote }}
+{{- with .Values.gateway.env.IBC_DEPLOYMENT_MODE }}
+  IBC_DEPLOYMENT_MODE: {{ . | quote }}
+{{- end }}
   CARDANO_LIGHT_CLIENT_MODE: {{ .Values.gateway.env.CARDANO_LIGHT_CLIENT_MODE | quote }}
   CARDANO_EPOCH_NONCE_GENESIS: {{ .Values.gateway.env.CARDANO_EPOCH_NONCE_GENESIS | quote }}
 {{- with .Values.gateway.env.CARDANO_BLOCKFROST_ENDPOINT }}
