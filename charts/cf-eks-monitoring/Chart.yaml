@@ -2,7 +2,7 @@ apiVersion: v2
 name: cf-eks-monitoring
 description: A Helm chart for deploying CF's monitoring stack to EKS clusters
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: 0.0.1
 dependencies:
   - name: metrics-server
@@ -21,3 +21,7 @@ dependencies:
     version: 1.2.1
     repository: https://grafana.github.io/helm-charts
     condition: alloy.enabled
+  - name: grafana-mcp
+    version: 0.27.2
+    repository: oci://ghcr.io/grafana-community/helm-charts
+    condition: grafana-mcp.enabled

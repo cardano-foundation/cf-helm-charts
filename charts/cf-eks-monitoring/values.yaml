@@ -260,3 +260,23 @@ loki:
     replicas: 0
   bloomGateway:
     replicas: 0
+
+grafana-mcp:
+  enabled: true
+  fullnameOverride: "grafana-mcp"
+  grafana:
+    # Grafana instance deployed by kube-prometheus-stack (served on port 3000)
+    url: "http://cf-eks-monitoring-grafana:3000"
+  # Credentials are taken from the Grafana admin secret that kube-prometheus-stack
+  # ships with the Grafana deployment: <release-name>-grafana (here cf-eks-monitoring-grafana)
+  # with the keys `admin-user` and `admin-password`, mapped to the basic-auth env vars
+  # used by mcp-grafana (GRAFANA_USERNAME / GRAFANA_PASSWORD).
+  envValueFrom:
+    GRAFANA_USERNAME:
+      secretKeyRef:
+        name: cf-eks-monitoring-grafana
+        key: admin-user
+    GRAFANA_PASSWORD:
+      secretKeyRef:
+        name: cf-eks-monitoring-grafana
+        key: admin-password
