@@ -89,6 +89,17 @@ loki:
   minio:
     enabled: true
     fullnameOverride: "loki-minio"
+    # MinIO's own images are gone (quay.io/minio is no longer publicly pullable, upstream
+    # github.com/minio/minio is archived). Use the pgsty Silo fork instead: it keeps the
+    # MinIO interface (/usr/bin/mc, MINIO_ROOT_USER/MINIO_ROOT_PASSWORD, the legacy `minio server`
+    # argv token, .minio.sys layout), so the minio sub-chart works unmodified with it.
+    # Tags are pinned because `latest` is mutable.
+    image:
+      repository: docker.io/pgsty/silo
+      tag: RELEASE.2026-09-16T00-00-00Z
+    mcImage:
+      repository: docker.io/pgsty/mc
+      tag: RELEASE.2026-09-16T00-00-00Z
     rootUser: loki
     rootPassword: vanfUEWu8mEbDze
     buckets:
