@@ -275,9 +275,6 @@ loki:
 grafana-mcp:
   enabled: true
   fullnameOverride: "grafana-mcp"
-  extraArgs:
-     - --allowed-hosts
-     - localhost:18000
   grafana:
     # Grafana instance deployed by kube-prometheus-stack (served on port 3000)
     url: "http://cf-eks-monitoring-grafana:3000"
