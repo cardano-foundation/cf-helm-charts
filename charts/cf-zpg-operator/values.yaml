@@ -96,18 +96,11 @@ postgres-operator-ui:
 minio:
   enabled: true
   fullnameOverride: "minio"
-  # The sub-chart's default images (quay.io/minio/minio, quay.io/minio/mc) are no longer pullable:
-  # the quay.io/minio namespace returns 401 for anonymous pulls and upstream github.com/minio/minio
-  # is archived, so a redeploy would fail at container start - including the `minio-post-job` steps
-  # that create the buckets/users/svcaccounts below. Pin the pgsty Silo fork instead, which keeps
-  # the MinIO interface (/usr/bin/mc, MINIO_ROOT_USER/MINIO_ROOT_PASSWORD, the legacy `minio` argv
-  # token, .minio.sys layout), so no data migration is implied. Same override as cf-eks-monitoring;
-  # tags are pinned because `latest` is mutable.
   image:
-    repository: docker.io/pgsty/silo     # minio deployment + statefulset
+    repository: docker.io/pgsty/silo
     tag: RELEASE.2026-09-16T00-00-00Z
   mcImage:
-    repository: docker.io/pgsty/mc       # minio-post-job steps (buckets, users, svcaccounts)
+    repository: docker.io/pgsty/mc
     tag: RELEASE.2026-09-16T00-00-00Z
   replicas: 1
   # Minio requires 2 to 16 drives for erasure code (drivesPerNode * replicas)
