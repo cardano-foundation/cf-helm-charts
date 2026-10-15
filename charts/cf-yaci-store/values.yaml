@@ -1,0 +1,92 @@
+## cf-yaci-store
+##
+## Yaci Store follows a cardano-node over node-to-node TCP and persists its
+## index in an externally managed PostgreSQL database.
+##
+## Works standalone or as a dependency of cf-cardano-ibc.
+
+image:
+  repository: bloxbean/yaci-store
+  ## 2.0.2.1 matches the Caribic runtime and fixes CBOR parsing of
+  ## post-protocol-11 public-testnet blocks.
+  tag: "2.0.2.1"
+  pullPolicy: IfNotPresent
+
+## HTTP API port.
+port: 8080
+
+## cardano-node n2n endpoint (TCP chain-follow).
+cardanoNode:
+  ## Empty defaults to global.cardanoNodeSocatHost and then
+  ## <release>-cf-cardano-node.
+  host: ""
+  port: 3001
+  ## Yaci Store selects bundled public-network genesis files from protocol magic
+  ## (1=preprod, 2=preview, 764824073=mainnet, 4=sanchonet).
+  networkMagic: 1
+
+## Yaci sync checkpoint. For public networks, set this to an epoch-boundary
+## block one or two epochs before deployment. Zero values are suitable only for
+## development networks.
+syncStartSlot: 0
+syncStartBlockHash: ""
+syncStartBlockNo: 0
+
+## Gateway's bridge-history projection needs transaction and block CBOR.
+cbor:
+  transactionSave: true
+  blocksSave: true
+  returnTxBody: true
+  returnBlock: true
+
+## Store module toggles.
+store:
+  assetsEnabled: false
+  metadataEnabled: false
+  mirEnabled: false
+  governanceEnabled: false
+  epochEnabled: true
+  blocksEnabled: true
+  scriptEnabled: true
+  stakingEnabled: true
+  transactionEnabled: true
+  utxoEnabled: true
+
+executor:
+  enableParallelProcessing: true
+  blocksBatchSize: 50
+  blocksPartitionSize: 10
+
+## PostgreSQL connection. Credentials are read from an existing Secret.
+yaciDb:
+  host: ""
+  port: 5432
+  name: yaci
+  sslMode: prefer
+  secretName: yaci-pg-credentials
+  secretUsernameKey: username
+  secretPasswordKey: password
+
+## Parent charts can supply shared connection details here. These values are
+## used when the corresponding chart-local setting is empty; shared database
+## names and credential keys are inherited from the parent when provided.
+global:
+  cardanoNodeSocatHost: ""
+  protocolMagic: 1
+  yaciDb:
+    host: ""
+    name: ""
+    secretName: ""
+    secretUsernameKey: ""
+    secretPasswordKey: ""
+
+resources: {}
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+affinity: {}
+tolerations: []
+imagePullSecrets: []

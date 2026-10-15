@@ -1,0 +1,15 @@
+dependencies:
+- name: cf-cardano-node
+  repository: file://../cf-cardano-node
+  version: 0.1.0
+- name: cf-ogmios
+  repository: file://../cf-ogmios
+  version: 0.1.0
+- name: cf-kupo
+  repository: file://../cf-kupo
+  version: 0.1.0
+- name: cf-yaci-store
+  repository: file://../cf-yaci-store
+  version: 0.1.0
+digest: sha256:10c5eafc69bbf9ad7809495599d557a1c9a07d54dd359643f733976a3be75c7b
+generated: "2026-09-24T13:34:03.885137+02:00"
