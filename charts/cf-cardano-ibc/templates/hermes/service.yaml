@@ -1,0 +1,27 @@
+{{/*
+Hermes Service for the telemetry endpoint.
+
+A kube-prometheus-stack ServiceMonitor resolves through a `Service` object
+(its `selector.matchLabels` matches the labels below, `endpoints[].port` names
+one of the ports here), so the monitor needs this Service to scrape anything.
+Ports mirror the named container ports in templates/hermes/deployment.yaml.
+*/}}
+{{- if and .Values.hermes.enabled .Values.hermes.monitoring.enabled .Values.hermes.telemetry.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "hermes.fullname" . }}
+  labels:
+    {{- include "hermes.labels" . | nindent 4 }}
+    app.kubernetes.io/component: hermes
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "hermes.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: telemetry
+      port: {{ .Values.hermes.telemetry.port }}
+      targetPort: telemetry
+      protocol: TCP
+{{- end }}

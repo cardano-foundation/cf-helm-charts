@@ -214,6 +214,15 @@ hermes:
     enabled: false
     host: 0.0.0.0
     port: 3030
+  # Telemetry scraping: emits a Service (telemetry port) + ServiceMonitor so the
+  # kube-prometheus-stack deployed by the cf-eks-monitoring app scrapes hermes'
+  # /metrics. Keep prometheusReleaseLabel equal to that app's Helm release name:
+  # its Prometheus selects monitors through `serviceMonitorSelector.matchLabels.release`.
+  monitoring:
+    enabled: false
+    prometheusReleaseLabel: cf-eks-monitoring
+    path: /metrics
+    interval: 30s
   packetRelaying:
     clearInterval: 100
     clearOnStart: true

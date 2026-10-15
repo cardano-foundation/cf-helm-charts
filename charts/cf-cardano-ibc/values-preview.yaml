@@ -323,6 +323,8 @@ hermes:
   clientRefresh:
     enabled: false
     injectiveCardanoClientId: "08-cardano-probabilistic-488"
+  monitoring:
+    enabled: true
 
 ## ----- dApps ------------------------------------------------------------------
 dapps:
