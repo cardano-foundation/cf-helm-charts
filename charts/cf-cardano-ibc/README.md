@@ -109,8 +109,10 @@ stringData:
     <contents of ~/.hermes/keys/injective-888/keyring-test/injective-888-relayer.json>
 ```
 
-The chart mounts each Secret entry directly at that chain's `keyring-test`
-directory and maps it to Hermes' expected filename:
+The chart projects each Secret entry read-only into an init container. Once
+Gateway is ready, the init container copies the keys as regular files into a
+memory-backed writable volume (directories `0700`, files `0600`, owned by the
+Hermes image user `2000:2000`). Hermes reads them at:
 
 ```text
 /home/hermes/.hermes/keys/<cardano-chain-id>/keyring-test/<cardano-key-name>.json
@@ -124,10 +126,10 @@ For `values-preview.yaml`, that resolves to:
 /home/hermes/.hermes/keys/injective-888/keyring-test/injective-888-relayer.json
 ```
 
-Kubernetes Secret volumes still expose implementation-detail `..data` symlinks
-inside each mounted `keyring-test` directory, but the chain directories
-(`cardano-preview`, `injective-888`) are normal parent directories rather than
-top-level projected-volume symlinks.
+Do not mount the Secret directly as the runtime keyring: Hermes secures its
+keyring directories and files on read and refuses symlinked key files, while
+Kubernetes Secret volumes are read-only and use projected symlinks. A Secret
+rotation requires restarting the Hermes Pod to recopy the new key files.
 
 ## Periodic client refresh
 

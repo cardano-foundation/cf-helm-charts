@@ -65,6 +65,43 @@ spec:
                 echo waiting gateway-proof-readiness; sleep 5
               done
               echo gateway-proof-ready
+        - name: prepare-keyrings
+          image: busybox:1.36
+          command:
+            - sh
+            - -eu
+            - -c
+          args:
+            - |
+              umask 077
+              cardano_dir="/keyrings/${CARDANO_CHAIN_ID}/keyring-test"
+              injective_dir="/keyrings/${INJECTIVE_CHAIN_ID}/keyring-test"
+              mkdir -p "$cardano_dir" "$injective_dir"
+              # Reading through the Secret projection creates regular files,
+              # not symlinks, in the private writable keyring volume.
+              cat "/source/cardano/${CARDANO_KEY_NAME}.json" > "$cardano_dir/${CARDANO_KEY_NAME}.json"
+              cat "/source/injective/${INJECTIVE_KEY_NAME}.json" > "$injective_dir/${INJECTIVE_KEY_NAME}.json"
+              chown -R 2000:2000 /keyrings
+              chmod 0700 /keyrings "/keyrings/${CARDANO_CHAIN_ID}" "$cardano_dir" "/keyrings/${INJECTIVE_CHAIN_ID}" "$injective_dir"
+              chmod 0600 "$cardano_dir/${CARDANO_KEY_NAME}.json" "$injective_dir/${INJECTIVE_KEY_NAME}.json"
+          env:
+            - name: CARDANO_CHAIN_ID
+              value: {{ .Values.hermes.config.cardano.chainId | quote }}
+            - name: CARDANO_KEY_NAME
+              value: {{ .Values.hermes.config.cardano.keyName | quote }}
+            - name: INJECTIVE_CHAIN_ID
+              value: {{ include "hermes.injectiveChainId" . | quote }}
+            - name: INJECTIVE_KEY_NAME
+              value: {{ .Values.hermes.config.injective.keyName | quote }}
+          volumeMounts:
+            - name: keyrings
+              mountPath: /keyrings
+            - name: cardano-key-secret
+              mountPath: /source/cardano
+              readOnly: true
+            - name: injective-key-secret
+              mountPath: /source/injective
+              readOnly: true
 
       containers:
         - name: hermes
@@ -81,12 +118,8 @@ spec:
               mountPath: /home/hermes/.hermes/config.toml
               subPath: config.toml
               readOnly: true
-            - name: cardano-keyring-test
-              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" .Values.hermes.config.cardano.chainId | quote }}
-              readOnly: true
-            - name: injective-keyring-test
-              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" (include "hermes.injectiveChainId" .) | quote }}
-              readOnly: true
+            - name: keyrings
+              mountPath: /home/hermes/.hermes/keys
           {{- if .Values.hermes.config.cardano.bridgeManifestPath }}
             - name: bridge-manifest
               mountPath: {{ .Values.gateway.deploymentConfig.mountPath | default "/etc/cardano-ibc" | quote }}
@@ -140,12 +173,8 @@ spec:
               mountPath: /home/hermes/.hermes/config.toml
               subPath: config.toml
               readOnly: true
-            - name: cardano-keyring-test
-              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" .Values.hermes.config.cardano.chainId | quote }}
-              readOnly: true
-            - name: injective-keyring-test
-              mountPath: {{ printf "/home/hermes/.hermes/keys/%s/keyring-test" (include "hermes.injectiveChainId" .) | quote }}
-              readOnly: true
+            - name: keyrings
+              mountPath: /home/hermes/.hermes/keys
           {{- if .Values.hermes.config.cardano.bridgeManifestPath }}
             - name: bridge-manifest
               mountPath: {{ .Values.gateway.deploymentConfig.mountPath | default "/etc/cardano-ibc" | quote }}
@@ -166,15 +195,20 @@ spec:
               - key: {{ include "gateway.deploymentConfigKey" . }}
                 path: {{ include "gateway.deploymentConfigFileName" . }}
         {{- end }}
-        - name: cardano-keyring-test
+        - name: keyrings
+          emptyDir:
+            medium: Memory
+        - name: cardano-key-secret
           secret:
             secretName: {{ .Values.hermes.keys.cardanoMnemonicRef.name }}
+            defaultMode: 256 # 0400, owner-read only
             items:
               - key: {{ .Values.hermes.keys.cardanoMnemonicRef.key | quote }}
                 path: {{ printf "%s.json" .Values.hermes.config.cardano.keyName | quote }}
-        - name: injective-keyring-test
+        - name: injective-key-secret
           secret:
             secretName: {{ .Values.hermes.keys.injectiveMnemonicRef.name }}
+            defaultMode: 256 # 0400, owner-read only
             items:
               - key: {{ .Values.hermes.keys.injectiveMnemonicRef.key | quote }}
                 path: {{ printf "%s.json" .Values.hermes.config.injective.keyName | quote }}
