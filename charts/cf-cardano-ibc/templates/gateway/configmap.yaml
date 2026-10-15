@@ -52,6 +52,9 @@ data:
 
   KUPO_ENDPOINT: {{ include "gateway.kupoEndpoint" . | quote }}
   OGMIOS_ENDPOINT: {{ include "gateway.ogmiosEndpoint" . | quote }}
+{{- with .Values.gateway.env.OGMIOS_REQUEST_TIMEOUT_MS }}
+  OGMIOS_REQUEST_TIMEOUT_MS: {{ . | quote }}
+{{- end }}
   YACI_STORE_ENDPOINT: {{ include "gateway.yaciStoreEndpoint" . | quote }}
   CARDANO_CHAIN_HOST: {{ include "gateway.cardanoNodeHost" . | quote }}
   CARDANO_CHAIN_PORT: {{ .Values.gateway.env.CARDANO_CHAIN_PORT | quote }}

@@ -156,6 +156,8 @@ gateway:
     CARDANO_PROBABILISTIC_EPOCH_NONCE_OVERRIDE: ""
     KUPO_ENDPOINT: ""
     OGMIOS_ENDPOINT: ""
+    # Per-request timeout for Ogmios WebSocket RPCs; dev Preview needs 60s.
+    OGMIOS_REQUEST_TIMEOUT_MS: "20000"
     YACI_STORE_ENDPOINT: ""
     CARDANO_CHAIN_HOST: cardano-node
     CARDANO_CHAIN_PORT: "3001"
@@ -224,7 +226,7 @@ hermes:
       # Optional for newer Hermes (after f8780b26): PR857 cannot parse these
       # fields. The pinned manifest must be operator-controlled, not Gateway RPC.
       bridgeManifestPath: ""
-      # Newer Hermes enforces authenticated transport to non-loopback sources.
+      # Independent signing Kupo/Ogmios sources require HTTPS off loopback.
       signingKupoUrl: ""
       signingOgmiosUrl: ""
       hostStateHeartbeatInterval: "60s"
