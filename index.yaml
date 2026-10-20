@@ -920,6 +920,16 @@ entries:
     version: 0.0.1
   cf-yaci-devkit:
   - apiVersion: v2
+    appVersion: 0.12.0
+    created: "2026-10-20T10:03:35.206066619Z"
+    description: A Helm chart for Kubernetes
+    digest: 157f662e176bf438c0aa71a4b094cec65f67b16de6c1c812b94fd20080491d92
+    name: cf-yaci-devkit
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-yaci-devkit-0.2.0/cf-yaci-devkit-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 1.16.0
     created: "2026-06-22T08:54:20.033281989Z"
     description: A Helm chart for Kubernetes
@@ -1182,4 +1192,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2026-09-09T14:41:17.057238969Z"
+generated: "2026-10-20T10:03:35.206193486Z"
