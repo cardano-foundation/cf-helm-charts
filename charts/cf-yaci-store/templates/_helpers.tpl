@@ -43,6 +43,44 @@ app.kubernetes.io/component: yaci-store
 Resolve the cardano-node n2n host. The global endpoint is used when no
 chart-local host is configured.
 */}}
+{{/* The Zalando Postgres cluster this chart talks to.
+     - postgres.clusterName wins for standalone releases.
+     - global.postgres.clusterName is inherited from a parent chart (cf-cardano-ibc)
+       that owns one shared cluster; its presence also suppresses this chart's
+       own postgresql CRD (see postgres.yaml).
+     - otherwise a standalone cluster is named <release name>-pg.
+*/}}
+{{- define "cf-yaci-store.globalPostgresClusterName" -}}
+{{- if and .Values.global (index .Values.global "postgres") (index .Values.global.postgres "clusterName") -}}{{- .Values.global.postgres.clusterName -}}{{- end -}}
+{{- end }}
+
+{{- define "cf-yaci-store.postgresClusterName" -}}
+{{- if .Values.postgres.clusterName -}}{{- .Values.postgres.clusterName -}}
+{{- else if (include "cf-yaci-store.globalPostgresClusterName" .) -}}{{- include "cf-yaci-store.globalPostgresClusterName" . -}}
+{{- else if .Values.postgres.enabled -}}{{- printf "%s-pg" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end }}
+
+{{- define "cf-yaci-store.postgresNamespace" -}}
+{{- if .Values.postgres.namespace -}}{{- .Values.postgres.namespace -}}
+{{- else if and .Values.global (index .Values.global "postgres") (index .Values.global.postgres "namespace") -}}{{- .Values.global.postgres.namespace -}}
+{{- else -}}{{- .Release.Namespace -}}{{- end -}}
+{{- end }}
+
+{{- define "cf-yaci-store.postgresSecretNamespace" -}}
+{{- if .Values.postgres.secretNamespace -}}{{- .Values.postgres.secretNamespace -}}
+{{- else if and .Values.global (index .Values.global "postgres") (index .Values.global.postgres "secretNamespace") -}}{{- .Values.global.postgres.secretNamespace -}}
+{{- else -}}{{- .Release.Namespace -}}{{- end -}}
+{{- end }}
+
+{{/* Render this chart's own postgresql CRD. A parent that supplies
+     global.postgres.clusterName already prepares the yaci database in the
+     shared cluster, so the CRD is skipped and only its names are consumed.
+*/}}
+{{- define "cf-yaci-store.ownPostgresEnabled" -}}
+{{- if and .Values.postgres.enabled (not (include "cf-yaci-store.globalPostgresClusterName" .)) -}}true{{- end -}}
+{{- end }}
+
 {{- define "cf-yaci-store.cardanoNodeHost" -}}
 {{- if .Values.cardanoNode.host -}}
 {{- .Values.cardanoNode.host -}}
@@ -63,13 +101,16 @@ chart-local host is configured.
 {{- end -}}
 {{- end }}
 
+{{/* Empty chart-local/global hosts fall back to the operator's master Service
+     <cluster>.<namespace>.svc.cluster.local
+*/}}
 {{- define "cf-yaci-store.yaciDbHost" -}}
 {{- if .Values.yaciDb.host -}}
 {{- .Values.yaciDb.host -}}
 {{- else if and .Values.global (index .Values.global "yaciDb") (index .Values.global.yaciDb "host") -}}
 {{- .Values.global.yaciDb.host -}}
-{{- else if and .Values.global (index .Values.global "postgres") (index .Values.global.postgres "clusterName") -}}
-{{- printf "%s.%s.svc.cluster.local" .Values.global.postgres.clusterName (.Values.global.postgres.namespace | default .Release.Namespace) -}}
+{{- else if (include "cf-yaci-store.postgresClusterName" .) -}}
+{{- printf "%s.%s.svc.cluster.local" (include "cf-yaci-store.postgresClusterName" .) (include "cf-yaci-store.postgresNamespace" .) -}}
 {{- else -}}
 {{- "yaci-store-postgres" -}}
 {{- end -}}
@@ -83,13 +124,18 @@ chart-local host is configured.
 {{- end -}}
 {{- end }}
 
+{{/* Zalando names the prepared-database owner Secret
+     <db>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
+*/}}
 {{- define "cf-yaci-store.yaciDbSecretName" -}}
-{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global.yaciDb "secretName") -}}
+{{- if .Values.yaciDb.secretName -}}
+{{- .Values.yaciDb.secretName -}}
+{{- else if and .Values.global (index .Values.global "yaciDb") (index .Values.global.yaciDb "secretName") -}}
 {{- .Values.global.yaciDb.secretName -}}
-{{- else if and .Values.global (index .Values.global "postgres") (index .Values.global.postgres "clusterName") -}}
-{{- printf "%s-owner-user.%s.credentials.postgresql.acid.zalan.do" (include "cf-yaci-store.yaciDbName" .) .Values.global.postgres.clusterName -}}
+{{- else if (include "cf-yaci-store.postgresClusterName" .) -}}
+{{- printf "%s-owner-user.%s.credentials.postgresql.acid.zalan.do" (include "cf-yaci-store.yaciDbName" .) (include "cf-yaci-store.postgresClusterName" .) -}}
 {{- else -}}
-{{- .Values.yaciDb.secretName | default "yaci-pg-credentials" -}}
+{{- "yaci-pg-credentials" -}}
 {{- end -}}
 {{- end }}
 
