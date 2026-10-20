@@ -28,7 +28,7 @@ spec:
       {{- end }}
       containers:
         - name: viewer
-          image: {{ .Values.viewer.image.repository }}:{{ .Values.viewer.image.tag }}
+          image: {{ .Values.viewer.image.repository }}:{{ .Values.viewer.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ .Values.viewer.image.pullPolicy }}
           env:
             - name: PUBLIC_INDEXER_BASE_URL
