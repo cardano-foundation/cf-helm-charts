@@ -218,6 +218,12 @@ loki:
   minio:
     enabled: true
     fullnameOverride: "loki-minio"
+    image:
+      repository: docker.io/pgsty/silo
+      tag: RELEASE.2026-09-16T00-00-00Z
+    mcImage:
+      repository: docker.io/pgsty/mc
+      tag: RELEASE.2026-09-16T00-00-00Z
     rootUser: loki
     rootPassword: vanfUEWu8mEbDze
     buckets:
