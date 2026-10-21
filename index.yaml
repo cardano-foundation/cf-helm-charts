@@ -463,6 +463,33 @@ entries:
   cf-eks-monitoring:
   - apiVersion: v2
     appVersion: 0.0.1
+    created: "2026-10-21T09:48:43.187614649Z"
+    dependencies:
+    - condition: metrics-server.enabled
+      name: metrics-server
+      repository: https://kubernetes-sigs.github.io/metrics-server/
+      version: 3.13.0
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 75.15.1
+    - condition: loki.enabled
+      name: loki
+      repository: https://grafana.github.io/helm-charts
+      version: 6.33.0
+    - condition: alloy.enabled
+      name: alloy
+      repository: https://grafana.github.io/helm-charts
+      version: 1.2.1
+    description: A Helm chart for deploying CF's monitoring stack to EKS clusters
+    digest: f9e8bcb0b085abd8489f1150be07beca765a1951cfc6e3ae32d94e8a9e477299
+    name: cf-eks-monitoring
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-eks-monitoring-0.1.2/cf-eks-monitoring-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 0.0.1
     created: "2025-10-28T16:22:04.183271209Z"
     dependencies:
     - condition: metrics-server.enabled
@@ -942,6 +969,29 @@ entries:
   cf-zpg-operator:
   - apiVersion: v2
     appVersion: 1.15.1
+    created: "2026-10-21T09:48:43.517796704Z"
+    dependencies:
+    - condition: postgres-operator.enabled
+      name: postgres-operator
+      repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+      version: 1.15.1
+    - condition: postgres-operator-ui.enabled
+      name: postgres-operator-ui
+      repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
+      version: 1.15.1
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 5.4.0
+    description: A Helm chart bundling zalando pg operator plus minio ready for PITR
+    digest: c02d29d9ec310867d0ad50a84eca40911fa94e572d154a92e66713955e1e162e
+    name: cf-zpg-operator
+    type: application
+    urls:
+    - https://github.com/cardano-foundation/cf-helm-charts/releases/download/cf-zpg-operator-0.1.1/cf-zpg-operator-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.15.1
     created: "2026-01-29T13:15:02.878801959Z"
     dependencies:
     - condition: postgres-operator.enabled
@@ -1192,4 +1242,4 @@ entries:
     urls:
     - https://github.com/cardano-foundation/cf-helm-charts/releases/download/yaci-address-balance-monitor-0.0.1/yaci-address-balance-monitor-0.0.1.tgz
     version: 0.0.1
-generated: "2026-10-20T10:03:35.206193486Z"
+generated: "2026-10-21T09:48:43.517991967Z"
