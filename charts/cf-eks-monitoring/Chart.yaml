@@ -2,22 +2,23 @@ apiVersion: v2
 name: cf-eks-monitoring
 description: A Helm chart for deploying CF's monitoring stack to EKS clusters
 type: application
-version: 0.1.2
+version: 0.2.0
 appVersion: 0.0.1
 dependencies:
+  # check if we can remove metrics-server, metrics should be available out of the box by kube api server
   - name: metrics-server
     version: 3.13.0
     repository: https://kubernetes-sigs.github.io/metrics-server/
     condition: metrics-server.enabled
   - name: kube-prometheus-stack
-    version: 75.15.1
+    version: 92.11.0
     repository: https://prometheus-community.github.io/helm-charts
     condition: kube-prometheus-stack.enabled
   - name: loki
-    version: 6.33.0
-    repository: https://grafana.github.io/helm-charts
+    version: 19.1.1
+    repository: https://grafana-community.github.io/helm-charts
     condition: loki.enabled
   - name: alloy
-    version: 1.2.1
+    version: 1.14.2
     repository: https://grafana.github.io/helm-charts
     condition: alloy.enabled

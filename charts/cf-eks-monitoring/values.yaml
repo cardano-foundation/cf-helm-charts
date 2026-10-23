@@ -4,6 +4,9 @@ kube-prometheus-stack:
   global:
     rbac:
       create: true
+  crds:
+    upgradeJob:
+      enabled: true
   grafana:
     datasources:
       datasources.yaml:
