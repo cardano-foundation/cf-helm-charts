@@ -12,9 +12,10 @@ traefik:
         default: false
     websecure:
       nodePort: 30443
-  externalPing:
-    enabled: false
-    path: /ping
+  ingressRoute:
+    healthcheck:
+      enabled: false
+      # matchRule: PathPrefix(`/ping`)
 
 nginx:
   enabled: true
