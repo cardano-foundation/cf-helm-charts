@@ -12,9 +12,10 @@ traefik:
         default: false
     websecure:
       nodePort: 30443
-  externalPing:
-    enabled: false
-    path: /ping
+  ingressRoute:
+    healthcheck:
+      enabled: false
+      # matchRule: PathPrefix(`/ping`)
 
 nginx:
   enabled: true
@@ -42,6 +43,17 @@ nginx:
 external-secrets:
   enabled: true
   fullnameOverride: "external-secrets"
+  # 0.16.1 defaults image.repository to oci.external-secrets.io/..., a reverse proxy
+  # upstream is shutting down (external-secrets/external-secrets#5611). Pin ghcr.io,
+  # which is what 0.9.16 used and what 2.x defaults back to.
+  image:
+    repository: "ghcr.io/external-secrets/external-secrets"
+  webhook:
+    image:
+      repository: "ghcr.io/external-secrets/external-secrets"
+  certController:
+    image:
+      repository: "ghcr.io/external-secrets/external-secrets"
 
 metrics-server:
   enabled: true
