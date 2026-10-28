@@ -1,0 +1,49 @@
+{{- if .Values.httpRoute.enabled }}
+{{- if .Values.ingress.enabled }}
+{{- fail "ingress.enabled and httpRoute.enabled are mutually exclusive" }}
+{{- end }}
+{{- if not .Values.service.enabled }}
+{{- fail "service.enabled must be true when httpRoute.enabled=true" }}
+{{- end }}
+{{- if not .Values.httpRoute.hosts }}
+{{- fail "httpRoute.hosts must list at least one hostname" }}
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "cf-cardano-x402-facilitator.fullname" . }}
+  labels:
+    {{- include "cf-cardano-x402-facilitator.labels" . | nindent 4 }}
+    app.kubernetes.io/component: facilitator
+  {{- with .Values.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    - kind: {{ .Values.httpRoute.parentRef.kind | quote }}
+      name: {{ .Values.httpRoute.parentRef.name | quote }}
+      {{- if .Values.httpRoute.parentRef.namespace }}
+      namespace: {{ .Values.httpRoute.parentRef.namespace | quote }}
+      {{- end }}
+  hostnames:
+    {{- range .Values.httpRoute.hosts }}
+    - {{ . | quote }}
+    {{- end }}
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /verify
+        - path:
+            type: Exact
+            value: /settle
+        - path:
+            type: Exact
+            value: /supported
+      backendRefs:
+        - kind: Service
+          name: {{ include "cf-cardano-x402-facilitator.fullname" . }}
+          port: {{ .Values.service.port }}
+          weight: 1
+{{- end }}

@@ -62,6 +62,24 @@ The ingress uses `Exact` matches for `/verify`, `/settle`, and `/supported`.
 There is intentionally no catch-all path, so `/actuator`, `/health`, and other
 application paths are not exposed through this ingress.
 
+## Gateway API route
+
+Instead of an `Ingress`, attach the same three `Exact` endpoints to the infra
+Envoy Gateway (`httpRoute.enabled` and `ingress.enabled` are mutually exclusive).
+`httpRoute.hosts` are the `hostnames` the route matches; `ingress.hosts` and
+`ingress.tls` are not used here — TLS belongs to the Gateway listener.
+
+```yaml
+httpRoute:
+  enabled: true
+  hosts:
+    - x402.mainnet.prod.ecosyseng.cf-deployments.org
+  parentRef:
+    kind: Gateway
+    name: envoy
+    namespace: infra-system   # omit for a same-namespace Gateway
+```
+
 ## External PostgreSQL
 
 Disable cluster creation and provide an existing endpoint and credential Secret:

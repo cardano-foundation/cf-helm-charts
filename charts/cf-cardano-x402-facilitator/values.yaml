@@ -119,6 +119,17 @@ ingress:
     - host: facilitator.example.local
   tls: []
 
+## Gateway API fronting: attach the same three Exact endpoints to the infra
+## Envoy Gateway instead of an Ingress; httpRoute.hosts are the hostnames served.
+httpRoute:
+  enabled: false
+  annotations: {}
+  hosts: []                 # hostnames this route serves
+  parentRef:
+    kind: Gateway
+    name: envoy
+    namespace: infra-system
+
 probes:
   startup:
     enabled: true
