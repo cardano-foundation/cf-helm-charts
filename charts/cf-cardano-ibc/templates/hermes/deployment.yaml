@@ -1,0 +1,215 @@
+{{- if .Values.hermes.enabled }}
+{{- if .Values.hermes.config.cardano.bridgeManifestPath }}
+{{- if or (ne (include "gateway.deploymentConfigSource" .) "bridgeManifest") (not (include "gateway.deploymentConfigVolumeEnabled" .)) (ne .Values.hermes.config.cardano.bridgeManifestPath (include "gateway.deploymentConfigPath" .)) }}
+{{- fail "hermes.config.cardano.bridgeManifestPath must point to the pinned Gateway bridgeManifest ConfigMap mount" }}
+{{- end }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hermes.fullname" . }}
+  {{- if eq (int .Values.hermes.replicas) 0 }}
+  # In a bridge cutover, scale down before Argo CD updates the Gateway manifest.
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  {{- end }}
+  labels:
+    {{- include "hermes.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.hermes.replicas }}
+  selector:
+    matchLabels:
+      {{- include "hermes.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "hermes.selectorLabels" . | nindent 8 }}
+        {{- with .Values.hermes.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/hermes/configmap.yaml") . | sha256sum }}
+        {{- if and .Values.hermes.config.cardano.bridgeManifestPath (include "gateway.deploymentConfigInlineConfigMapEnabled" .) }}
+        checksum/deployment-config: {{ include (print $.Template.BasePath "/gateway/deployment-config-configmap.yaml") . | sha256sum }}
+        {{- end }}
+        {{- with .Values.hermes.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.hermes.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.hermes.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.hermes.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.hermes.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      initContainers:
+        - name: wait-for-gateway-readiness
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+          args:
+            - |
+              until wget -q -T 35 -O /dev/null "http://{{ include "gateway.fullname" . }}:{{ .Values.gateway.restPort }}/health/ready"; do
+                echo waiting gateway-proof-readiness; sleep 5
+              done
+              echo gateway-proof-ready
+        - name: prepare-keyrings
+          image: busybox:1.36
+          command:
+            - sh
+            - -eu
+            - -c
+          args:
+            - |
+              umask 077
+              cardano_dir="/keyrings/${CARDANO_CHAIN_ID}/keyring-test"
+              injective_dir="/keyrings/${INJECTIVE_CHAIN_ID}/keyring-test"
+              mkdir -p "$cardano_dir" "$injective_dir"
+              # Reading through the Secret projection creates regular files,
+              # not symlinks, in the private writable keyring volume.
+              cat "/source/cardano/${CARDANO_KEY_NAME}.json" > "$cardano_dir/${CARDANO_KEY_NAME}.json"
+              cat "/source/injective/${INJECTIVE_KEY_NAME}.json" > "$injective_dir/${INJECTIVE_KEY_NAME}.json"
+              chown -R 2000:2000 /keyrings
+              chmod 0700 /keyrings "/keyrings/${CARDANO_CHAIN_ID}" "$cardano_dir" "/keyrings/${INJECTIVE_CHAIN_ID}" "$injective_dir"
+              chmod 0600 "$cardano_dir/${CARDANO_KEY_NAME}.json" "$injective_dir/${INJECTIVE_KEY_NAME}.json"
+          env:
+            - name: CARDANO_CHAIN_ID
+              value: {{ .Values.hermes.config.cardano.chainId | quote }}
+            - name: CARDANO_KEY_NAME
+              value: {{ .Values.hermes.config.cardano.keyName | quote }}
+            - name: INJECTIVE_CHAIN_ID
+              value: {{ include "hermes.injectiveChainId" . | quote }}
+            - name: INJECTIVE_KEY_NAME
+              value: {{ .Values.hermes.config.injective.keyName | quote }}
+          volumeMounts:
+            - name: keyrings
+              mountPath: /keyrings
+            - name: cardano-key-secret
+              mountPath: /source/cardano
+              readOnly: true
+            - name: injective-key-secret
+              mountPath: /source/injective
+              readOnly: true
+
+      containers:
+        - name: hermes
+          image: {{ include "hermes.image" . | quote }}
+          imagePullPolicy: {{ .Values.hermes.image.pullPolicy }}
+          {{/* The image's ENTRYPOINT is hermes; run as a daemon. */}}
+          args:
+            - start
+          env:
+            - name: HERMES_HOME
+              value: /home/hermes/.hermes
+          volumeMounts:
+            - name: config
+              mountPath: /home/hermes/.hermes/config.toml
+              subPath: config.toml
+              readOnly: true
+            - name: keyrings
+              mountPath: /home/hermes/.hermes/keys
+          {{- if .Values.hermes.config.cardano.bridgeManifestPath }}
+            - name: bridge-manifest
+              mountPath: {{ .Values.gateway.deploymentConfig.mountPath | default "/etc/cardano-ibc" | quote }}
+              readOnly: true
+          {{- end }}
+          ports:
+            {{- if .Values.hermes.telemetry.enabled }}
+            - name: telemetry
+              containerPort: {{ .Values.hermes.telemetry.port }}
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.hermes.rest.enabled }}
+            - name: rest
+              containerPort: {{ .Values.hermes.rest.port }}
+              protocol: TCP
+            {{- end }}
+          resources: {{- toYaml .Values.hermes.resources | nindent 12 }}
+
+        {{- if .Values.hermes.clientRefresh.enabled }}
+        - name: client-refresh
+          image: {{ include "hermes.image" . | quote }}
+          imagePullPolicy: {{ .Values.hermes.image.pullPolicy }}
+          {{/* Override the image entrypoint with caribic's Injective-only refresh loop. */}}
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -u
+              trap 'exit 0' TERM INT
+
+              while true; do
+                /usr/bin/hermes --config "${HERMES_CONFIG}" update client \
+                  --host-chain "${INJECTIVE_CHAIN_ID}" \
+                  --client "${INJECTIVE_CARDANO_CLIENT_ID}"
+                sleep "${INTERVAL_SECONDS}"
+              done
+          env:
+            - name: HERMES_HOME
+              value: /home/hermes/.hermes
+            - name: HERMES_CONFIG
+              value: /home/hermes/.hermes/config.toml
+            - name: INJECTIVE_CHAIN_ID
+              value: {{ include "hermes.injectiveChainId" . | quote }}
+            - name: INJECTIVE_CARDANO_CLIENT_ID
+              value: {{ required "hermes.clientRefresh.injectiveCardanoClientId is required when client refresh is enabled" .Values.hermes.clientRefresh.injectiveCardanoClientId | quote }}
+            - name: INTERVAL_SECONDS
+              value: {{ .Values.hermes.clientRefresh.intervalSeconds | quote }}
+          volumeMounts:
+            - name: config
+              mountPath: /home/hermes/.hermes/config.toml
+              subPath: config.toml
+              readOnly: true
+            - name: keyrings
+              mountPath: /home/hermes/.hermes/keys
+          {{- if .Values.hermes.config.cardano.bridgeManifestPath }}
+            - name: bridge-manifest
+              mountPath: {{ .Values.gateway.deploymentConfig.mountPath | default "/etc/cardano-ibc" | quote }}
+              readOnly: true
+          {{- end }}
+          resources: {{- toYaml .Values.hermes.clientRefresh.resources | nindent 12 }}
+        {{- end }}
+
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "hermes.fullname" . }}-config
+        {{- if .Values.hermes.config.cardano.bridgeManifestPath }}
+        - name: bridge-manifest
+          configMap:
+            name: {{ include "gateway.deploymentConfigConfigMapName" . }}
+            items:
+              - key: {{ include "gateway.deploymentConfigKey" . }}
+                path: {{ include "gateway.deploymentConfigFileName" . }}
+        {{- end }}
+        - name: keyrings
+          emptyDir:
+            medium: Memory
+        - name: cardano-key-secret
+          secret:
+            secretName: {{ .Values.hermes.keys.cardanoMnemonicRef.name }}
+            defaultMode: 256 # 0400, owner-read only
+            items:
+              - key: {{ .Values.hermes.keys.cardanoMnemonicRef.key | quote }}
+                path: {{ printf "%s.json" .Values.hermes.config.cardano.keyName | quote }}
+        - name: injective-key-secret
+          secret:
+            secretName: {{ .Values.hermes.keys.injectiveMnemonicRef.name }}
+            defaultMode: 256 # 0400, owner-read only
+            items:
+              - key: {{ .Values.hermes.keys.injectiveMnemonicRef.key | quote }}
+                path: {{ printf "%s.json" .Values.hermes.config.injective.keyName | quote }}
+{{- end }}

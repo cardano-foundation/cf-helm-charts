@@ -1,0 +1,39 @@
+{{/* Headless service for StatefulSet stable DNS. */}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cf-cardano-node.headlessName" . }}
+  labels:
+    {{- include "cf-cardano-node.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "cf-cardano-node.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: node-to-node
+      port: {{ .Values.n2nPort }}
+      targetPort: node-to-node
+      protocol: TCP
+---
+{{/* ClusterIP service for inter-pod consumers. */}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cf-cardano-node.fullname" . }}
+  labels:
+    {{- include "cf-cardano-node.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "cf-cardano-node.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: node-to-node
+      port: {{ .Values.n2nPort }}
+      targetPort: node-to-node
+      protocol: TCP
+    {{- if .Values.socat.enabled }}
+    - name: socat-n2c
+      port: {{ .Values.socat.port }}
+      targetPort: socat-n2c
+      protocol: TCP
+    {{- end }}

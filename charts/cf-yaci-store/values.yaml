@@ -1,0 +1,149 @@
+## cf-yaci-store
+##
+## Yaci Store follows a cardano-node over node-to-node TCP and persists its
+## index in an externally managed PostgreSQL database.
+##
+## Works standalone or as a dependency of cf-cardano-ibc.
+
+image:
+  repository: bloxbean/yaci-store
+  ## 2.0.2.1 matches the Caribic runtime and fixes CBOR parsing of
+  ## post-protocol-11 public-testnet blocks.
+  tag: "2.0.2.1"
+  pullPolicy: IfNotPresent
+
+## HTTP API port.
+port: 8080
+
+## cardano-node n2n endpoint (TCP chain-follow).
+cardanoNode:
+  ## Empty defaults to global.cardanoNodeSocatHost and then
+  ## <release>-cf-cardano-node.
+  host: ""
+  port: 3001
+  ## Yaci Store selects bundled public-network genesis files from protocol magic
+  ## (1=preprod, 2=preview, 764824073=mainnet, 4=sanchonet).
+  networkMagic: 1
+
+## Yaci sync checkpoint. For public networks, set this to an epoch-boundary
+## block one or two epochs before deployment. Zero values are suitable only for
+## development networks.
+syncStartSlot: 0
+syncStartBlockHash: ""
+syncStartBlockNo: 0
+
+## Gateway's bridge-history projection needs transaction and block CBOR.
+cbor:
+  transactionSave: true
+  blocksSave: true
+  returnTxBody: true
+  returnBlock: true
+
+## Store module toggles.
+store:
+  assetsEnabled: false
+  metadataEnabled: false
+  mirEnabled: false
+  governanceEnabled: false
+  epochEnabled: true
+  blocksEnabled: true
+  scriptEnabled: true
+  stakingEnabled: true
+  transactionEnabled: true
+  utxoEnabled: true
+
+executor:
+  enableParallelProcessing: true
+  blocksBatchSize: 50
+  blocksPartitionSize: 10
+
+## PostgreSQL connection. Credentials are read from an existing Secret.
+## When postgres.enabled=true (standalone default), host and secretName are
+## derived from the Zalando cluster below; set them explicitly for externally
+## managed Postgres (postgres.enabled=false).
+yaciDb:
+  host: ""
+  port: 5432
+  name: yaci
+  sslMode: prefer
+  ## Empty means: derive the Zalando prepared-database owner Secret
+  ## <name>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
+  ## when a cluster is configured; otherwise this placeholder name, which you
+  ## must provision yourself (see values-external.yaml for the pattern).
+  secretName: ""
+  secretUsernameKey: username
+  secretPasswordKey: password
+
+## Zalando Postgres Operator cluster for the Yaci Store index. Rendered only
+## for standalone releases: parent charts (cf-cardano-ibc) own one shared
+## cluster through global.postgres.clusterName, which suppresses this CRD and
+## feeds its host + Secret names to this chart instead.
+postgres:
+  enabled: true
+  ## Controller annotation (operator pod identifier). Set this when multiple
+  ## Postgres Operator instances watch the same Kubernetes cluster.
+  controller: ""
+  ## Defaults to <Helm release name>-pg.
+  clusterName: ""
+  ## Namespace for the PostgreSQL custom resource. The generated credential
+  ## Secret is placed in secretNamespace (the release namespace by default),
+  ## where the Yaci Store Deployment can consume it.
+  namespace: ""               # defaults to the release namespace
+  secretNamespace: ""
+  ## Operator team authorized for this cluster; must match a team the
+  ## Postgres Operator authenticates.
+  teamId: cardano-ibc
+  version: "15"
+  numberOfInstances: 1
+  volume:
+    size: 10Gi
+    storageClass: ""
+  connectionPooler:
+    enabled: false
+  ## Optional Patroni config passed through to the Postgres CR. Use
+  ## patroni.pg_hba to admit non-SSL pod-network clients when the operator
+  ## default only allows hostssl connections.
+  patroni: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ## Optional login users beyond the prepared-database defaults. An empty
+  ## list means a normal LOGIN role (no superuser).
+  users: {}
+  ## Extra PostgreSQL environment for the operator-managed Postgres pods
+  ## (Zalando CRD takes this as a map, e.g. PG_TYPED_BARS: "1").
+  additionalEnv: {}
+  ## Optional PostgreSQL.conf parameters.
+  parameters: {}
+  ## Optional sidecars (e.g. logical replication, exporters).
+  sidecars: []
+
+## Parent charts can supply shared connection details here. These values are
+## used when the corresponding chart-local setting is empty; shared database
+## names and credential keys are inherited from the parent when provided.
+## global.postgres is only present when a parent owns the shared cluster
+## (cf-cardano-ibc); its presence suppresses this chart's own postgres CRD.
+global:
+  cardanoNodeSocatHost: ""
+  protocolMagic: 1
+  yaciDb:
+    host: ""
+    name: ""
+    secretName: ""
+    secretUsernameKey: ""
+    secretPasswordKey: ""
+
+resources: {}
+
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+affinity: {}
+tolerations: []
+imagePullSecrets: []
