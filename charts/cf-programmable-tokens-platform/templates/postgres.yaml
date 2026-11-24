@@ -1,0 +1,27 @@
+{{- if and .Values.indexer.enabled .Values.postgres.create }}
+apiVersion: acid.zalan.do/v1
+kind: postgresql
+metadata:
+  name: {{ include "cfpt.postgres.cluster" . }}
+  labels:
+    {{- include "cfpt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+spec:
+  teamId: {{ .Values.postgres.teamId | quote }}
+  numberOfInstances: {{ .Values.postgres.numberOfInstances }}
+  volume:
+    size: {{ .Values.postgres.volume.size }}
+    {{- with .Values.postgres.volume.storageClass }}
+    storageClass: {{ . }}
+    {{- end }}
+  {{- with .Values.postgres.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  users:
+    {{ .Values.postgres.user }}: []
+  databases:
+    {{ .Values.postgres.dbName }}: {{ .Values.postgres.user }}
+  postgresql:
+    version: {{ .Values.postgres.version | toString | quote }}
+{{- end }}

@@ -1,0 +1,149 @@
+nameOverride: ""
+fullnameOverride: ""
+
+network: ""
+
+hosts:
+  ui: ""
+  indexer: ""
+
+exposure:
+  type: ingress
+  ingress:
+    className: ""
+    annotations: {}
+    tls: []
+  httpRoute:
+    annotations: {}
+    parentRefs: []
+
+ui:
+  enabled: true
+  replicas: 1
+  image:
+    repository: cardanofoundation/cip113-frontend
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+
+  opsEnabled: false
+
+  extraEnv: []
+
+  service:
+    port: 80
+  resources: {}
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    periodSeconds: 10
+    timeoutSeconds: 5
+
+indexer:
+  enabled: true
+  image:
+    repository: cardanofoundation/programmable-tokens-indexer
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+
+  maintenance: false
+
+  allowNoDeployment: null
+
+  modulesDisabled: null
+
+  rwaToken:
+    enabled: true
+    creationAudience: ""
+
+  kycExtended:
+    enabled: false
+
+  javaToolOptions: ""
+
+  extraEnv: []
+
+  service:
+    port: 80
+  resources: {}
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  startupProbe:
+    tcpSocket:
+      port: http
+    periodSeconds: 10
+    failureThreshold: 60
+  livenessProbe:
+    tcpSocket:
+      port: http
+    periodSeconds: 30
+    failureThreshold: 3
+
+cardano:
+  node:
+    host: ""
+    port: null
+
+store:
+  cardano:
+    syncStartSlot: ""
+    syncStartBlockHash: ""
+
+blockfrost:
+  existingSecret:
+    name: ""
+    key: BLOCKFROST_PROJECT_ID
+
+keri:
+  enabled: false
+  url: ""
+  bootUrl: ""
+  identifierName: ""
+  proofValidityDays: 30
+  schema:
+    institutionalSaid: ENPXp1vQzRF6JwIuS-mp2U8Uf1MoADoP_GqQ62VsDZWY
+    vleiSaid: ENPXp1vQzRF6JwIuS-mp2U8Uf1MoADoP_GqQ62VsDZWY
+  secret:
+    name: ""
+    branKey: bran
+    signingMnemonicKey: signing-mnemonic
+
+postgres:
+  create: true
+  teamId: e1
+  clusterName: ""
+  version: "15"
+  numberOfInstances: 1
+  volume:
+    size: 256Gi
+    storageClass: ""
+  resources: {}
+  dbName: programmable_tokens
+  user: cardano
+  schema: public
+  host: ""
+  port: 5432
+  secret:
+    name: ""
+    usernameKey: username
+    passwordKey: password

@@ -1,0 +1,196 @@
+{{- if .Values.indexer.enabled }}
+{{- $sel := dict "ctx" $ "component" "indexer" }}
+{{- $pgSecret := include "cfpt.postgres.secretName" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cfpt.indexer.fullname" . }}
+  labels:
+    {{- include "cfpt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: indexer
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "cfpt.selectorLabels" $sel | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "cfpt.labels" . | nindent 8 }}
+        app.kubernetes.io/component: indexer
+      {{- with .Values.indexer.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.indexer.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: indexer
+          image: {{ include "cfpt.image" (dict "image" .Values.indexer.image) }}
+          imagePullPolicy: {{ .Values.indexer.image.pullPolicy }}
+          {{- if .Values.indexer.maintenance }}
+          command: ["sh", "-c", "sleep infinity"]
+          {{- end }}
+          {{- with .Values.indexer.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Values.network | quote }}
+            {{- with .Values.indexer.javaToolOptions }}
+            - name: JAVA_TOOL_OPTIONS
+              value: {{ . | quote }}
+            {{- end }}
+
+            - name: POSTGRES_HOST
+              value: {{ include "cfpt.postgres.host" . | quote }}
+            - name: POSTGRES_PORT
+              value: {{ .Values.postgres.port | toString | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.dbName | quote }}
+            - name: DB_SCHEMA
+              value: {{ .Values.postgres.schema | quote }}
+            - name: DB_URL
+              value: "jdbc:postgresql://$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?currentSchema=$(DB_SCHEMA)"
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $pgSecret }}
+                  key: {{ .Values.postgres.secret.usernameKey }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $pgSecret }}
+                  key: {{ .Values.postgres.secret.passwordKey }}
+
+            - name: BLOCKFROST_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.blockfrost.existingSecret.name }}
+                  key: {{ .Values.blockfrost.existingSecret.key }}
+
+            {{- with .Values.cardano.node.host }}
+            - name: STORE_CARDANO_HOST
+              value: {{ . | quote }}
+            {{- end }}
+            {{- if not (kindIs "invalid" .Values.cardano.node.port) }}
+            - name: STORE_CARDANO_PORT
+              value: {{ .Values.cardano.node.port | toString | quote }}
+            {{- end }}
+            {{- with .Values.store.cardano.syncStartSlot }}
+            - name: STORE_SYNC_START_SLOT
+              value: {{ . | toString | quote }}
+            - name: STORE_CARDANO_SYNC_START_SLOT
+              value: {{ . | toString | quote }}
+            {{- end }}
+            {{- with .Values.store.cardano.syncStartBlockHash }}
+            - name: STORE_SYNC_START_BLOCKHASH
+              value: {{ . | quote }}
+            - name: STORE_CARDANO_SYNC_START_BLOCKHASH
+              value: {{ . | quote }}
+            {{- end }}
+            - name: STORE_CONTINUE_ON_PARSE_ERROR
+              value: "true"
+
+            {{- if not (kindIs "invalid" .Values.indexer.allowNoDeployment) }}
+            - name: CIP113_ALLOW_NO_DEPLOYMENT
+              value: {{ .Values.indexer.allowNoDeployment | toString | quote }}
+            {{- end }}
+            {{- if not (kindIs "invalid" .Values.indexer.modulesDisabled) }}
+            - name: MODULES_DISABLED
+              value: {{ .Values.indexer.modulesDisabled | quote }}
+            {{- end }}
+
+            - name: RWATOKEN_ENABLED
+              value: {{ .Values.indexer.rwaToken.enabled | toString | quote }}
+            {{- if .Values.indexer.rwaToken.enabled }}
+            - name: RWA_TOKEN_CREATION_AUDIENCE
+              value: {{ include "cfpt.rwaAudience" . | quote }}
+            {{- end }}
+
+            - name: KYC_EXTENDED_ENABLED
+              value: {{ .Values.indexer.kycExtended.enabled | toString | quote }}
+
+            - name: KERI_ENABLED
+              value: {{ .Values.keri.enabled | toString | quote }}
+            {{- if .Values.keri.enabled }}
+            - name: KERI_URL
+              value: {{ .Values.keri.url | quote }}
+            - name: KERI_BOOT_URL
+              value: {{ .Values.keri.bootUrl | quote }}
+            {{- with .Values.keri.identifierName }}
+            - name: KERI_IDENTIFIER_NAME
+              value: {{ . | quote }}
+            {{- end }}
+            - name: KERI_PROOF_VALIDITY_DAYS
+              value: {{ .Values.keri.proofValidityDays | toString | quote }}
+            - name: KERI_SCHEMA_INSTITUTIONAL_SAID
+              value: {{ .Values.keri.schema.institutionalSaid | quote }}
+            - name: KERI_SCHEMA_VLEI_SAID
+              value: {{ .Values.keri.schema.vleiSaid | quote }}
+            - name: KERI_BRAN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.keri.secret.name }}
+                  key: {{ .Values.keri.secret.branKey }}
+            - name: KERI_SIGNING_MNEMONIC
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.keri.secret.name }}
+                  key: {{ .Values.keri.secret.signingMnemonicKey }}
+            {{- end }}
+            {{- with .Values.indexer.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+          {{- if not .Values.indexer.maintenance }}
+          {{- with .Values.indexer.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.indexer.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- with .Values.indexer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.indexer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.indexer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.indexer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cfpt.indexer.fullname" . }}
+  labels:
+    {{- include "cfpt.labels" . | nindent 4 }}
+    app.kubernetes.io/component: indexer
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "cfpt.selectorLabels" $sel | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.indexer.service.port }}
+      targetPort: http
+{{- end }}

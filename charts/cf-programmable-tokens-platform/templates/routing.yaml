@@ -1,0 +1,76 @@
+{{- $routes := list }}
+{{- if and .Values.ui.enabled .Values.hosts.ui }}
+{{- $routes = append $routes (dict "name" (include "cfpt.ui.fullname" .) "host" .Values.hosts.ui "component" "ui" "port" .Values.ui.service.port) }}
+{{- end }}
+{{- if and .Values.indexer.enabled .Values.hosts.indexer }}
+{{- $routes = append $routes (dict "name" (include "cfpt.indexer.fullname" .) "host" .Values.hosts.indexer "component" "indexer" "port" .Values.indexer.service.port) }}
+{{- end }}
+
+{{- range $routes }}
+{{- if eq $.Values.exposure.type "ingress" }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .name }}
+  labels:
+    {{- include "cfpt.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ .component }}
+  {{- with $.Values.exposure.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $.Values.exposure.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- $host := .host }}
+  {{- $tls := list }}
+  {{- range $.Values.exposure.ingress.tls }}
+  {{- if has $host .hosts }}
+  {{- $tls = append $tls (dict "hosts" (list $host) "secretName" .secretName) }}
+  {{- end }}
+  {{- end }}
+  {{- with $tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .name }}
+                port:
+                  number: {{ .port }}
+{{- else if eq $.Values.exposure.type "httproute" }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .name }}
+  labels:
+    {{- include "cfpt.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ .component }}
+  {{- with $.Values.exposure.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- toYaml $.Values.exposure.httpRoute.parentRefs | nindent 4 }}
+  hostnames:
+    - {{ .host | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ .name }}
+          port: {{ .port }}
+{{- end }}
+{{- end }}
