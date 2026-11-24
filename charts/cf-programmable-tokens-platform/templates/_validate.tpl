@@ -1,8 +1,3 @@
-{{/*
-Render-time guards. Helm silently ignores unknown or misspelled keys, so every key that the
-POC chart used and this chart renamed is refused by name, as are the inputs whose absence
-would otherwise boot the backend on a committed default.
-*/}}
 {{- define "cfpt.validate" -}}
 {{- $v := .Values -}}
 
@@ -10,7 +5,6 @@ would otherwise boot the backend on a committed default.
 {{- fail (printf "network must be one of preview, preprod, mainnet (got %q)." (toString $v.network)) }}
 {{- end }}
 
-{{/* Keys from programmable-tokens-poc that moved. */}}
 {{- if hasKey $v "replicas" }}
 {{- fail "`replicas` is not a value of this chart. The indexer is a singleton by design (it can sign on-chain updates); use ui.replicas for the frontend." }}
 {{- end }}

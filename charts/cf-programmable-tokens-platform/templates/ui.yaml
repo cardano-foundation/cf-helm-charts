@@ -35,7 +35,6 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          # Runtime env only. NEXT_PUBLIC_* is baked into the image at build time; see values.yaml.
           env:
             {{- if .Values.ui.opsEnabled }}
             - name: OPS_ENABLED

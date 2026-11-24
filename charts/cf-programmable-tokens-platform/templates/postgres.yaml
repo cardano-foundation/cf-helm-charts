@@ -20,7 +20,6 @@ spec:
   {{- end }}
   users:
     {{ .Values.postgres.user }}: []
-  # Owned by the application role (needed on PG15+ for Flyway to create objects in public).
   databases:
     {{ .Values.postgres.dbName }}: {{ .Values.postgres.user }}
   postgresql:

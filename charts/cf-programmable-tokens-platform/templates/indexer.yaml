@@ -9,8 +9,6 @@ metadata:
     {{- include "cfpt.labels" . | nindent 4 }}
     app.kubernetes.io/component: indexer
 spec:
-  # Hardcoded, not a value: one signer, no idempotence key. Recreate so a rollout never
-  # overlaps two pods (and therefore a failed start is downtime, not a stalled rollout).
   replicas: 1
   strategy:
     type: Recreate
@@ -50,7 +48,6 @@ spec:
               value: {{ . | quote }}
             {{- end }}
 
-            # Database
             - name: POSTGRES_HOST
               value: {{ include "cfpt.postgres.host" . | quote }}
             - name: POSTGRES_PORT
@@ -72,15 +69,12 @@ spec:
                   name: {{ $pgSecret }}
                   key: {{ .Values.postgres.secret.passwordKey }}
 
-            # Blockfrost (blockfrost.key)
             - name: BLOCKFROST_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.blockfrost.existingSecret.name }}
                   key: {{ .Values.blockfrost.existingSecret.key }}
 
-            # Yaci Store. Emitted only when set, so an unset value inherits the image's
-            # per-profile default instead of being overridden with "".
             {{- with .Values.cardano.node.host }}
             - name: STORE_CARDANO_HOST
               value: {{ . | quote }}
@@ -90,10 +84,6 @@ spec:
               value: {{ .Values.cardano.node.port | toString | quote }}
             {{- end }}
             {{- with .Values.store.cardano.syncStartSlot }}
-            # Both spellings, same value: STORE_SYNC_START_* is the placeholder the
-            # preview/preprod profiles read; the default (mainnet) profile has no
-            # placeholder and is reached only through relaxed binding of
-            # store.cardano.sync-start-*.
             - name: STORE_SYNC_START_SLOT
               value: {{ . | toString | quote }}
             - name: STORE_CARDANO_SYNC_START_SLOT
@@ -117,9 +107,6 @@ spec:
               value: {{ .Values.indexer.modulesDisabled | quote }}
             {{- end }}
 
-            # ONE name on purpose. RWATOKEN_ENABLED is the relaxed spelling of
-            # rwaToken.enabled and outranks the yaml placeholder SECURITY_TOKEN_ENABLED;
-            # rendering both would let one say "on" while the other turns it off.
             - name: RWATOKEN_ENABLED
               value: {{ .Values.indexer.rwaToken.enabled | toString | quote }}
             {{- if .Values.indexer.rwaToken.enabled }}
@@ -130,13 +117,11 @@ spec:
             - name: KYC_EXTENDED_ENABLED
               value: {{ .Values.indexer.kycExtended.enabled | toString | quote }}
 
-            # KERI
             - name: KERI_ENABLED
               value: {{ .Values.keri.enabled | toString | quote }}
             {{- if .Values.keri.enabled }}
             - name: KERI_URL
               value: {{ .Values.keri.url | quote }}
-            # KERI_BOOT_URL, not KERI_BOOTURL, for keri.booturl.
             - name: KERI_BOOT_URL
               value: {{ .Values.keri.bootUrl | quote }}
             {{- with .Values.keri.identifierName }}

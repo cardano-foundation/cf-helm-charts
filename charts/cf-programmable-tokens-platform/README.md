@@ -27,6 +27,18 @@ blockfrost:
   existingSecret: { name: programmable-tokens-blockfrost }  # key BLOCKFROST_PROJECT_ID
 ```
 
+Routing (`exposure.type`: `ingress` | `httproute` | `none`):
+
+```yaml
+exposure:
+  type: httproute
+  httpRoute:
+    parentRefs:
+      - { name: envoy, namespace: infra-system, sectionName: https }
+  # or ingress, with optional TLS:
+  # ingress: { className: nginx, tls: [{ secretName: pt-tls, hosts: [preprod.example.org] }] }
+```
+
 With `keri.enabled: true` also set `keri.url`, `keri.bootUrl` and `keri.secret.name`.
 That Secret must hold `bran` and `signing-mnemonic`.
 

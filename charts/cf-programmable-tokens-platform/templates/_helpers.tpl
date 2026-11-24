@@ -24,7 +24,6 @@ app.kubernetes.io/part-of: programmable-tokens
 cardano.org/network: {{ .Values.network | quote }}
 {{- end }}
 
-{{/* Selector labels for one component: pass (dict "ctx" $ "component" "ui") */}}
 {{- define "cfpt.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cfpt.name" .ctx }}
 app.kubernetes.io/instance: {{ .ctx.Release.Name }}
@@ -39,7 +38,6 @@ app.kubernetes.io/component: {{ .component }}
 {{- printf "%s-indexer" (include "cfpt.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{/* Zalando cluster name: must start with "<teamId>-". */}}
 {{- define "cfpt.postgres.cluster" -}}
 {{- printf "%s-%s" .Values.postgres.teamId (default (include "cfpt.fullname" .) .Values.postgres.clusterName) | trunc 63 | trimSuffix "-" }}
 {{- end }}
@@ -52,12 +50,10 @@ app.kubernetes.io/component: {{ .component }}
 {{- if .Values.postgres.secret.name }}{{ .Values.postgres.secret.name }}{{ else }}{{ printf "%s.%s.credentials.postgresql.acid.zalan.do" .Values.postgres.user (include "cfpt.postgres.cluster" .) }}{{ end }}
 {{- end }}
 
-{{/* RWA creation audience: explicit, else derived from the published indexer host. */}}
 {{- define "cfpt.rwaAudience" -}}
 {{- if .Values.indexer.rwaToken.creationAudience }}{{ .Values.indexer.rwaToken.creationAudience }}{{ else if .Values.hosts.indexer }}{{ printf "https://%s/api/v1" .Values.hosts.indexer }}{{ end }}
 {{- end }}
 
-{{/* image ref: digest wins over tag. Pass (dict "image" .Values.x.image "suffix" "-preview") */}}
 {{- define "cfpt.image" -}}
 {{- if .image.digest }}{{ printf "%s@%s" .image.repository .image.digest }}{{ else }}{{ printf "%s:%s%s" .image.repository .image.tag (default "" .suffix) }}{{ end }}
 {{- end }}
