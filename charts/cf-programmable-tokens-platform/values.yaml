@@ -1,0 +1,244 @@
+# CIP-113 programmable tokens platform.
+#
+# One release = one Cardano network. Run one release per namespace; resource names are
+# derived from the release (or fullnameOverride), so two releases in one namespace collide
+# only if they share a name.
+
+nameOverride: ""
+fullnameOverride: ""
+
+# REQUIRED. One of: preview, preprod, mainnet. Selects the backend Spring profile and the
+# frontend image variant (<ui.image.tag>-<network>). There is deliberately no default.
+network: ""
+
+# Public hostnames. Used for routing AND, for the indexer, to derive the RWA creation
+# audience (see indexer.rwaToken). Leave a host empty to publish no route for that component.
+hosts:
+  ui: ""
+  indexer: ""
+
+# How the hosts above are published.
+#   ingress   - networking.k8s.io/v1 Ingress (clusters with an Ingress controller)
+#   httproute - gateway.networking.k8s.io/v1 HTTPRoute (Gateway API, e.g. Envoy Gateway)
+#   none      - render no routing objects
+#
+# Turning routing off, or switching type, stops RENDERING the old objects. Under an Argo CD
+# application with prune: false they stay in the cluster; delete them by hand.
+exposure:
+  type: ingress
+  ingress:
+    className: ""
+    annotations: {}
+    # Optional. Empty = no tls block (e.g. TLS terminated upstream by a proxy/CDN).
+    # Example:
+    #   tls:
+    #     - secretName: programmable-tokens-tls
+    #       hosts: [example.org, api.example.org]
+    tls: []
+  httpRoute:
+    annotations: {}
+    # Required when type is httproute, e.g.:
+    #   parentRefs:
+    #     - name: public
+    #       namespace: infra-system
+    #       sectionName: http
+    parentRefs: []
+
+# ---------------------------------------------------------------------------------------
+# Frontend (Next.js)
+# ---------------------------------------------------------------------------------------
+ui:
+  enabled: true
+  replicas: 1
+  image:
+    repository: cardanofoundation/cip113-frontend
+    # The image is built once PER NETWORK; the chart appends "-<network>" to this tag.
+    tag: ""
+    # A digest names one network's build already and replaces the whole reference.
+    digest: ""
+    pullPolicy: IfNotPresent
+
+  # BAKED AT BUILD TIME - NOT SETTABLE HERE. Every NEXT_PUBLIC_* value (network, Blockfrost
+  # URL and key, API base URL, FLOW_* module flags) and ALLOW_NO_TRUSTED_DEPLOYMENT are
+  # inlined into the bundle by the image build. Setting them as pod env does nothing.
+  # Retargeting the frontend (e.g. a different indexer hostname) needs a REBUILD.
+  #
+  # READ AT RUNTIME:
+  # OPS_ENABLED gates /ops/* in middleware. Only true renders it; off answers /ops with a
+  # 404 rewrite, which is the correct "disabled" signal, not a broken deploy.
+  opsEnabled: false
+
+  # Extra runtime env (list of EnvVar). Only non-NEXT_PUBLIC_ server-side variables can work.
+  extraEnv: []
+
+  service:
+    port: 80
+  resources: {}
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    periodSeconds: 10
+    timeoutSeconds: 5
+
+# ---------------------------------------------------------------------------------------
+# Indexer / backend (Spring Boot + yaci-store)
+# ---------------------------------------------------------------------------------------
+# Runs as exactly ONE pod with strategy Recreate. With kycExtended enabled it signs and
+# submits on-chain root updates from keri.signing-mnemonic, and two replicas would race the
+# same state. Consequence: the old pod is gone before the new one starts, so a startup
+# failure is an outage, not a stalled rollout.
+indexer:
+  enabled: true
+  image:
+    repository: cardanofoundation/programmable-tokens-indexer
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+
+  # Replaces the entrypoint with `sleep infinity` (to exec in and inspect / repair the DB).
+  maintenance: false
+
+  # CIP113_ALLOW_NO_DEPLOYMENT. null = image default (false on preview/preprod profiles).
+  allowNoDeployment: null
+
+  # MODULES_DISABLED, comma separated. null = image default ("kyc,kyc-extended").
+  modulesDisabled: null
+
+  rwaToken:
+    enabled: true
+    # A SIGNED-REQUEST AUDIENCE, not a callback. The browser signs the audience baked into
+    # the frontend image (NEXT_PUBLIC_API_BASE_URL + /api/v1); the backend verifies against
+    # this value. They must match EXACTLY (scheme, host, no trailing slash) or every signed
+    # creation request is rejected with a signature that looks valid.
+    # Empty = https://<hosts.indexer>/api/v1.
+    creationAudience: ""
+
+  kycExtended:
+    # Upstream defaults to true, and true starts an autonomous job that SIGNS AND SUBMITS
+    # on-chain root updates with keri.signing-mnemonic. Always rendered explicitly.
+    enabled: false
+
+  # The entrypoint is exec-form `java -jar`, so JAVA_OPTS is never read. Use this instead;
+  # it renders JAVA_TOOL_OPTIONS, which the JVM reads itself. No memory figure has been
+  # measured for this service; measure during the initial sync (the peak) before setting
+  # limits. A pod OOMKilled without a Java OutOfMemoryError means NON-heap overran: lower
+  # MaxRAMPercentage rather than raising the limit.
+  # e.g. "-XX:MaxRAMPercentage=75"
+  javaToolOptions: ""
+
+  extraEnv: []
+
+  service:
+    port: 80
+  resources: {}
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+  # TCP only: the image has no actuator starter, and sync state has no "ready" endpoint.
+  # No readinessProbe on purpose - gating on sync would restart a sync forever.
+  # Green probes do NOT mean the indexer is progressing: an unreachable node is retried,
+  # not failed. The tell is a sync slot that stops moving in the logs.
+  startupProbe:
+    tcpSocket:
+      port: http
+    periodSeconds: 10
+    # 10 minutes for Flyway migrations on an empty database.
+    failureThreshold: 60
+  livenessProbe:
+    tcpSocket:
+      port: http
+    periodSeconds: 30
+    failureThreshold: 3
+
+# Cardano node (node-to-node) the indexer syncs from.
+# Empty host/port = the image's per-profile default.
+cardano:
+  node:
+    host: ""
+    port: null
+
+# Where yaci-store starts syncing. Both empty = the image's per-profile default.
+# Changing them after the first sync does nothing until the store's cursor is reset.
+store:
+  cardano:
+    syncStartSlot: ""
+    syncStartBlockHash: ""
+
+# Backend Blockfrost project id. Required: there is no plaintext value on purpose.
+# (The frontend's Blockfrost key is baked into its image, see ui.)
+blockfrost:
+  existingSecret:
+    name: ""
+    key: BLOCKFROST_PROJECT_ID
+
+keri:
+  # Always rendered explicitly: the backend defaults keri.enabled to true on every profile
+  # except preview, so saying nothing would mean "true".
+  enabled: false
+  url: ""
+  bootUrl: ""
+  # Opt-in. keri.identifier.registry-name is hardcoded upstream and paired with the
+  # identifier name; overriding one without the other points at a registry the identifier
+  # does not own. Empty = image default.
+  identifierName: ""
+  proofValidityDays: 30
+  schema:
+    institutionalSaid: ENPXp1vQzRF6JwIuS-mp2U8Uf1MoADoP_GqQ62VsDZWY
+    vleiSaid: ENPXp1vQzRF6JwIuS-mp2U8Uf1MoADoP_GqQ62VsDZWY
+  # KERI_BRAN and KERI_SIGNING_MNEMONIC are key material and come only from this Secret.
+  # Required when keri.enabled. Not optional in the pod spec: a missing Secret must fail
+  # loudly rather than fall through to the passcode committed in the public application.yaml.
+  secret:
+    name: ""
+    branKey: bran
+    signingMnemonicKey: signing-mnemonic
+
+# ---------------------------------------------------------------------------------------
+# Postgres
+# ---------------------------------------------------------------------------------------
+postgres:
+  # true = render a Zalando `postgresql` cluster (acid.zalan.do/v1); needs the operator.
+  # false = bring your own; set host and secret.name.
+  create: true
+  # Zalando requires the cluster name to start with "<teamId>-".
+  teamId: e1
+  # Cluster name suffix: <teamId>-<clusterName>. Empty = the chart fullname.
+  clusterName: ""
+  version: "15"
+  numberOfInstances: 1
+  volume:
+    # volumeClaimTemplates-style storage: growing it later depends on the storage class.
+    size: 256Gi
+    storageClass: ""
+  resources: {}
+  dbName: programmable_tokens
+  # The database OWNER role. Postgres 15 revoked CREATE on public from PUBLIC, so a role
+  # that does not own the database can log in but Flyway fails at the first migration.
+  user: cardano
+  schema: public
+  # Only used when create: false. Empty with create: true = the Zalando cluster service.
+  host: ""
+  port: 5432
+  secret:
+    # Empty with create: true = <user>.<cluster>.credentials.postgresql.acid.zalan.do
+    name: ""
+    usernameKey: username
+    passwordKey: password

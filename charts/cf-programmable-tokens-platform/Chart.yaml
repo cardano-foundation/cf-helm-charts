@@ -1,0 +1,8 @@
+apiVersion: v2
+name: cf-programmable-tokens-platform
+description: CIP-113 programmable tokens platform - Next.js frontend, Spring Boot indexer/backend and its Postgres (Zalando operator)
+type: application
+version: 0.1.0
+home: https://github.com/cardano-foundation/cip113-programmable-tokens-platform
+sources:
+  - https://github.com/cardano-foundation/cip113-programmable-tokens-platform
