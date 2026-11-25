@@ -1,0 +1,28 @@
+{{/*
+Prometheus ServiceMonitor for the Hermes telemetry endpoint.
+
+kube-prometheus-stack only scrapes monitors its Prometheus selects, and that
+selector defaults to `release: <Helm release name of the monitoring app>`
+(cf-eks-monitoring here - see hermes.monitoring.prometheusReleaseLabel).
+*/}}
+{{- if and .Values.hermes.enabled .Values.hermes.monitoring.enabled .Values.hermes.telemetry.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "hermes.fullname" . }}
+  labels:
+    release: {{ .Values.hermes.monitoring.prometheusReleaseLabel | default "cf-eks-monitoring" | quote }}
+    {{- include "hermes.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "hermes.selectorLabels" . | nindent 6 }}
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}
+  endpoints:
+    - port: telemetry
+      path: {{ .Values.hermes.monitoring.path | default "/metrics" | quote }}
+      interval: {{ .Values.hermes.monitoring.interval | default "30s" | quote }}
+{{- end }}

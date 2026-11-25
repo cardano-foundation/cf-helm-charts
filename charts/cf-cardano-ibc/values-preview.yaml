@@ -1,0 +1,66 @@
+cf-cardano-node:
+  network: preview
+  protocolMagic: 2
+cf-ogmios:
+  network: preview
+cf-kupo:
+  source: ogmios
+  cardanoNode:
+    network: preview
+    networkMagic: 2
+  since: origin
+  match: "*"
+yaci-store:
+  enabled: true
+  cardanoNode:
+    networkMagic: 2
+  syncStartSlot: "128390462"
+  syncStartBlockHash: 3a64ad644eb0d60a358280e8c2de765f177b9818610d0df947a9f1fd097194bf
+  syncStartBlockNo: "4870744"
+
+gateway:
+  enabled: true
+  grpcTls:
+    existingSecret: gateway-grpc-tls
+  deploymentConfig:
+    path: /usr/src/app/manifests/preview/cardano-preview-bridge-manifest.json
+  env:
+    CARDANO_CHAIN_ID: cardano-preview
+    CARDANO_NETWORK_MAGIC: "2"
+    CARDANO_CHAIN_NETWORK_MAGIC: "2"
+    CARDANO_RANDOMNESS_STABILISATION_WINDOW_SLOTS: "34560"
+    CARDANO_STABILITY_CHECKPOINT_MAX_BRIDGE_BLOCKS: "32"
+    MITHRIL_ENDPOINT: https://aggregator.pre-release-preview.api.mithril.network/aggregator
+    OGMIOS_REQUEST_TIMEOUT_MS: "60000"
+    GATEWAY_READINESS_PROOF_TIMEOUT_MS: "120000"
+  blockfrostProjectIdSecret:
+    name: gateway-secrets
+
+hermes:
+  enabled: true
+  replicas: 0
+  config:
+    cardano:
+      chainId: cardano-preview
+      signingKupoUrl: https://kupo.preview.colo2.cf-systems.org
+      signingOgmiosUrl: https://ogmios.preview.colo2.cf-systems.org
+      packetExecutorConcurrency: 4
+      packetFilter:
+        policy: allow
+        list:
+          - [transfer, channel-0]
+    injective:
+      maxGas: "75000000"
+      packetFilter:
+        policy: allow
+        list:
+          - [transfer, channel-77176]
+
+dapps:
+  enabled: true
+  explorer:
+    enabled: false
+
+global:
+  cardanoNetwork: preview
+  protocolMagic: 2

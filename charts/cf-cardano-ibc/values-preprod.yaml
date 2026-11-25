@@ -1,0 +1,45 @@
+cf-cardano-node:
+  network: preprod
+  protocolMagic: 1
+
+cf-ogmios:
+  network: preprod
+
+cf-kupo:
+  source: ogmios
+  cardanoNode:
+    network: preprod
+    networkMagic: 1
+  since: origin
+  match: "*"
+
+yaci-store:
+  enabled: true
+  cardanoNode:
+    networkMagic: 1
+  syncStartSlot: 0
+  syncStartBlockHash: ""
+  syncStartBlockNo: 0
+
+gateway:
+  env:
+    MITHRIL_ENDPOINT: https://aggregator.release-preprod.api.mithril.network/aggregator
+
+hermes:
+  enabled: false
+
+dapps:
+  enabled: false
+
+global:
+  postgres:
+    enabled: true
+    namespace: zpg-system
+    teamId: cardano-ibc
+    additionalEnv:
+      - name: WAL_S3_BUCKET
+        value: ""
+  gatewayDb:
+    secretName: gateway-owner-user.cardano-ibc-pg.credentials.postgresql.acid.zalan.do
+  yaciDb:
+    secretName: yaci-owner-user.cardano-ibc-pg.credentials.postgresql.acid.zalan.do

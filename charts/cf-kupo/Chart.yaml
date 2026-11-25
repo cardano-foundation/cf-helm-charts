@@ -1,0 +1,15 @@
+apiVersion: v2
+name: cf-kupo
+description: Kupo — fast, configurable Cardano chain index. Defaults to connecting via Ogmios (--ogmios-host); can alternatively attach to a cardano-node n2c socket over socat.
+type: application
+version: 0.1.0
+appVersion: "v2.9.0"
+keywords:
+  - cardano
+  - kupo
+  - indexer
+  - blockchain
+home: https://github.com/cardano-foundation/cardano-ibc-incubator
+maintainers:
+  - name: Cardano Foundation
+    url: https://cardanofoundation.org

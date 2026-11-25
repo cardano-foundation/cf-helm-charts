@@ -1,0 +1,15 @@
+apiVersion: v2
+name: cf-yaci-store
+description: Yaci Store historical block and witness backend for Cardano applications. Chain-follows a cardano-node over n2n TCP and stores indexed data in PostgreSQL.
+type: application
+version: 0.1.0
+appVersion: "2.0.2.1"
+keywords:
+  - cardano
+  - yaci
+  - indexer
+  - blockchain
+home: https://github.com/bloxbean/yaci-store
+maintainers:
+  - name: Cardano Foundation
+    url: https://cardanofoundation.org
