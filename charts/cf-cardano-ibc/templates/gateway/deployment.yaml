@@ -139,11 +139,11 @@ spec:
             timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: /health/ready
+              path: /health
               port: {{ .Values.gateway.restPort }}
             initialDelaySeconds: 10
             periodSeconds: 30
-            timeoutSeconds: {{ include "gateway.readinessHttpTimeoutSeconds" . }}
+            timeoutSeconds: 10
           livenessProbe:
             httpGet:
               path: /health

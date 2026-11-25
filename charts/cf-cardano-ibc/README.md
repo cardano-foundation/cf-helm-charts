@@ -74,12 +74,16 @@ init container. Hermes never fetches its signing manifest from Gateway RPC.
    is using those keys. A manifest cutover does not repair old clients or
    rotate keys.
 
-`gateway.env.GATEWAY_READINESS_PROOF_TIMEOUT_MS` sets the proof budget. The
-Kubernetes readiness probe and Hermes init wait both allow that budget rounded
-up to seconds plus 15 seconds for other HTTP work (135 seconds in Preview).
-The proof acceptance policy is unchanged. The startup probe separately allows
-the Gateway's cold-history budget (`BRIDGE_HISTORY_SYNC_TIMEOUT_SECONDS`)
-plus margin so Kubernetes does not interrupt history replay early.
+Kubernetes readiness uses `/health` to check Gateway Postgres and Yaci REST
+connectivity. A fresh HostState waiting for proof stability does not remove
+the Gateway from the Service.
+
+Hermes still waits for `/health/ready` at startup. That check uses
+`gateway.env.GATEWAY_READINESS_PROOF_TIMEOUT_MS` as its proof budget; the Hermes
+init container allows that budget rounded up to seconds plus 15 seconds for
+other HTTP work (135 seconds in Preview). Proof acceptance is unchanged.
+The Gateway startup probe separately allows the cold-history budget
+(`BRIDGE_HISTORY_SYNC_TIMEOUT_SECONDS`) plus margin.
 
 ## Gateway gRPC TLS
 
