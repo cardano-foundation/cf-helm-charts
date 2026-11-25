@@ -29,12 +29,29 @@ app.kubernetes.io/component: hermes
 {{- end }}
 
 {{- define "hermes.image" -}}
-{{- $tag := .Values.hermes.image.tag | default .Chart.AppVersion -}}
-{{- printf "%s:%s" .Values.hermes.image.repository $tag }}
+{{- include "cf-cardano-ibc.image" .Values.hermes.image -}}
 {{- end }}
 
 {{- define "hermes.gatewayUrl" -}}
-{{- .Values.hermes.config.cardano.gatewayUrl | default (printf "http://%s:5001" (include "gateway.fullname" .)) -}}
+{{- if .Values.hermes.config.cardano.gatewayUrl -}}
+{{- if not (hasPrefix "https://" .Values.hermes.config.cardano.gatewayUrl) -}}
+{{- fail "hermes.config.cardano.gatewayUrl must use HTTPS" -}}
+{{- end -}}
+{{- .Values.hermes.config.cardano.gatewayUrl -}}
+{{- else -}}
+{{- if not .Values.gateway.grpcTls.existingSecret -}}
+{{- fail "set gateway.grpcTls.existingSecret to connect Hermes to the Gateway Service" -}}
+{{- end -}}
+{{- printf "https://%s:%v" (include "gateway.fullname" .) .Values.gateway.grpcPort -}}
+{{- end -}}
+{{- end }}
+
+{{- define "hermes.packetFilter" -}}
+[chains.packet_filter]
+policy = {{ .policy | quote }}
+{{- if hasKey . "list" }}
+list = {{ .list | toJson }}
+{{- end }}
 {{- end }}
 
 {{- define "hermes.injectiveRpcAddr" -}}

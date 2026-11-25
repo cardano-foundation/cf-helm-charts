@@ -24,33 +24,27 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "gateway.image" -}}
-{{- $tag := .Values.gateway.image.tag | default .Chart.AppVersion -}}
-{{- printf "%s:%s" .Values.gateway.image.repository $tag }}
+{{- include "cf-cardano-ibc.image" .Values.gateway.image -}}
 {{- end }}
 
-{{- define "gateway.deploymentConfigSource" -}}
-{{- .Values.gateway.deploymentConfig.source | default "" -}}
-{{- end }}
-
-{{- define "gateway.deploymentConfigFileName" -}}
-{{- if .Values.gateway.deploymentConfig.fileName -}}{{- .Values.gateway.deploymentConfig.fileName -}}
-{{- else if eq (include "gateway.deploymentConfigSource" .) "bridgeManifest" -}}{{- "bridge-manifest.json" -}}
-{{- else -}}{{- "handler.json" -}}
+{{- define "gateway.readinessHttpTimeoutSeconds" -}}
+{{- $ms := .Values.gateway.env.GATEWAY_READINESS_PROOF_TIMEOUT_MS | toString -}}
+{{- if or (not (regexMatch "^[1-9][0-9]{0,5}$" $ms)) (gt (atoi $ms) 300000) -}}
+{{- fail "gateway.env.GATEWAY_READINESS_PROOF_TIMEOUT_MS must be an integer between 1 and 300000" -}}
 {{- end -}}
+{{- add (div (add (atoi $ms) 999) 1000) 15 -}}
+{{- end }}
+
+{{- define "gateway.deploymentConfigMountedPath" -}}
+{{- printf "%s/%s" .Values.gateway.deploymentConfig.mountPath .Values.gateway.deploymentConfig.fileName -}}
 {{- end }}
 
 {{- define "gateway.deploymentConfigPath" -}}
-{{- if or .Values.gateway.deploymentConfig.configMap.name .Values.gateway.deploymentConfig.configMap.content -}}
-{{- printf "%s/%s" (.Values.gateway.deploymentConfig.mountPath | default "/etc/cardano-ibc") (include "gateway.deploymentConfigFileName" .) -}}
-{{- else if .Values.gateway.deploymentConfig.path -}}{{- .Values.gateway.deploymentConfig.path -}}
-{{- else -}}{{- printf "%s/%s" (.Values.gateway.deploymentConfig.mountPath | default "/etc/cardano-ibc") (include "gateway.deploymentConfigFileName" .) -}}
-{{- end -}}
+{{- .Values.gateway.deploymentConfig.path | default (include "gateway.deploymentConfigMountedPath" .) -}}
 {{- end }}
 
 {{- define "gateway.deploymentConfigKey" -}}
-{{- if .Values.gateway.deploymentConfig.configMap.key -}}{{- .Values.gateway.deploymentConfig.configMap.key -}}
-{{- else -}}{{- include "gateway.deploymentConfigFileName" . -}}
-{{- end -}}
+{{- .Values.gateway.deploymentConfig.configMap.key | default .Values.gateway.deploymentConfig.fileName -}}
 {{- end }}
 
 {{- define "gateway.deploymentConfigConfigMapName" -}}
@@ -60,11 +54,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "gateway.deploymentConfigVolumeEnabled" -}}
-{{- if and (include "gateway.deploymentConfigSource" .) (or .Values.gateway.deploymentConfig.configMap.name .Values.gateway.deploymentConfig.configMap.content) -}}true{{- end -}}
+{{- if not .Values.gateway.deploymentConfig.path -}}true{{- end -}}
 {{- end }}
 
 {{- define "gateway.deploymentConfigInlineConfigMapEnabled" -}}
-{{- if and (include "gateway.deploymentConfigSource" .) .Values.gateway.deploymentConfig.configMap.content -}}true{{- end -}}
+{{- if and (include "gateway.deploymentConfigVolumeEnabled" .) .Values.gateway.deploymentConfig.configMap.content -}}true{{- end -}}
 {{- end }}
 
 {{- define "gateway.kupoHost" -}}
@@ -100,12 +94,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 {{- end }}
 
-{{- define "gateway.cardanoNodeHost" -}}
-{{- if and .Values.global (index .Values.global "cardanoNodeSocatHost") }}{{- index .Values.global "cardanoNodeSocatHost" -}}
-{{- else }}{{- .Values.gateway.env.CARDANO_CHAIN_HOST -}}
-{{- end }}
-{{- end }}
-
 {{- define "gateway.gatewayDbHost" -}}
 {{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "host") }}{{- (index .Values.global "gatewayDb").host -}}
 {{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s.%s.svc.cluster.local" $pg.clusterName ($pg.namespace | default .Release.Namespace) -}}
@@ -119,30 +107,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 
-{{- define "gateway.yaciDbName" -}}
-{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "name") }}{{- (index .Values.global "yaciDb").name -}}
-{{- else }}{{- .Values.gateway.env.HISTORY_DB_NAME | default "yaci" -}}
-{{- end }}
-{{- end }}
-
-{{- define "gateway.yaciDbHost" -}}
-{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "host") }}{{- (index .Values.global "yaciDb").host -}}
-{{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s.%s.svc.cluster.local" $pg.clusterName ($pg.namespace | default .Release.Namespace) -}}
-{{- else }}{{- .Values.gateway.env.HISTORY_DB_HOST | default "yaci-store-postgres" -}}
-{{- end }}
-{{- end }}
-
 {{- define "gateway.gatewayDbSecretName" -}}
 {{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "secretName") }}{{- (index .Values.global "gatewayDb").secretName -}}
 {{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s-owner-user.%s.credentials.postgresql.acid.zalan.do" (include "gateway.gatewayDbName" .) $pg.clusterName -}}
 {{- else }}{{- "gateway-pg-credentials" -}}
-{{- end }}
-{{- end }}
-
-{{- define "gateway.yaciDbSecretName" -}}
-{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "secretName") }}{{- (index .Values.global "yaciDb").secretName -}}
-{{- else if and .Values.global (index .Values.global "postgres") }}{{- $pg := index .Values.global "postgres" -}}{{- printf "%s-owner-user.%s.credentials.postgresql.acid.zalan.do" (include "gateway.yaciDbName" .) $pg.clusterName -}}
-{{- else }}{{- "yaci-pg-credentials" -}}
 {{- end }}
 {{- end }}
 
@@ -154,18 +122,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "gateway.gatewayDbSecretPasswordKey" -}}
 {{- if and .Values.global (index .Values.global "gatewayDb") (index .Values.global "gatewayDb" "secretPasswordKey") }}{{- (index .Values.global "gatewayDb").secretPasswordKey -}}
-{{- else }}{{- "password" -}}
-{{- end }}
-{{- end }}
-
-{{- define "gateway.yaciDbSecretUsernameKey" -}}
-{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "secretUsernameKey") }}{{- (index .Values.global "yaciDb").secretUsernameKey -}}
-{{- else }}{{- "username" -}}
-{{- end }}
-{{- end }}
-
-{{- define "gateway.yaciDbSecretPasswordKey" -}}
-{{- if and .Values.global (index .Values.global "yaciDb") (index .Values.global "yaciDb" "secretPasswordKey") }}{{- (index .Values.global "yaciDb").secretPasswordKey -}}
 {{- else }}{{- "password" -}}
 {{- end }}
 {{- end }}

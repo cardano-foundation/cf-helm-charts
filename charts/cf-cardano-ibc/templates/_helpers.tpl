@@ -18,6 +18,11 @@
 {{- printf "%s-gateway" .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{- define "cf-cardano-ibc.image" -}}
+{{- printf "%s:%s" .repository .tag -}}
+{{- with .digest }}@{{ . }}{{- end -}}
+{{- end }}
+
 {{/* Common labels for the umbrella chart's own templates (postgres CRD). */}}
 {{- define "cf-cardano-ibc.labels" -}}
 helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}

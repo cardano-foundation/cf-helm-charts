@@ -1,4 +1,4 @@
-{{- if .Values.dapps.swapClient.enabled }}
+{{- if and .Values.dapps.enabled .Values.dapps.swapClient.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,7 +24,7 @@ spec:
       {{- end }}
       containers:
         - name: swap-client
-          image: {{ printf "%s:%s" .Values.dapps.swapClient.image.repository (.Values.dapps.swapClient.image.tag | default "latest") | quote }}
+          image: {{ include "cf-cardano-ibc.image" .Values.dapps.swapClient.image | quote }}
           imagePullPolicy: {{ .Values.dapps.swapClient.image.pullPolicy }}
           env:
             - name: BASE_PATH
@@ -47,34 +47,22 @@ spec:
             - name: NEXT_PUBLIC_CARDANO_BRIDGE_MANIFEST_URL
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.dapps.swapClient.localOsmosisRpcEndpoint }}
-            - name: NEXT_PUBLIC_LOCALOSMOIS_RPC_ENDPOINT
+            {{- with .Values.dapps.swapClient.localCosmosRpcEndpoint }}
+            - name: NEXT_PUBLIC_LOCAL_COSMOS_RPC_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
-            {{- with .Values.dapps.swapClient.localOsmosisRestEndpoint }}
-            - name: NEXT_PUBLIC_LOCALOSMOIS_REST_ENDPOINT
-              value: {{ . | quote }}
-            {{- end }}
-            {{- with .Values.dapps.swapClient.blockfrostProjectId }}
-            - name: NEXT_PUBLIC_BLOCKFROST_PROJECT_ID
+            {{- with .Values.dapps.swapClient.localCosmosRestEndpoint }}
+            - name: NEXT_PUBLIC_LOCAL_COSMOS_REST_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
             - name: IBC_SWAP_KUPMIOS_URL
               value: {{ include "dapps.kupmiosUrl" . | quote }}
-            {{- with .Values.dapps.swapClient.publicKupmiosUrl }}
-            - name: NEXT_PUBLIC_KUPMIOS_URL
-              value: {{ . | quote }}
-            {{- end }}
             {{- with (include "dapps.injectiveRpcEndpoint" .) }}
             - name: NEXT_PUBLIC_INJECTIVE_RPC_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
             {{- with (include "dapps.injectiveRestEndpoint" .) }}
             - name: NEXT_PUBLIC_INJECTIVE_REST_ENDPOINT
-              value: {{ . | quote }}
-            {{- end }}
-            {{- with .Values.dapps.swapClient.crosschainSwapAddress }}
-            - name: NEXT_PUBLIC_CROSSCHAIN_SWAP_ADDRESS
               value: {{ . | quote }}
             {{- end }}
             - name: NEXT_PUBLIC_FORWARD_TIMEOUT

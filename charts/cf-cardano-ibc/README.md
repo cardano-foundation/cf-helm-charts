@@ -19,11 +19,11 @@ endpoint.
   chain-follows cardano-node over n2n (TCP 3001); `networkMagic` is passed as
   `STORE_CARDANO_PROTOCOL_MAGIC` so the image picks its bundled
   preprod/preview/mainnet genesis files; yaci DB is Postgres.
-- **gateway** (subchart) — two Deployments: `gateway-app` (REST 8000 / gRPC
-  5001) and `gateway-bridge-history-sync`; `.env` rendered from values.
-- **hermes** (subchart) — config.toml + keys via ConfigMap/Secret; points Cardano
-  at the in-cluster Gateway gRPC and Injective at an external RPC endpoint.
-- **dapps** (subchart, optional) — swap-client + explorer frontends.
+- **Gateway** — one Deployment (REST 8000 / gRPC 5001). Reads history from
+  Yaci Store's REST API; only Yaci Store connects to the history database.
+- **Hermes** — config.toml + keys via ConfigMap/Secret; uses in-cluster Gateway
+  gRPC over TLS and Injective's external RPC.
+- **dApps** (optional) — swap-client and explorer frontends.
 
 ## Blockfrost
 
@@ -47,48 +47,60 @@ is sent to Blockfrost in the `project_id` header. Do not use a Koios API key as
 a Blockfrost project ID; omit `blockfrostProjectIdSecret.name` until the named
 Secret contains the correct key.
 
-## Preview bridge cutover
+## Images and Preview cutover
 
-The dev Argo CD application supplies `ibc:` from
-`ecosystem-engineering-deployment/argocd/charts/main-app/values-dev.yaml`, not
-`values-preview.yaml`. For the October 8 Preview bridge, the inline Gateway
-ConfigMap is an exact copy of the authenticated IBC repository manifest
-(`cardano-preview:df48c007…`). Gateway reads the chart-rendered ConfigMap;
-the image's bundled manifest is **not** selected while inline content is
-present. `IBC_DEPLOYMENT_MODE=legacy` must agree with the manifest. Newer Hermes
-builds can optionally mount this manifest; the dev-pinned PR857 Hermes does not
-support `bridge_manifest_path` or independent signing endpoint fields.
+Gateway, Hermes and Swap are pinned by digest in `values.yaml`. These are the
+published linux/amd64 builds of [PR #1092's merge tree](https://github.com/cardano-foundation/cardano-ibc-incubator/actions/runs/45163033364)
+(`056c344`), identical to `main` at `1e7d67b2`. Update the tag and digest
+together when advancing the pin.
 
-Publish this chart's `feat/cf-ibc` changes **before** the dev Argo values change:
-older chart revisions ignore `hermes.replicas: 0` and would leave the relayer
-running with the old key. While replicas are zero, Argo syncs the Hermes scale
-down in wave -1 ahead of the new Gateway ConfigMap. Do not sync the new manifest
-with a running old signer. No Helm values change or local key export rotates the
-Kubernetes `hermes-keys` Secret.
+The dev Argo CD app uses `ibc:` from
+`ecosystem-engineering-deployment/argocd/charts/main-app/values-dev.yaml`.
+It and the standalone `values-preview.yaml` select the same governed Preview
+bridge and the existing `transfer/channel-0` ↔ `transfer/channel-77176` route.
+The manifest is too large for a ConfigMap. Gateway reads the manifest baked
+into its pinned image; Hermes copies the same file from that digest in an
+init container. Hermes never fetches its signing manifest from Gateway RPC.
 
-The existing Yaci intersection (block 4660299) is deliberately retained. It
-precedes the new manifest checkpoint (4735054); a newer Yaci start would risk
-losing history. Before resuming Hermes, check the **Gateway pod's actual**
-`HISTORY_DB` for checkpoint successor 4735055 linked to the manifest block hash,
-contiguous raw blocks/transaction CBOR through the new HostState mint, and
-matching `bridge_tx_evidence` for the creation and live HostState transactions.
-The history-sync cursor `complete-block-v2` persists independently of the
-manifest: if it has passed the new deployment with the old projection filter,
-a controlled projection replay may be required. Do not reset the DB or cursor
-without a backup and inspection. Require `/health/ready` to return 200 before
-resuming Hermes or routing transactions.
+1. Stop the previous Hermes instance before syncing the chart and dev values
+   together. Dev's cert-manager issues the gRPC TLS Secret. The incoming
+   Hermes Deployment is staged at zero replicas.
+2. Preserve the existing dev Yaci intersection (block 4754933) and database.
+   Verify that the Yaci REST API retains block/transaction CBOR from the
+   manifest checkpoint (4870744) and that asset and address history are available.
+3. Check Gateway returns HTTP 200 from `/health/ready`. Confirm that the
+   configured route is open, its clients are active, and `hermes-keys` holds
+   the intended funded keys. Set `hermes.replicas: 1` once no other instance
+   is using those keys. A manifest cutover does not repair old clients or
+   rotate keys.
 
-The dev Hermes Deployment remains at **zero replicas** until its Cardano key
-is rotated externally and Gateway is proof-ready. The pinned PR857 Hermes
-image accepts the in-cluster HTTP Gateway Service, but does not independently
-authorize Gateway-built transactions with a pinned manifest. Newer Hermes
-builds (after `f8780b26`) require an operator-pinned manifest and reject
-non-loopback plaintext Gateway, signing Kupo, and signing Ogmios connections;
-the Gateway's REST ingress is **not** a TLS gRPC endpoint. This chart does not
-validate endpoint URL schemes. If upgrading the signer, provision suitable
-authenticated transport and configure its pinned manifest and independent
-signing sources first. Keep `clientRefresh` off until a new Injective-side
-client is healthy.
+`gateway.env.GATEWAY_READINESS_PROOF_TIMEOUT_MS` sets the proof budget. The
+Kubernetes readiness probe and Hermes init wait both allow that budget rounded
+up to seconds plus 15 seconds for other HTTP work (135 seconds in Preview).
+The proof acceptance policy is unchanged. The startup probe separately allows
+the Gateway's cold-history budget (`BRIDGE_HISTORY_SYNC_TIMEOUT_SECONDS`)
+plus margin so Kubernetes does not interrupt history replay early.
+
+## Gateway gRPC TLS
+
+Set `gateway.grpcTls.existingSecret` to the TLS Secret name in the release
+namespace. Dev also sets `gateway.grpcTls.certManager.enabled: true`. With
+cert-manager installed, the chart bootstraps a namespaced private CA and
+issues a server certificate with the Gateway Service DNS name as its SAN
+(`cf-cardano-ibc-gateway` in dev). No public ACME issuer is needed.
+
+For externally managed TLS, leave chart issuance disabled and supply
+`tls.crt`, `tls.key` and `ca.crt` in the referenced Secret. Gateway mounts
+only the server certificate and key; Hermes mounts only the CA certificate.
+Restart Gateway after server certificate renewal, and restart Hermes if the
+CA changes. Plan CA rotation separately; cert-manager does not automatically
+reissue the server certificate when the CA Secret changes.
+
+The REST ingress does not serve gRPC. Keep the gRPC Service private and
+restrict it to trusted workloads. Without a TLS Secret, Gateway binds gRPC
+to loopback and the Service exposes only REST. A custom
+`hermes.config.cardano.gatewayUrl` must use HTTPS and, when set, uses native
+trust roots.
 
 ## Hermes keys
 
@@ -133,9 +145,9 @@ rotation requires restarting the Hermes Pod to recopy the new key files.
 
 ## Periodic client refresh
 
-The standard Hermes refresh worker is trusting-period based and is not frequent
-enough for the Injective-hosted Cardano probabilistic client. After creating a
-healthy route, enable the optional sidecar with that client's ID:
+Hermes' built-in refresh follows the client's trusting period. To schedule
+additional updates for a healthy route, enable the optional sidecar with
+the active Injective-side client's ID:
 
 ```yaml
 hermes:
@@ -145,7 +157,9 @@ hermes:
     intervalSeconds: 1200
 ```
 
-The sidecar mirrors the loop documented in `caribic/README.md`:
+Preview uses only Hermes' built-in client refresh; do not enable the sidecar
+for the old bridge's client. The optional loop is documented in
+`caribic/README.md`:
 
 ```bash
 while true; do
@@ -156,11 +170,9 @@ while true; do
 done
 ```
 
-It reads Cardano to construct the update but writes only to Injective. The main
-Hermes daemon independently provides HostState anchor points through
-`host_state_heartbeat_interval = '60s'`; the sidecar never updates a
-Cardano-hosted Tendermint client and never submits a Cardano transaction. A
-failed or already-current update simply waits until the next interval.
+It reads Cardano to construct the update but writes only to Injective. The sidecar never updates a Cardano-hosted Tendermint client and never
+submits a Cardano transaction. Automatic HostState heartbeats are disabled
+by default. A failed or already-current update waits until the next interval.
 
 The sidecar and main relayer share the Injective account, so transactions can
 occasionally race its account sequence. Keep the Hermes Deployment at one
@@ -180,20 +192,15 @@ The rendered Hermes packet and Cardano event-source settings follow caribic:
   `global.yaciDb`).
 - **Injective chain** — external RPC endpoints (`global.injective.*`); the chart
   does not run an `injectived` container.
-- **Smart-contract deployment** — `caribic deploy_preprod_bridge` produces
-  the bridge deployment config. The Gateway can start from either a compact
-  `bridge-manifest.json` (`BRIDGE_MANIFEST_PATH`) or legacy `handler.json`
-  (`HANDLER_JSON_PATH`). Configure this per deployment with
-  `gateway.deploymentConfig`; for custom deployments mount the file from an
-  operator-created ConfigMap (or inline chart-created ConfigMap).
+- **Smart-contract deployment** — the chart does not deploy contracts. The
+  pinned Gateway image does not include a current Preprod manifest. Before
+  installing `values-preprod.yaml`, supply a compatible governed manifest,
+  the matching Yaci intersection, and a Blockfrost project ID. Enable Hermes
+  only after configuring TLS and independent HTTPS signing endpoints.
 
-Example custom `handler.json` ConfigMap wiring:
-
-```yaml
-gateway:
-  deploymentConfig:
-    source: handlerJson
-    configMap:
-      name: cardano-ibc-handler
-      key: handler.json
-```
+Set `gateway.deploymentConfig.path` for a manifest in an operator-pinned
+image. For a file that fits in a ConfigMap, leave `path` empty and set
+`gateway.deploymentConfig.configMap.name` (existing ConfigMap) or
+`gateway.deploymentConfig.configMap.content` (chart-created ConfigMap).
+Gateway and Hermes use the same manifest file in either case. Legacy
+`handler.json` deployments are not supported.

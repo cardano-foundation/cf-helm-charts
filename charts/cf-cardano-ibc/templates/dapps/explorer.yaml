@@ -1,4 +1,4 @@
-{{- if .Values.dapps.explorer.enabled }}
+{{- if and .Values.dapps.enabled .Values.dapps.explorer.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

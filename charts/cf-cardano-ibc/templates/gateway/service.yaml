@@ -15,7 +15,9 @@ spec:
       port: {{ .Values.gateway.restPort }}
       targetPort: rest
       protocol: TCP
+    {{- if .Values.gateway.grpcTls.existingSecret }}
     - name: grpc
       port: {{ .Values.gateway.grpcPort }}
       targetPort: grpc
       protocol: TCP
+    {{- end }}

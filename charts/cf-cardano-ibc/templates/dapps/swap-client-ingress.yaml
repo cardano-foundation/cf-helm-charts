@@ -1,4 +1,4 @@
-{{- if and .Values.dapps.swapClient.enabled .Values.dapps.swapClient.ingress.enabled -}}
+{{- if and .Values.dapps.enabled .Values.dapps.swapClient.enabled .Values.dapps.swapClient.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

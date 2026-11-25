@@ -27,7 +27,7 @@
 {{- end }}
 
 {{- define "dapps.gatewayEndpoint" -}}
-{{- if .Values.dapps.swapClient.gatewayEndpoint -}}{{- .Values.dapps.swapClient.gatewayEndpoint -}}{{- else -}}http://{{ .Release.Name }}-gateway:8000{{- end -}}
+{{- .Values.dapps.swapClient.gatewayEndpoint | default (printf "http://%s:%v" (include "gateway.fullname" .) .Values.gateway.restPort) -}}
 {{- end }}
 
 {{- define "dapps.publicGatewayEndpoint" -}}

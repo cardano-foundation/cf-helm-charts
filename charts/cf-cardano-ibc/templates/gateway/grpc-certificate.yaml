@@ -1,0 +1,71 @@
+{{- if .Values.gateway.grpcTls.certManager.enabled -}}
+{{- $secret := required "gateway.grpcTls.existingSecret is required when cert-manager issuance is enabled" .Values.gateway.grpcTls.existingSecret -}}
+{{- $gateway := include "gateway.fullname" . -}}
+{{- $bootstrap := printf "%s-grpc-selfsigned" $gateway -}}
+{{- $ca := printf "%s-grpc-ca" $gateway -}}
+{{- if eq $secret $ca -}}
+{{- fail "gateway.grpcTls.existingSecret must differ from the CA Secret" -}}
+{{- end -}}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ $bootstrap | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $ca | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  secretName: {{ $ca | quote }}
+  commonName: {{ $ca | trunc 64 | quote }}
+  isCA: true
+  duration: 43800h
+  renewBefore: 8760h
+  privateKey:
+    rotationPolicy: Never
+  issuerRef:
+    name: {{ $bootstrap | quote }}
+    kind: Issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ $ca | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  ca:
+    secretName: {{ $ca | quote }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $secret | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  secretName: {{ $secret | quote }}
+  dnsNames:
+    - {{ $gateway | quote }}
+  duration: 2160h
+  renewBefore: 720h
+  privateKey:
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+  issuerRef:
+    name: {{ $ca | quote }}
+    kind: Issuer
+{{- end }}

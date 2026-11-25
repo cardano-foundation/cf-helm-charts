@@ -3,6 +3,9 @@
    Cardano preview -> Injective testnet, while bind hosts and Gateway discovery
    remain Kubernetes-specific. */}}
 {{- if .Values.hermes.enabled }}
+{{- if not (and (hasPrefix "https://" .Values.hermes.config.cardano.signingKupoUrl) (hasPrefix "https://" .Values.hermes.config.cardano.signingOgmiosUrl)) -}}
+{{- fail "Hermes requires independent HTTPS signingKupoUrl and signingOgmiosUrl endpoints" -}}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -56,20 +59,17 @@ data:
     [[chains]]
     type = 'Cardano'
     id = '{{ .Values.hermes.config.cardano.chainId }}'
-    gateway_url = '{{ include "hermes.gatewayUrl" . }}'
-    {{- with .Values.hermes.config.cardano.bridgeManifestPath }}
-    bridge_manifest_path = '{{ . }}'
+    gateway_url = {{ include "hermes.gatewayUrl" . | quote }}
+    {{- if not .Values.hermes.config.cardano.gatewayUrl }}
+    gateway_tls_ca_file = '/etc/cardano-ibc-grpc/ca.crt'
     {{- end }}
-    {{- with .Values.hermes.config.cardano.signingKupoUrl }}
-    signing_utxo_kupo_url = '{{ . }}'
-    {{- end }}
-    {{- with .Values.hermes.config.cardano.signingOgmiosUrl }}
-    signing_ogmios_url = '{{ . }}'
-    {{- end }}
+    bridge_manifest_path = {{ include "gateway.deploymentConfigMountedPath" . | quote }}
+    signing_utxo_kupo_url = {{ .Values.hermes.config.cardano.signingKupoUrl | quote }}
+    signing_ogmios_url = {{ .Values.hermes.config.cardano.signingOgmiosUrl | quote }}
     {{- with .Values.hermes.config.cardano.hostStateHeartbeatInterval }}
-    # Poll the Gateway for a per-epoch HostState anchor; see ae1382df.
     host_state_heartbeat_interval = '{{ . }}'
     {{- end }}
+    packet_executor_concurrency = {{ .Values.hermes.config.cardano.packetExecutorConcurrency }}
     network_id = {{ .Values.hermes.config.cardano.networkId }}
     key_name = '{{ .Values.hermes.config.cardano.keyName }}'
     {{- with .Values.hermes.config.cardano.keyStoreType }}
@@ -84,22 +84,15 @@ data:
     {{- with .Values.hermes.config.cardano.eventReplayWindow }}
     event_replay_window = {{ . }}
     {{- end }}
-    mithril_certification_timeout = '{{ .Values.hermes.config.cardano.mithrilCertificationTimeout }}'
-    mithril_poll_interval = '{{ .Values.hermes.config.cardano.mithrilPollInterval }}'
-    mithril_wait_log_interval = '{{ .Values.hermes.config.cardano.mithrilWaitLogInterval }}'
+    accepted_height_timeout = '{{ .Values.hermes.config.cardano.acceptedHeightTimeout }}'
+    accepted_height_poll_interval = '{{ .Values.hermes.config.cardano.acceptedHeightPollInterval }}'
+    accepted_height_wait_log_interval = '{{ .Values.hermes.config.cardano.acceptedHeightWaitLogInterval }}'
     trust_threshold = { numerator = '{{ .Values.hermes.config.cardano.trustThreshold.numerator }}', denominator = '{{ .Values.hermes.config.cardano.trustThreshold.denominator }}' }
 
-    [chains.packet_filter]
-    policy = '{{ .Values.hermes.config.cardano.packetFilter.policy }}'
-    list = [
-      {{- range .Values.hermes.config.cardano.packetFilter.list }}
-      {{- if kindIs "slice" . }}
-      ['{{ index . 0 }}', '{{ index . 1 }}'],
-      {{- else }}
-      ['{{ . }}'],
-      {{- end }}
-      {{- end }}
-    ]
+    {{- with .Values.hermes.config.cardano.packetFilter }}
+
+    {{- include "hermes.packetFilter" . | nindent 4 }}
+    {{- end }}
 
     [[chains]]
     type = 'CosmosSdk'
@@ -125,5 +118,9 @@ data:
     trust_threshold = { numerator = '{{ .Values.hermes.config.injective.trustThreshold.numerator }}', denominator = '{{ .Values.hermes.config.injective.trustThreshold.denominator }}' }
     {{- if .Values.hermes.config.injective.compatMode }}
     compat_mode = '{{ .Values.hermes.config.injective.compatMode }}'
+    {{- end }}
+    {{- with .Values.hermes.config.injective.packetFilter }}
+
+    {{- include "hermes.packetFilter" . | nindent 4 }}
     {{- end }}
 {{- end }}

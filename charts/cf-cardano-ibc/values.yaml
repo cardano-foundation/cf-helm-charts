@@ -6,12 +6,6 @@
 ## Injective is an external RPC endpoint.
 
 global:
-  ## Registry prefix for images built from the cardano-ibc-incubator repo
-  ## (gateway, hermes, swap-client, explorer). Third-party images (cardano-node,
-  ## ogmios, kupo, yaci-store, socat) use their own upstream registries.
-  imageRegistry: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry
-  ## imagePullSecrets for the private GitLab registry above (if required).
-  imagePullSecrets: []
   storageClass: ""
 
   ## Cardano network
@@ -95,7 +89,6 @@ global:
     secretName: ""                   # if empty, derived to <name>-owner-user.<cluster>.credentials.postgresql.acid.zalan.do
     secretUsernameKey: username
     secretPasswordKey: password
-    synchronize: "true"
   yaciDb:
     host: ""                         # if empty, derived from global.postgres.clusterName
     name: yaci
@@ -118,52 +111,49 @@ cf-kupo:
 
 yaci-store:
   enabled: true
+  image:
+    tag: "2.0.7"
+  store:
+    assetsEnabled: true
 
 gateway:
   enabled: true
   image:
     repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-gateway
-    tag: ""
+    tag: 2.0.2-PR1092-056c344
+    digest: sha256:31cc48135c1e707b41e49eed612429c5cc02a214d5c944af952ba834541ed138
     pullPolicy: IfNotPresent
   restPort: 8000
   grpcPort: 5001
-  historySync:
-    enabled: true
+  grpcTls:
+    existingSecret: ""
+    certManager:
+      enabled: false
   deploymentConfig:
-    source: bridgeManifest
-    path: /usr/src/app/manifests/preprod/cardano-preprod-bridge-manifest.json
+    path: ""
     mountPath: /etc/cardano-ibc
-    fileName: ""
+    fileName: bridge-manifest.json
     configMap:
       name: ""
       key: ""
       content: ""
   env:
-    PORT: "8000"
-    GRPC_HOST: "0.0.0.0"
-    GRPC_PORT: "5001"
     CARDANO_CHAIN_ID: cardano-preprod
     CARDANO_NETWORK_MAGIC: "1"
     CARDANO_CHAIN_NETWORK_MAGIC: "1"
-    CARDANO_LIGHT_CLIENT_MODE: stake-weighted-stability
-    CARDANO_EPOCH_NONCE_GENESIS: ""
+    CARDANO_RANDOMNESS_STABILISATION_WINDOW_SLOTS: "172800"
+    CARDANO_STABILITY_CHECKPOINT_MAX_BRIDGE_BLOCKS: "96"
     # Leave empty to use the hosted Blockfrost endpoint selected by network magic.
     CARDANO_BLOCKFROST_ENDPOINT: ""
-    CARDANO_BLOCKFROST_PROJECT_ID: ""
-    CARDANO_STABILITY_THRESHOLD_DEPTH: "10"
-    CARDANO_STABILITY_THRESHOLD_UNIQUE_POOLS: "2"
-    CARDANO_STABILITY_THRESHOLD_UNIQUE_STAKE_BPS: "6000"
-    CARDANO_STABILITY_ASSUME_POOL_REGISTRATION_SLOT: ""
-    CARDANO_PROBABILISTIC_EPOCH_NONCE_OVERRIDE: ""
+    MITHRIL_ENDPOINT: ""
     KUPO_ENDPOINT: ""
     OGMIOS_ENDPOINT: ""
     # Per-request timeout for Ogmios WebSocket RPCs; dev Preview needs 60s.
     OGMIOS_REQUEST_TIMEOUT_MS: "20000"
     YACI_STORE_ENDPOINT: ""
-    CARDANO_CHAIN_HOST: cardano-node
-    CARDANO_CHAIN_PORT: "3001"
+    GATEWAY_READINESS_PROOF_TIMEOUT_MS: "25000"
+    BRIDGE_HISTORY_SYNC_TIMEOUT_SECONDS: "7200"
     GATEWAY_DB_PORT: "5432"
-    HISTORY_DB_PORT: "5432"
     PGSSLMODE: no-verify
     GATEWAY_DB_SYNCHRONIZE: "true"
   resources: {}
@@ -177,7 +167,6 @@ gateway:
           - path: /
             pathType: Prefix
     tls: []
-  historySyncResources: {}
   blockfrostProjectIdSecret:
     name: ""
     key: blockfrostProjectId
@@ -191,12 +180,13 @@ gateway:
   imagePullSecrets: []
 
 hermes:
-  enabled: true
+  enabled: false
   # Keep the relayer stopped while changing bridge manifests or rotating its key.
   replicas: 1
   image:
     repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-hermes
-    tag: ""
+    tag: 1.13.2-PR1092-056c344
+    digest: sha256:46ed2eec77205989c6f937d1a6fca1d450c5436c85e10c7ecc6a25559f3042d8
     pullPolicy: IfNotPresent
   telemetry:
     enabled: true
@@ -233,13 +223,11 @@ hermes:
     cardano:
       chainId: cardano-preprod
       gatewayUrl: ""
-      # Optional for newer Hermes (after f8780b26): PR857 cannot parse these
-      # fields. The pinned manifest must be operator-controlled, not Gateway RPC.
-      bridgeManifestPath: ""
       # Independent signing Kupo/Ogmios sources require HTTPS off loopback.
       signingKupoUrl: ""
       signingOgmiosUrl: ""
-      hostStateHeartbeatInterval: "60s"
+      hostStateHeartbeatInterval: ""
+      packetExecutorConcurrency: 1
       networkId: 0
       keyName: cardano-relayer
       account: 0
@@ -248,9 +236,9 @@ hermes:
       clockDrift: 15m
       eventPollInterval: ""
       eventReplayWindow: ""
-      mithrilCertificationTimeout: 30m
-      mithrilPollInterval: 5s
-      mithrilWaitLogInterval: 30s
+      acceptedHeightTimeout: 30m
+      acceptedHeightPollInterval: 5s
+      acceptedHeightWaitLogInterval: 30s
       trustThreshold:
         numerator: "2"
         denominator: "3"
@@ -283,6 +271,7 @@ hermes:
         numerator: "1"
         denominator: "3"
       compatMode: ""
+      packetFilter: {}
   clientRefresh:
     enabled: false
     injectiveCardanoClientId: ""
@@ -311,7 +300,8 @@ dapps:
     enabled: true
     image:
       repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-swap-client
-      tag: ""
+      tag: 0.1.0-PR1092-056c344
+      digest: sha256:b83aff669323ed46e80fbab4ff422c015171defc6087a2261a2d389cae275eb2
       pullPolicy: IfNotPresent
     port: 3000
     basePath: ""
@@ -321,18 +311,15 @@ dapps:
     publicGatewayEndpoint: ""
     cardanoBridgeManifestUrl: ""
     publicCardanoBridgeManifestUrl: ""
-    localOsmosisRpcEndpoint: ""
-    localOsmosisRestEndpoint: ""
-    blockfrostProjectId: ""
+    localCosmosRpcEndpoint: ""
+    localCosmosRestEndpoint: ""
     kupoEndpoint: ""
     ogmiosEndpoint: ""
     kupmiosUrl: ""
-    publicKupmiosUrl: ""
     cardanoChainId: ""
     cardanoIbcChainId: ""
     injectiveRpcEndpoint: ""
     injectiveRestEndpoint: ""
-    crosschainSwapAddress: ""
     forwardTimeout: 60m
     enableMainnet: "false"
     allowedOrigins: ""
