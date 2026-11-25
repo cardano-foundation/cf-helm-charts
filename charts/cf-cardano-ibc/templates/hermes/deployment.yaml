@@ -17,9 +17,6 @@ metadata:
     {{- include "hermes.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.hermes.replicas }}
-  strategy:
-    type: Recreate
-    rollingUpdate: null
   selector:
     matchLabels:
       {{- include "hermes.selectorLabels" . | nindent 6 }}
