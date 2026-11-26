@@ -102,6 +102,28 @@ postgres:
   additionalEnv: []
   parameters: {}
   sidecars: []
+  ## Clone / point-in-time recovery for the operator-managed cluster. Renders
+  ## the clone section of the postgresql resource, so the data directory is
+  ## rebuilt from the WAL archive of another cluster instead of initdb.
+  ## Version must match the source cluster's major version. Requires WAL
+  ## archiving on the source (operator wal_s3_bucket) for a timestamp restore.
+  clone:
+    ## Source cluster name. For an in-place restore this is the cluster's own
+    ## name, after its postgresql resource has been deleted.
+    clusterName: ""
+    ## metadata.uid of the source cluster whose WAL archive is replayed.
+    uid: ""
+    ## Restore target, e.g. "2026-02-14T10:30:00+00:00". Needs uid. Without a
+    ## timestamp the operator clones live with pg_basebackup instead.
+    timestamp: ""
+    ## Only needed when the WAL archive lives outside the operator's global
+    ## wal_s3_bucket, or when the archive of a different environment has to be
+    ## read. s3WalPath switches the restore to the wal-e style prefix.
+    s3WalPath: ""
+    s3Endpoint: ""
+    s3AccessKeyId: ""
+    s3SecretAccessKey: ""
+    s3ForcePathStyle: null
 
 service:
   enabled: true

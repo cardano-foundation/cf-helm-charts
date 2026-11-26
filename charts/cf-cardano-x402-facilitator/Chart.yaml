@@ -2,7 +2,7 @@ apiVersion: v2
 name: cf-cardano-x402-facilitator
 description: Cardano x402 facilitator backed by a Zalando Postgres Operator cluster.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "0.0.1-pre1"
 keywords:
   - cardano

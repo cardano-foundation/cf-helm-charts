@@ -22,6 +22,41 @@ spec:
     storageClass: {{ . | quote }}
     {{- end }}
   numberOfInstances: {{ .Values.postgres.numberOfInstances }}
+  {{- $clone := default (dict) .Values.postgres.clone }}
+  {{- if or $clone.clusterName $clone.uid $clone.timestamp $clone.s3WalPath $clone.s3Endpoint }}
+  {{- if not $clone.clusterName }}
+  {{- fail "postgres.clone: clusterName is required" }}
+  {{- end }}
+  {{- if and $clone.timestamp (not $clone.uid) }}
+  {{- fail "postgres.clone: uid is required when timestamp is set" }}
+  {{- end }}
+  {{- if or (and $clone.s3AccessKeyId (not $clone.s3SecretAccessKey)) (and $clone.s3SecretAccessKey (not $clone.s3AccessKeyId)) }}
+  {{- fail "postgres.clone: s3AccessKeyId and s3SecretAccessKey must be set together" }}
+  {{- end }}
+  clone:
+    cluster: {{ $clone.clusterName | quote }}
+    {{- with $clone.uid }}
+    uid: {{ . | quote }}
+    {{- end }}
+    {{- with $clone.timestamp }}
+    timestamp: {{ . | quote }}
+    {{- end }}
+    {{- with $clone.s3WalPath }}
+    s3_wal_path: {{ . | quote }}
+    {{- end }}
+    {{- with $clone.s3Endpoint }}
+    s3_endpoint: {{ . | quote }}
+    {{- end }}
+    {{- with $clone.s3AccessKeyId }}
+    s3_access_key_id: {{ . | quote }}
+    {{- end }}
+    {{- with $clone.s3SecretAccessKey }}
+    s3_secret_access_key: {{ . | quote }}
+    {{- end }}
+    {{- if kindIs "bool" $clone.s3ForcePathStyle }}
+    s3_force_path_style: {{ $clone.s3ForcePathStyle }}
+    {{- end }}
+  {{- end }}
   enableConnectionPooler: {{ .Values.postgres.connectionPooler.enabled }}
   {{- with .Values.postgres.patroni }}
   patroni:
