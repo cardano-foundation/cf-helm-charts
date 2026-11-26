@@ -1,9 +1,6 @@
 {{- if .Values.hermes.enabled }}
 {{- $copyManifest := not (include "gateway.deploymentConfigVolumeEnabled" .) -}}
 {{- $tlsSecret := ternary "" .Values.gateway.grpcTls.existingSecret (not (empty .Values.hermes.config.cardano.gatewayUrl)) -}}
-{{- if and $copyManifest (not (regexMatch "^sha256:[0-9a-f]{64}$" (.Values.gateway.image.digest | default ""))) -}}
-{{- fail "set gateway.image.digest to pin the bridge manifest copied into Hermes" -}}
-{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

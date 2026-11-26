@@ -49,18 +49,19 @@ Secret contains the correct key.
 
 ## Images and Preview cutover
 
-Gateway, Hermes and Swap are pinned by digest in `values.yaml`. These are the
-published linux/amd64 builds of [PR #1092's merge tree](https://github.com/cardano-foundation/cardano-ibc-incubator/actions/runs/45163033364)
-(`056c344`), identical to `main` at `1e7d67b2`. Update the tag and digest
-together when advancing the pin.
+The default Gateway, Hermes and Swap tags in `values.yaml` are the published
+linux/amd64 builds of [PR #1092's merge tree](https://github.com/cardano-foundation/cardano-ibc-incubator/actions/runs/45163033364)
+(`056c344`), identical to `main` at `1e7d67b2`. Digests are optional. Use a
+unique, immutable tag when omitting a digest. If a digest is set, update it
+with the tag; the digest determines which image runs.
 
 The dev Argo CD app uses `ibc:` from
 `ecosystem-engineering-deployment/argocd/charts/main-app/values-dev.yaml`.
 It and the standalone `values-preview.yaml` select the same governed Preview
 bridge and the existing `transfer/channel-0` ↔ `transfer/channel-77176` route.
 The manifest is too large for a ConfigMap. Gateway reads the manifest baked
-into its pinned image; Hermes copies the same file from that digest in an
-init container. Hermes never fetches its signing manifest from Gateway RPC.
+into its image; a Hermes init container copies it using the same Gateway
+image reference. Hermes never fetches its signing manifest from Gateway RPC.
 
 1. Stop the previous Hermes instance before syncing the chart and dev values
    together. Dev's cert-manager issues the gRPC TLS Secret. The incoming
