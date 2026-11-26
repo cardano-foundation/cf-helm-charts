@@ -63,6 +63,16 @@ data:
     {{- if not .Values.hermes.config.cardano.gatewayUrl }}
     gateway_tls_ca_file = '/etc/cardano-ibc-grpc/ca.crt'
     {{- end }}
+
+    # Local signing-policy limits. Transactions outside these bounds are rejected.
+    max_tx_fee_lovelace = 5000000
+    max_total_collateral_lovelace = 10000000
+    max_tx_size_bytes = 65536
+    max_external_output_lovelace = 5000000
+    max_total_protocol_output_lovelace = 50000000
+    max_wallet_lovelace_top_up = 5000000
+    max_validity_interval_slots = 3600
+
     bridge_manifest_path = {{ include "gateway.deploymentConfigMountedPath" . | quote }}
     signing_utxo_kupo_url = {{ .Values.hermes.config.cardano.signingKupoUrl | quote }}
     signing_ogmios_url = {{ .Values.hermes.config.cardano.signingOgmiosUrl | quote }}

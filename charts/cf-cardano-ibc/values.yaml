@@ -121,7 +121,6 @@ gateway:
   image:
     repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-gateway
     tag: 2.0.2-PR1092-056c344
-    digest: sha256:31cc48135c1e707b41e49eed612429c5cc02a214d5c944af952ba834541ed138
     pullPolicy: IfNotPresent
   restPort: 8000
   grpcPort: 5001
@@ -186,7 +185,6 @@ hermes:
   image:
     repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-hermes
     tag: 1.13.2-PR1092-056c344
-    digest: sha256:46ed2eec77205989c6f937d1a6fca1d450c5436c85e10c7ecc6a25559f3042d8
     pullPolicy: IfNotPresent
   telemetry:
     enabled: true
@@ -227,7 +225,7 @@ hermes:
       signingKupoUrl: ""
       signingOgmiosUrl: ""
       hostStateHeartbeatInterval: ""
-      packetExecutorConcurrency: 1
+      packetExecutorConcurrency: 4
       networkId: 0
       keyName: cardano-relayer
       account: 0
@@ -301,7 +299,6 @@ dapps:
     image:
       repository: pro.registry.gitlab.metadata.dev.cf-deployments.org/base-infrastructure/docker-registry/cardano-ibc-swap-client
       tag: 0.1.0-PR1092-056c344
-      digest: sha256:b83aff669323ed46e80fbab4ff422c015171defc6087a2261a2d389cae275eb2
       pullPolicy: IfNotPresent
     port: 3000
     basePath: ""
