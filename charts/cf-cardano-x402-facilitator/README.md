@@ -135,6 +135,11 @@ postgres:
     timestamp: "2026-02-14T10:30:00+00:00"
 ```
 
+`timestamp` is RFC 3339 with an explicit UTC offset — `2026-02-14T10:30:00+00:00`,
+`Z` or `+0000` also parse, fractional seconds are accepted, and a value without
+an offset is rejected at render time because the restore script requires one.
+The timestamp is compared against commit times, and recovery stops just before it.
+
 Nothing else has to point at the bucket. The operator injects `WAL_S3_BUCKET`,
 `WAL_BUCKET_SCOPE_PREFIX` (empty) and `WAL_BUCKET_SCOPE_SUFFIX` (`/<uid>`) into
 every Postgres pod, and spilo composes the archive location from them plus the

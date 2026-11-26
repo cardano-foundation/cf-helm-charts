@@ -30,6 +30,14 @@ spec:
   {{- if and $clone.timestamp (not $clone.uid) }}
   {{- fail "postgres.clone: uid is required when timestamp is set" }}
   {{- end }}
+  {{- if $clone.timestamp }}
+  {{- if not (kindIs "string" $clone.timestamp) }}
+  {{- fail "postgres.clone: timestamp must be a quoted string, e.g. timestamp: \"2026-02-14T10:30:00+00:00\"" }}
+  {{- end }}
+  {{- if not (regexMatch "(Z|[+-][0-9]{2}:?[0-9]{2})$" $clone.timestamp) }}
+  {{- fail "postgres.clone: timestamp needs a UTC offset, e.g. 2026-02-14T10:30:00+00:00" }}
+  {{- end }}
+  {{- end }}
   {{- if or (and $clone.s3AccessKeyId (not $clone.s3SecretAccessKey)) (and $clone.s3SecretAccessKey (not $clone.s3AccessKeyId)) }}
   {{- fail "postgres.clone: s3AccessKeyId and s3SecretAccessKey must be set together" }}
   {{- end }}

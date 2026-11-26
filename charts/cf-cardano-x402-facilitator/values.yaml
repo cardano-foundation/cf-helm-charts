@@ -113,7 +113,9 @@ postgres:
     clusterName: ""
     ## metadata.uid of the source cluster whose WAL archive is replayed.
     uid: ""
-    ## Restore target, e.g. "2026-02-14T10:30:00+00:00". Needs uid. Without a
+    ## Restore target in RFC 3339 with an explicit UTC offset, quoted, e.g.
+    ## "2026-02-14T10:30:00+00:00" (fractional seconds accepted). Needs uid.
+    ## Unquoted YAML parses it as a date object instead of a string. Without a
     ## timestamp the operator clones live with pg_basebackup instead.
     timestamp: ""
     ## Only needed when the WAL archive lives outside the operator's global
